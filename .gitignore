@@ -2,14 +2,16 @@
 # Python
 __pycache__/
 *.pyc
-venv/
+.venv/
 .env
 
 # Node
 node_modules/
 dist/
+dist-ssr/
 .env.local
 
 # Varie
 .DS_Store
 .vscode/
+*.log
