@@ -1,121 +1,115 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { TOKEN_KEY, setSessionExpiredHandler } from './api/client'
+import AuthForm from './components/AuthForm'
+import AppLayout from './components/AppLayout'
+import ResearchLayout from './components/ResearchLayout'
+import ApiKeysPage from './pages/ApiKeysPage'
+import ConfermaEmailPage from './pages/ConfermaEmailPage'
+import DeduplicationPage from './pages/DeduplicationPage'
+import HistoryPage from './pages/HistoryPage'
+import HomePage from './pages/HomePage'
+import InvitePage from './pages/InvitePage'
+import MyInvitesPage from './pages/MyInvitesPage'
+import ProfilePage from './pages/ProfilePage'
+import OverviewPage from './pages/OverviewPage'
+import PublicSearchPage from './pages/PublicSearchPage'
+import QuickSearchPage from './pages/QuickSearchPage'
+import ResearchesPage from './pages/ResearchesPage'
+import ResearchSearchPage from './pages/ResearchSearchPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
+import SavedQueriesPage from './pages/SavedQueriesPage'
+import SessionDuplicatesPage from './pages/SessionDuplicatesPage'
+import SessionEnrichPage from './pages/SessionEnrichPage'
+import TeamPage from './pages/TeamPage'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
+  const [showAuth, setShowAuth] = useState(false)
+  const [sessionExpiredNotice, setSessionExpiredNotice] = useState('')
+
+  useEffect(() => {
+    setSessionExpiredHandler(() => {
+      localStorage.removeItem(TOKEN_KEY)
+      setToken(null)
+      setShowAuth(true)
+      setSessionExpiredNotice('Sessione scaduta: accedi di nuovo.')
+    })
+  }, [])
+
+  function handleAuthenticated(newToken) {
+    localStorage.setItem(TOKEN_KEY, newToken)
+    setToken(newToken)
+  }
+
+  function handleLogout() {
+    localStorage.removeItem(TOKEN_KEY)
+    setToken(null)
+    setShowAuth(false)
+    setSessionExpiredNotice('')
+  }
+
+  function goToLogin() {
+    setSessionExpiredNotice('')
+    setShowAuth(true)
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <Routes>
+        {/* Raggiungibile da chiunque apra il link ricevuto via email, anche
+            senza sessione attiva (o con una sessione attiva in un'altra
+            scheda): per questo sta fuori dal ramo autenticato sotto. */}
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/conferma-email" element={<ConfermaEmailPage />} />
+        <Route path="/inviti/accetta" element={<InvitePage />} />
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {!token ? (
+          <>
+            {/* Alternativa alla pagina di accesso: consultabile senza login,
+                come la ricerca rapida da autenticati ma senza possibilità di
+                salvare (nessuna Ricerca a cui appartenere). */}
+            <Route path="ricerca/articoli" element={<PublicSearchPage onLoginClick={goToLogin} />} />
+            {/* Indirizzo precedente, per i collegamenti già salvati. */}
+            <Route path="ricerca/paper" element={<Navigate to="/ricerca/articoli" replace />} />
+            <Route
+              path="*"
+              element={
+                showAuth ? (
+                  <AuthForm onAuthenticated={handleAuthenticated} initialNotice={sessionExpiredNotice} />
+                ) : (
+                  <HomePage onLoginClick={goToLogin} />
+                )
+              }
+            />
+          </>
+        ) : (
+          <Route element={<AppLayout onLogout={handleLogout} />}>
+            <Route index element={<Navigate to="/ricerche" replace />} />
+            <Route path="ricerche" element={<ResearchesPage />} />
+            <Route path="ricerche/:id" element={<ResearchLayout />}>
+              <Route index element={<Navigate to="overview" replace />} />
+              <Route path="overview" element={<OverviewPage />} />
+              <Route path="cerca" element={<ResearchSearchPage />} />
+              <Route path="query-salvate" element={<SavedQueriesPage />} />
+              <Route path="cronologia" element={<HistoryPage />} />
+              <Route path="deduplicazione" element={<DeduplicationPage />} />
+              <Route path="team" element={<TeamPage />} />
+              <Route path="sessione/duplicati" element={<SessionDuplicatesPage />} />
+              <Route path="sessione/arricchisci" element={<SessionEnrichPage />} />
+            </Route>
+            <Route path="profilo" element={<ProfilePage />} />
+            <Route path="profilo/api-keys" element={<ApiKeysPage />} />
+            <Route path="profilo/inviti" element={<MyInvitesPage />} />
+            <Route path="ricerca" element={<Navigate to="/ricerca/articoli" replace />} />
+            <Route path="ricerca/articoli" element={<QuickSearchPage />} />
+            {/* Indirizzo precedente, per i collegamenti già salvati. */}
+            <Route path="ricerca/paper" element={<Navigate to="/ricerca/articoli" replace />} />
+            <Route path="*" element={<Navigate to="/ricerche" replace />} />
+          </Route>
+        )}
+      </Routes>
+    </BrowserRouter>
   )
 }
 
