@@ -1,11 +1,16 @@
 import os
+from pathlib import Path
+
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
-from app.models import AddedArticle, User, Project, Article, Filter, Invite, Research
+from backend.app.schemas.models import AddedArticle, DuplicateGroup, User, Project, Article, Query, Invite, Research
 
-# Carica le variabili dal file .env
-load_dotenv()
+# Ancorato alla posizione del file, non alla working directory del processo:
+# `load_dotenv()` senza argomenti cerca risalendo da `os.getcwd()`, che con
+# `uvicorn --reload` (worker in un subprocesso separato) non trova più
+# `backend/.env` — la connessione ripiega silenziosamente su localhost:27017.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 MONGODB_URL = os.getenv("MONGODB_URL")
 
 async def init_db():
@@ -20,11 +25,11 @@ async def init_db():
         # Inizializza Beanie
         await init_beanie(
             database=client.PaperDex,
-            document_models=[User, Project, Article, Filter, Invite, Research, AddedArticle]
+            document_models=[User, Project, Article, Query, Invite, Research, AddedArticle, DuplicateGroup]
         )
 
     except Exception as e:
-        print(f"Errore durante la ocnnessione al database: {e}")
+        print(f"Errore durante la connessione al database: {e}")
 
         # TODO: Chiusura della connessione
         raise e
