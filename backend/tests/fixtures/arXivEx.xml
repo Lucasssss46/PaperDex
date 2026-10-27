@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/9QNkBRoC15kqnSqnaegxAUeNm+U</id>
+  <title>arXiv Query: search_query=all:AI&amp;id_list=&amp;start=0&amp;max_results=1</title>
+  <updated>2026-07-03T07:04:30Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=all:AI&amp;start=0&amp;max_results=1&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>1</opensearch:itemsPerPage>
+  <opensearch:totalResults>60764</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2603.28944v1</id>
+    <title>AI prediction leads people to forgo guaranteed rewards</title>
+    <updated>2026-03-30T19:36:10Z</updated>
+    <link href="https://arxiv.org/abs/2603.28944v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2603.28944v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Artificial intelligence (AI) is understood to affect the content of people's decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI can also change how people decide. In this paradigm, belief in predictive authority can lead individuals to constrain decision-making, forgoing a guaranteed reward. Over 40% of participants treated AI as such a predictive authority. This significantly increased the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) compared with random framing, and reduced earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and persisted even when predictions failed. When people believe AI can predict their behavior, they may self-constrain it in anticipation of that prediction.</summary>
+    <category term="cs.HC" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-03-30T19:36:10Z</published>
+    <arxiv:primary_category term="cs.HC"/>
+    <author>
+      <name>Aoi Naito</name>
+    </author>
+    <author>
+      <name>Hirokazu Shirado</name>
+    </author>
+  </entry>
+</feed>

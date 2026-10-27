@@ -1,0 +1,2415 @@
+{
+    "status": "ok",
+    "message-type": "work-list",
+    "message-version": "1.0.0",
+    "message": {
+        "facets": {},
+        "total-results": 519363,
+        "items": [
+            {
+                "indexed": {
+                    "date-parts": [
+                        [
+                            2026,
+                            5,
+                            15
+                        ]
+                    ],
+                    "date-time": "2026-05-15T16:50:15Z",
+                    "timestamp": 1778863815056,
+                    "version": "3.51.4"
+                },
+                "reference-count": 25,
+                "publisher": "Oxford University Press (OUP)",
+                "issue": "3",
+                "license": [
+                    {
+                        "start": {
+                            "date-parts": [
+                                [
+                                    2016,
+                                    11,
+                                    11
+                                ]
+                            ],
+                            "date-time": "2016-11-11T00:00:00Z",
+                            "timestamp": 1478822400000
+                        },
+                        "content-version": "vor",
+                        "delay-in-days": 680,
+                        "URL": "http:\/\/creativecommons.org\/licenses\/by-nc-nd\/4.0\/"
+                    }
+                ],
+                "funder": [
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases (NIAID)",
+                        "doi-asserted-by": "crossref",
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000002",
+                        "name": "National Institutes of Health",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "UM1 AI068634"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "UM1 AI068634"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000002",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000002",
+                        "name": "National Institutes of Health",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "UM1 AI068636"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "UM1 AI068636"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000002",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000002",
+                        "name": "National Institutes of Health",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "UM1 AI106701"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "UM1 AI106701"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000002",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "the AIDS Clinical Trials Group"
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "AI-068636"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-068636"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "AI-068608"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-068608"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "AI-038858"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-038858"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "AI-068634"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-068634"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "AI-038855"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-038855"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "AI-069439"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069439"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "TR-000445"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "TR-000445"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "AI-077505"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-077505"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "National Institute of Allergy and Infectious Diseases",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "A5128"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "A5128"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069477"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069477"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-027675"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-027675"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-073961"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-073961"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069474"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069474"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069432"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069432"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069513"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069513"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069423"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069423"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-050410"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-050410"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069452"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069452"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-69450"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-69450"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-054907"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-054907"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069428"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069428"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069439"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069439"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069467"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069467"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-045008"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-045008"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069495"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069495"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069415"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069415"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069556"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069556"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069484"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069484"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069424"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069424"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069532"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069532"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069419"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069419"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069471"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069471"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-025859"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-025859"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069418"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069418"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-050409"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-050409"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069423"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069423"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069501"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069501"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069502"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069502"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069511"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069511"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069434"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069434"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069465"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069465"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069471"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069471"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069494"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069494"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069424"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069424"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069472"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069472"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069501"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069501"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069470"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069470"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-046376"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-046376"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069511"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069511"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-072626"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-072626"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069472"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069472"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-038858"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-038858"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069472"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069472"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069472"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069472"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069471"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069471"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-027661"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-027661"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-027661"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-027661"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-034853"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-034853"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069472"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069472"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069447"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069447"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-032782"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-032782"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-027658"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-027658"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-27666"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-27666"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-027661"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-027661"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-058740"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-058740"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-046370"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-046370"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069423"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069423"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069470"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069470"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069511"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069511"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069470"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069470"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000060",
+                        "name": "NIAID",
+                        "doi-asserted-by": "crossref",
+                        "award": [
+                            "AI-069494"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "AI-069494"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000060",
+                                "id-type": "DOI",
+                                "asserted-by": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-00051"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-00051"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-00046"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-00046"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-025747"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-025747"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-025777"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-025777"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-024160"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-024160"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-024996"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-024996"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-024156"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-024156"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR024160"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR024160"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "DOI": "10.13039\/100000097",
+                        "name": "National Center for Research Resources",
+                        "doi-asserted-by": "publisher",
+                        "award": [
+                            "RR-024160"
+                        ],
+                        "award-info": [
+                            {
+                                "award-number": [
+                                    "RR-024160"
+                                ]
+                            }
+                        ],
+                        "id": [
+                            {
+                                "id": "10.13039\/100000097",
+                                "id-type": "DOI",
+                                "asserted-by": "publisher"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Janssen Therapeutics, Bristol-Myers Squibb Co., Gilead Sciences, and Merck, Inc"
+                    }
+                ],
+                "content-domain": {
+                    "domain": [],
+                    "crossmark-restriction": false
+                },
+                "published-print": {
+                    "date-parts": [
+                        [
+                            2015,
+                            9,
+                            1
+                        ]
+                    ]
+                },
+                "abstract": "<jats:title>Abstract<\/jats:title>\n               <jats:p>Background. \u2003Some patients are not prescribed atazanavir because of concern about possible jaundice. Atazanavir-associated hyperbilirubinemia correlates with UGT1A1 rs887829 genotype. We examined bilirubin-related discontinuation of atazanavir in participants from AIDS Clinical Trials Group Study A5257.<\/jats:p>\n               <jats:p>Methods. \u2003Discriminatory properties of UGT1A1 T\/T genotype for predicting bilirubin-related atazanavir discontinuation through 96 weeks after antiretroviral initiation were estimated.<\/jats:p>\n               <jats:p>Results. \u2003Genetic analyses involved 1450 participants, including 481 who initiated randomized atazanavir\/ritonavir. Positive predictive values of rs887829 T\/T for bilirubin-related discontinuation of atazanavir (with 95% confidence intervals [CIs]) were 20% (CI, 9%\u201336%) in Black, 60% (CI, 32%\u201384%) in White, and 29% (CI, 8%\u201358%) in Hispanic participants; negative predictive values were 97% (CI, 93%\u201399%), 95% (CI, 90%\u201398%), and 97% (CI, 90%\u2013100%), respectively.<\/jats:p>\n               <jats:p>Conclusions. \u2003Bilirubin-related discontinuation of atazanavir was rare in participants not homozygous for rs887829 T\/T, regardless of race or ethnicity. We hypothesize that the higher rate of discontinuation among White participants homozygous for rs887829 T\/T may reflect differences in physical manifestations of jaundice by race and ethnicity. Selective avoidance of atazanavir initiation among individuals with T\/T genotypes would markedly reduce the likelihood of bilirubin-related discontinuation of atazanavir while allowing atazanavir to be prescribed to the majority of individuals. This genetic association will also affect atazanavir\/cobicistat.<\/jats:p>",
+                "DOI": "10.1093\/ofid\/ofv085",
+                "type": "journal-article",
+                "created": {
+                    "date-parts": [
+                        [
+                            2015,
+                            6,
+                            5
+                        ]
+                    ],
+                    "date-time": "2015-06-05T00:55:37Z",
+                    "timestamp": 1433465737000
+                },
+                "source": "Crossref",
+                "is-referenced-by-count": 21,
+                "title": [
+                    "Screening for UGT1A1 Genotype in Study A5257 Would Have Markedly Reduced Premature Discontinuation of Atazanavir for Hyperbilirubinemia"
+                ],
+                "prefix": "10.1093",
+                "volume": "2",
+                "author": [
+                    {
+                        "given": "Saran",
+                        "family": "Vardhanabhuti",
+                        "sequence": "first",
+                        "affiliation": [
+                            {
+                                "name": "Statistical Data Analysis Center, Harvard School of Public Health, Boston, Massachusetts"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "given": "Heather J.",
+                        "family": "Ribaudo",
+                        "sequence": "additional",
+                        "affiliation": [
+                            {
+                                "name": "Statistical Data Analysis Center, Harvard School of Public Health, Boston, Massachusetts"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "given": "Raphael J.",
+                        "family": "Landovitz",
+                        "sequence": "additional",
+                        "affiliation": [
+                            {
+                                "name": "UCLA Center for Clinical AIDS Research and Education, Los Angeles, California"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "given": "Ighovwerha",
+                        "family": "Ofotokun",
+                        "sequence": "additional",
+                        "affiliation": [
+                            {
+                                "name": "Emory University School of Medicine, Atlanta, Georgia"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "given": "Jeffrey L.",
+                        "family": "Lennox",
+                        "sequence": "additional",
+                        "affiliation": [
+                            {
+                                "name": "Emory University School of Medicine, Atlanta, Georgia"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "given": "Judith S.",
+                        "family": "Currier",
+                        "sequence": "additional",
+                        "affiliation": [
+                            {
+                                "name": "UCLA Center for Clinical AIDS Research and Education, Los Angeles, California"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "given": "Lana M.",
+                        "family": "Olson",
+                        "sequence": "additional",
+                        "affiliation": [
+                            {
+                                "name": "Vanderbilt University School of Medicine, Nashville, Tennessee"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    },
+                    {
+                        "given": "David W.",
+                        "family": "Haas",
+                        "sequence": "additional",
+                        "affiliation": [
+                            {
+                                "name": "Vanderbilt University School of Medicine, Nashville, Tennessee"
+                            }
+                        ],
+                        "role": [
+                            {
+                                "role": "author",
+                                "vocabulary": "crossref"
+                            }
+                        ]
+                    }
+                ],
+                "member": "286",
+                "published-online": {
+                    "date-parts": [
+                        [
+                            2015,
+                            7,
+                            1
+                        ]
+                    ]
+                },
+                "reference": [
+                    {
+                        "key": "2020081006465448700_OFV085C1",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "1484",
+                        "DOI": "10.1086\/517497",
+                        "article-title": "Efficacy and safety of atazanavir-based highly active antiretroviral therapy in patients with virologic suppression switched from a stable, boosted or unboosted protease inhibitor treatment regimen: the SWAN Study (AI424-097) 48-week results",
+                        "volume": "44",
+                        "author": "Gatell",
+                        "year": "2007",
+                        "journal-title": "Clin Infect Dis"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C2",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "646",
+                        "DOI": "10.1016\/S0140-6736(08)61081-8",
+                        "article-title": "Once-daily atazanavir\/ritonavir versus twice-daily lopinavir\/ritonavir, each in combination with tenofovir and emtricitabine, for management of antiretroviral-naive HIV-1-infected patients: 48 week efficacy and safety results of the CASTLE study",
+                        "volume": "372",
+                        "author": "Molina",
+                        "year": "2008",
+                        "journal-title": "Lancet"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C3",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "445",
+                        "DOI": "10.7326\/0003-4819-154-7-201104050-00316",
+                        "article-title": "Atazanavir plus ritonavir or efavirenz as part of a 3-drug regimen for initial treatment of HIV-1",
+                        "volume": "154",
+                        "author": "Daar",
+                        "year": "2011",
+                        "journal-title": "Ann Intern Med"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C4",
+                        "article-title": "Guidelines for the Use of Antiretroviral Agents in HIV-1-Infected Adults and Adolescents"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C5",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "1729",
+                        "DOI": "10.1124\/dmd.105.005447",
+                        "article-title": "In vitro inhibition of UDP glucuronosyltransferases by atazanavir and other HIV protease inhibitors and the relationship of this property to in vivo bilirubin glucuronidation",
+                        "volume": "33",
+                        "author": "Zhang",
+                        "year": "2005",
+                        "journal-title": "Drug Metab Dispos"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C6",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "1700",
+                        "DOI": "10.1097\/01.aids.0000186826.60983.85",
+                        "article-title": "Use of bilirubin as a marker of adherence to atazanavir-based antiretroviral therapy",
+                        "volume": "19",
+                        "author": "Petersen",
+                        "year": "2005",
+                        "journal-title": "AIDS"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C7",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "598",
+                        "DOI": "10.1208\/s12248-011-9299-0",
+                        "article-title": "Bilirubin-a potential marker of drug exposure in atazanavir-based antiretroviral therapy",
+                        "volume": "13",
+                        "author": "Rekic",
+                        "year": "2011",
+                        "journal-title": "AAPS J"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C8",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "1043",
+                        "DOI": "10.1089\/aid.2011.0019",
+                        "article-title": "Short communication: use of serum bilirubin levels as surrogate marker of early virological response to atazanavir-based antiretroviral therapy",
+                        "volume": "27",
+                        "author": "Morello",
+                        "year": "2011",
+                        "journal-title": "AIDS Res Human Retrovirus"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C9",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "161",
+                        "DOI": "10.1097\/QAI.0b013e31815ace6a",
+                        "article-title": "Efficacy and safety of atazanavir, with or without ritonavir, as part of once-daily highly active antiretroviral therapy regimens in antiretroviral-naive patients",
+                        "volume": "47",
+                        "author": "Malan",
+                        "year": "2008",
+                        "journal-title": "J Acquir Immune Defic Syndr"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C10",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "897",
+                        "DOI": "10.1093\/jac\/dkm298",
+                        "article-title": "Therapeutic drug monitoring of the HIV protease inhibitor atazanavir in clinical practice",
+                        "volume": "60",
+                        "author": "Cleijsen",
+                        "year": "2007",
+                        "journal-title": "J Antimicrob Chemother"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C11",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "244",
+                        "DOI": "10.1007\/s15010-008-8010-6",
+                        "article-title": "Hyperbilirubinemia during atazanavir treatment in 2,404 patients in the Italian atazanavir expanded access program and MASTER Cohorts",
+                        "volume": "37",
+                        "author": "Torti",
+                        "year": "2009",
+                        "journal-title": "Infection"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C12",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "855",
+                        "DOI": "10.1086\/656363",
+                        "article-title": "Efavirenz versus boosted atazanavir or zidovudine and abacavir in antiretroviral treatment-naive, HIV-infected subjects: week 48 data from the Altair study",
+                        "volume": "51",
+                        "author": "Puls",
+                        "year": "2010",
+                        "journal-title": "Clin Infect Dis"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C13",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "259",
+                        "DOI": "10.1089\/apc.2011.0092",
+                        "article-title": "Clinical significance of hyperbilirubinemia among HIV-1-infected patients treated with atazanavir\/ritonavir through 96 weeks in the CASTLE study",
+                        "volume": "26",
+                        "author": "McDonald",
+                        "year": "2012",
+                        "journal-title": "AIDS Patient Care STDS"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C14",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "1171",
+                        "DOI": "10.1056\/NEJM199511023331802",
+                        "article-title": "The genetic basis of the reduced expression of bilirubin UDP-glucuronosyltransferase 1 in Gilbert's syndrome",
+                        "volume": "333",
+                        "author": "Bosma",
+                        "year": "1995",
+                        "journal-title": "New Engl J Med"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C15",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "578",
+                        "DOI": "10.1016\/S0140-6736(96)91273-8",
+                        "article-title": "Genetic variation in bilirubin UPD-glucuronosyltransferase gene promoter and Gilbert's syndrome",
+                        "volume": "347",
+                        "author": "Monaghan",
+                        "year": "1996",
+                        "journal-title": "Lancet"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C16",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "1381",
+                        "DOI": "10.1086\/466531",
+                        "article-title": "Gilbert syndrome and the development of antiretroviral therapy-associated hyperbilirubinemia",
+                        "volume": "192",
+                        "author": "Rotger",
+                        "year": "2005",
+                        "journal-title": "J Infect Dis"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C17",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "420",
+                        "DOI": "10.1093\/infdis\/jis690",
+                        "article-title": "Impact of UGT1A1 Gilbert variant on discontinuation of ritonavir-boosted atazanavir in AIDS Clinical Trials Group Study A5202",
+                        "volume": "207",
+                        "author": "Ribaudo",
+                        "year": "2013",
+                        "journal-title": "J Infect Dis"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C18",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "195",
+                        "DOI": "10.1097\/FPC.0000000000000034",
+                        "article-title": "Genomewide association study of atazanavir pharmacokinetics and hyperbilirubinemia in AIDS Clinical Trials Group protocol A5202",
+                        "volume": "24",
+                        "author": "Johnson",
+                        "year": "2014",
+                        "journal-title": "Pharmacogenet Genomics"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C19",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "246",
+                        "DOI": "10.1093\/infdis\/jiq043",
+                        "article-title": "Association of pharmacogenetic markers with premature discontinuation of first-line anti-HIV therapy: an observational cohort study",
+                        "volume": "203",
+                        "author": "Lubomirov",
+                        "year": "2011",
+                        "journal-title": "J Infect Dis"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C20",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "461",
+                        "DOI": "10.7326\/M14-1084",
+                        "article-title": "Efficacy and tolerability of 3 nonnucleoside reverse transcriptase inhibitor-sparing antiretroviral regimens for treatment-naive volunteers infected with HIV-1: a randomized, controlled equivalence trial",
+                        "volume": "161",
+                        "author": "Lennox",
+                        "year": "2014",
+                        "journal-title": "Ann Intern Med"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C21",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "287",
+                        "DOI": "10.1310\/MUQC-QXBC-8118-BPM5",
+                        "article-title": "A multi-investigator\/institutional DNA bank for AIDS-related human genetic studies: AACTG Protocol A5128",
+                        "volume": "4",
+                        "author": "Haas",
+                        "year": "2003",
+                        "journal-title": "HIV Clin Trials"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C22",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "559",
+                        "DOI": "10.1086\/519795",
+                        "article-title": "PLINK: a tool set for whole-genome association and population-based linkage analyses",
+                        "volume": "81",
+                        "author": "Purcell",
+                        "year": "2007",
+                        "journal-title": "Am J Hum Genet"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C23",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "399",
+                        "DOI": "10.3851\/IMP2500",
+                        "article-title": "Cost-effectiveness analysis of UGT1A1 genetic testing to inform antiretroviral prescribing in HIV disease",
+                        "volume": "18",
+                        "author": "Schackman",
+                        "year": "2013",
+                        "journal-title": "Antivir Ther"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C24",
+                        "article-title": "Pharmacokinetic boosting of atazanavir with the pharmacoenhancer GS-9350 versus ritonavir",
+                        "author": "Ramanathan"
+                    },
+                    {
+                        "key": "2020081006465448700_OFV085C25",
+                        "doi-asserted-by": "crossref",
+                        "first-page": "32",
+                        "DOI": "10.1093\/infdis\/jit122",
+                        "article-title": "Cobicistat versus ritonavir as a pharmacoenhancer of atazanavir plus emtricitabine\/tenofovir disoproxil fumarate in treatment-naive HIV type 1-infected patients: week 48 results",
+                        "volume": "208",
+                        "author": "Gallant",
+                        "year": "2013",
+                        "journal-title": "J Infect Dis"
+                    }
+                ],
+                "container-title": [
+                    "Open Forum Infectious Diseases"
+                ],
+                "language": "en",
+                "link": [
+                    {
+                        "URL": "http:\/\/academic.oup.com\/ofid\/article-pdf\/2\/3\/ofv085\/33621522\/ofv085.pdf",
+                        "content-type": "application\/pdf",
+                        "content-version": "vor",
+                        "intended-application": "syndication"
+                    },
+                    {
+                        "URL": "http:\/\/academic.oup.com\/ofid\/article-pdf\/2\/3\/ofv085\/33621522\/ofv085.pdf",
+                        "content-type": "unspecified",
+                        "content-version": "vor",
+                        "intended-application": "similarity-checking"
+                    }
+                ],
+                "deposited": {
+                    "date-parts": [
+                        [
+                            2020,
+                            8,
+                            10
+                        ]
+                    ],
+                    "date-time": "2020-08-10T10:50:14Z",
+                    "timestamp": 1597056614000
+                },
+                "score": 10.932338,
+                "resource": {
+                    "primary": {
+                        "URL": "https:\/\/academic.oup.com\/ofid\/article\/doi\/10.1093\/ofid\/ofv085\/2460254"
+                    }
+                },
+                "issued": {
+                    "date-parts": [
+                        [
+                            2015
+                        ]
+                    ]
+                },
+                "references-count": 25,
+                "journal-issue": {
+                    "issue": "3",
+                    "published-print": {
+                        "date-parts": [
+                            [
+                                2015,
+                                9,
+                                1
+                            ]
+                        ]
+                    }
+                },
+                "URL": "https:\/\/doi.org\/10.1093\/ofid\/ofv085",
+                "ISSN": [
+                    "2328-8957"
+                ],
+                "issn-type": [
+                    {
+                        "value": "2328-8957",
+                        "type": "electronic"
+                    }
+                ],
+                "published-other": {
+                    "date-parts": [
+                        [
+                            2015
+                        ]
+                    ]
+                },
+                "published": {
+                    "date-parts": [
+                        [
+                            2015
+                        ]
+                    ]
+                },
+                "article-number": "ofv085"
+            }
+        ],
+        "items-per-page": 1,
+        "query": {
+            "start-index": 0,
+            "search-terms": "AI"
+        }
+    }
+}
