@@ -5,6 +5,9 @@ __pycache__/
 .venv/
 .env
 
+# File caricati dagli utenti (es. immagini profilo)
+backend/app/static/
+
 # Node
 node_modules/
 dist/
@@ -15,3 +18,7 @@ dist-ssr/
 .DS_Store
 .vscode/
 *.log
+
+# Dati generati, non codice: rigenerabili, non ha senso versionarli
+backend/app/services/utils/evaluation_cache.json
+backend/app/statistics/evaluation_report*.json
