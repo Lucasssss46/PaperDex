@@ -22,23 +22,31 @@ export default function SavedQueriesPage() {
   }
 
   if (loading) {
-    return <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
+    return (
+      <p className="text-sm" style={{ color: '#8B93A5' }}>
+        Caricamento…
+      </p>
+    )
   }
 
   if (error) {
-    return <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+    return (
+      <p className="text-sm" style={{ color: '#FCA5A5' }}>
+        {error}
+      </p>
+    )
   }
 
   if (queries.length === 0) {
     return (
-      <p className="text-sm text-neutral-500 dark:text-neutral-400">
+      <p className="text-sm" style={{ color: '#8B93A5' }}>
         Nessuna query salvata per ora. Puoi salvarne una dalla pagina "Cerca" di questa ricerca.
       </p>
     )
   }
 
   return (
-    <ul className="max-w-3xl space-y-2">
+    <ul className="max-w-3xl">
       {queries.map((query) => (
         <QueryListItem key={query.id} query={query} onUse={() => handleUse(query)} />
       ))}

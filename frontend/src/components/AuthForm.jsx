@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login, register, requestPasswordReset } from '../api/auth'
+import Field, { inputClass } from './Field'
+import Logo, { Wordmark } from './Logo'
 import PasswordInput from './PasswordInput'
 import Spinner from './Spinner'
-import Field, { inputClass } from './Field'
 
 export default function AuthForm({ onAuthenticated, initialNotice }) {
   const navigate = useNavigate()
@@ -57,71 +58,35 @@ export default function AuthForm({ onAuthenticated, initialNotice }) {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-neutral-50 px-4 dark:bg-neutral-950">
-      <div className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-8 shadow-lg shadow-neutral-900/5 dark:border-neutral-800 dark:bg-neutral-900">
-        <h1
-          className="text-center text-4xl tracking-wide text-white"
-          style={{
-            fontFamily: '"Luckiest Guy", cursive',
-            WebkitTextStroke: '2px #7c3aed',
-            textShadow: '3px 3px 0 rgba(0,0,0,0.3)',
-          }}
-        >
-          PapérDex
-        </h1>
-        <p className="mt-1 text-center text-sm text-neutral-500 dark:text-neutral-400">
-          {isForgot ? 'Reimposta la password' : isLogin ? 'Accedi al tuo account' : 'Crea un nuovo account'}
-        </p>
+    <div className="auth-page">
+      <div className="card w-full max-w-sm" style={{ padding: '34px 32px 30px' }}>
+        <div className="flex flex-col items-center gap-2.5">
+          <Logo size={52} />
+          <Wordmark size={24} />
+          <div className="text-sm" style={{ color: '#8B93A5' }}>
+            {isForgot ? 'Reimposta la password' : isLogin ? 'Accedi al tuo account' : 'Crea un nuovo account'}
+          </div>
+        </div>
 
         {!isForgot && (
-          <div className="mt-6 grid grid-cols-2 rounded-lg bg-neutral-100 p-1 text-sm font-medium dark:bg-neutral-800">
-            <button
-              type="button"
-              onClick={() => switchMode('login')}
-              className={`rounded-md py-1.5 transition-colors ${
-                isLogin
-                  ? 'bg-white text-violet-700 shadow-sm dark:bg-neutral-700 dark:text-violet-300'
-                  : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
-              }`}
-            >
+          <div className="tab-wrap" style={{ marginTop: 24 }}>
+            <button type="button" className={`tab ${isLogin ? 'active' : ''}`} onClick={() => switchMode('login')}>
               Accedi
             </button>
-            <button
-              type="button"
-              onClick={() => switchMode('register')}
-              className={`rounded-md py-1.5 transition-colors ${
-                !isLogin
-                  ? 'bg-white text-violet-700 shadow-sm dark:bg-neutral-700 dark:text-violet-300'
-                  : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
-              }`}
-            >
+            <button type="button" className={`tab ${!isLogin ? 'active' : ''}`} onClick={() => switchMode('register')}>
               Registrati
             </button>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" style={{ marginTop: 22 }}>
           {!isLogin && !isForgot && (
             <div className="grid grid-cols-2 gap-4">
               <Field label="Nome">
-                <input
-                  type="text"
-                  required
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Mario"
-                  className={inputClass}
-                />
+                <input type="text" required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Mario" className={inputClass} />
               </Field>
               <Field label="Cognome">
-                <input
-                  type="text"
-                  required
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Rossi"
-                  className={inputClass}
-                />
+                <input type="text" required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Rossi" className={inputClass} />
               </Field>
             </div>
           )}
@@ -139,55 +104,29 @@ export default function AuthForm({ onAuthenticated, initialNotice }) {
 
           {!isForgot && (
             <Field label="Password">
-              <PasswordInput
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-              />
+              <PasswordInput required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </Field>
           )}
 
           {isLogin && (
             <p className="text-right">
-              <button
-                type="button"
-                onClick={() => switchMode('forgot')}
-                className="text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
-              >
+              <button type="button" onClick={() => switchMode('forgot')} className="action-link">
                 Password dimenticata?
               </button>
             </p>
           )}
 
-          {error && (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400">
-              {error}
-            </p>
-          )}
-          {notice && (
-            <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-              {notice}
-            </p>
-          )}
+          {error && <p className="notice-err">{error}</p>}
+          {notice && <p className="notice-ok">{notice}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="submit" disabled={loading} className="pill-btn flex w-full items-center justify-center gap-2" style={{ padding: '11px 0' }}>
             {loading && <Spinner />}
             {isForgot ? 'Invia link di ripristino' : isLogin ? 'Accedi' : 'Crea account'}
           </button>
 
           {isForgot && (
             <p className="text-center text-sm">
-              <button
-                type="button"
-                onClick={() => switchMode('login')}
-                className="font-medium text-violet-600 hover:underline dark:text-violet-400"
-              >
+              <button type="button" onClick={() => switchMode('login')} className="action-link">
                 Torna al login
               </button>
             </p>

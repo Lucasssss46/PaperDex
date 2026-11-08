@@ -48,19 +48,25 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
 
   if (!sources) {
     return error ? (
-      <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+      <p className="text-sm" style={{ color: '#FCA5A5' }}>
+        {error}
+      </p>
     ) : (
-      <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
+      <p className="text-sm" style={{ color: '#8B93A5' }}>
+        Caricamento…
+      </p>
     )
   }
 
   return (
-    <section className="rounded-2xl border border-violet-200 bg-violet-50/60 p-5 shadow-sm dark:border-violet-500/30 dark:bg-violet-500/5">
-      <h3 className="text-sm font-semibold text-violet-900 dark:text-violet-200">Classifica delle sorgenti</h3>
-      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+    <section className="card" style={{ padding: 20 }}>
+      <h3 className="text-sm font-semibold" style={{ color: '#F3F4F6' }}>
+        Classifica delle sorgenti
+      </h3>
+      <p className="mt-1 text-xs" style={{ color: '#8B93A5' }}>
         {isOwner
           ? 'Trascina per riordinare: la sorgente più in alto è quella scelta automaticamente aggiungendo un gruppo di duplicati.'
-          : 'La sorgente più in alto è quella scelta automaticamente aggiungendo un gruppo di duplicati. Solo il proprietario della Ricerca può modificare l\'ordine.'}
+          : "La sorgente più in alto è quella scelta automaticamente aggiungendo un gruppo di duplicati. Solo il proprietario della Ricerca può modificare l'ordine."}
       </p>
       <ol className="mt-3 space-y-2">
         {sources.map((source, index) => (
@@ -71,23 +77,34 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
             onDragOver={(event) => isOwner && event.preventDefault()}
             onDrop={() => handleDrop(index)}
             onDragEnd={() => setDragIndex(null)}
-            className={`flex items-center gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900 ${
-              isOwner ? 'cursor-grab active:cursor-grabbing' : ''
-            } ${dragIndex === index ? 'opacity-40' : ''}`}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 ${isOwner ? 'cursor-grab active:cursor-grabbing' : ''}`}
+            style={{ border: '1px solid #1B2130', background: '#0C1119', opacity: dragIndex === index ? 0.4 : 1 }}
           >
             {isOwner && (
-              <span aria-hidden="true" className="select-none text-neutral-300 dark:text-neutral-600">
+              <span aria-hidden="true" className="select-none" style={{ color: '#3A4150' }}>
                 ⠿
               </span>
             )}
-            <span className="w-4 text-xs font-semibold text-neutral-400 dark:text-neutral-500">{index + 1}</span>
+            <span className="w-4 text-xs font-semibold" style={{ color: '#55606E' }}>
+              {index + 1}
+            </span>
             <SourceIcon name={source} className="h-4" />
-            <span className="text-sm text-neutral-700 dark:text-neutral-200">{source}</span>
+            <span className="text-sm" style={{ color: '#C3C9D4' }}>
+              {source}
+            </span>
           </li>
         ))}
       </ol>
-      {saving && <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">Salvataggio…</p>}
-      {error && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {saving && (
+        <p className="mt-2 text-xs" style={{ color: '#55606E' }}>
+          Salvataggio…
+        </p>
+      )}
+      {error && (
+        <p className="mt-2 text-xs" style={{ color: '#FCA5A5' }}>
+          {error}
+        </p>
+      )}
     </section>
   )
 }

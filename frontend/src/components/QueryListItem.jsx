@@ -13,18 +13,20 @@ function summarizeQuery(query) {
 
 export default function QueryListItem({ query, onUse }) {
   return (
-    <li className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2.5 dark:border-neutral-800 dark:bg-neutral-900">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-neutral-900 dark:text-neutral-50">{query.name}</p>
-        <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">{summarizeQuery(query)}</p>
+    <li className="row">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-[#F3F4F6]" title={query.name}>
+          {query.name}
+        </p>
+        <p className="truncate text-xs text-[#8B93A5]" title={summarizeQuery(query)}>
+          {summarizeQuery(query)}
+        </p>
       </div>
-      <button
-        type="button"
-        onClick={onUse}
-        className="shrink-0 rounded-lg border border-violet-300 px-3 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100 dark:border-violet-500/40 dark:text-violet-300 dark:hover:bg-violet-500/10"
-      >
-        Usa
-      </button>
+      {onUse && (
+        <button type="button" onClick={onUse} className="action-link shrink-0" title="Usa questa query">
+          Usa
+        </button>
+      )}
     </li>
   )
 }

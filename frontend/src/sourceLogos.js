@@ -15,8 +15,10 @@ const CROSSREF_LOGO_URL = 'https://assets.crossref.org/logo/crossref-logo-landsc
 // variante e non è leggibile sul tema opposto dell'app.
 export const SOURCE_LOGOS = {
   // Unico logo ufficiale completo trovato finora: variante "Darkmode".
-  // Da rivedere quando sarà disponibile una versione per sfondi chiari.
-  ArXiv: { wordmark: true, dark: arxivDark, chip: 'dark' },
+  // Il chip scuro che la incorniciava è stato tolto: serviva solo per
+  // restare leggibile quando l'app poteva essere in tema chiaro, ora
+  // sempre scura — l'asset è già pensato per questo sfondo.
+  ArXiv: { wordmark: true, dark: arxivDark },
   // Ingrandito: il testo del logo ufficiale (grigio scuro fisso) è altrimenti
   // poco leggibile in tema scuro senza uno sfondo dedicato.
   Crossref: { wordmark: true, light: CROSSREF_LOGO_URL, scale: 1.35 },

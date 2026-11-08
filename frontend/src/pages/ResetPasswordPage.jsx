@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { confirmPasswordReset } from '../api/auth'
 import Field from '../components/Field'
+import Logo, { Wordmark } from '../components/Logo'
 import PasswordInput from '../components/PasswordInput'
 
 export default function ResetPasswordPage() {
@@ -39,68 +40,40 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-neutral-50 px-4 dark:bg-neutral-950">
-      <div className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-8 shadow-lg shadow-neutral-900/5 dark:border-neutral-800 dark:bg-neutral-900">
-        <h1
-          className="text-center text-3xl tracking-wide text-white"
-          style={{
-            fontFamily: '"Luckiest Guy", cursive',
-            WebkitTextStroke: '1.5px #7c3aed',
-            textShadow: '2px 2px 0 rgba(0,0,0,0.3)',
-          }}
-        >
-          PapérDex
-        </h1>
-        <p className="mt-1 text-center text-sm text-neutral-500 dark:text-neutral-400">
-          Reimposta la password
-        </p>
+    <div className="auth-page">
+      <div className="card w-full max-w-sm" style={{ padding: '34px 32px 30px' }}>
+        <div className="flex flex-col items-center gap-2.5">
+          <Logo size={44} />
+          <Wordmark size={21} />
+          <div className="text-sm" style={{ color: '#8B93A5' }}>
+            Reimposta la password
+          </div>
+        </div>
 
         {done ? (
-          <div className="mt-6 space-y-4 text-center">
-            <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-              Password aggiornata. Ora puoi accedere.
-            </p>
-            <Link to="/" className="text-sm font-medium text-violet-600 hover:underline dark:text-violet-400">
+          <div className="mt-6 flex flex-col items-center gap-3.5 text-center">
+            <p className="notice-ok">Password aggiornata. Ora puoi accedere.</p>
+            <Link to="/" className="action-link">
               Torna al login
             </Link>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
             <Field label="Nuova password">
-              <PasswordInput
-                required
-                minLength={8}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="••••••••"
-              />
+              <PasswordInput required minLength={8} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" />
             </Field>
             <Field label="Conferma nuova password">
-              <PasswordInput
-                required
-                minLength={8}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-              />
+              <PasswordInput required minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
             </Field>
 
-            {error && (
-              <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400">
-                {error}
-              </p>
-            )}
+            {error && <p className="notice-err">{error}</p>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
+            <button type="submit" disabled={loading} className="pill-btn w-full" style={{ padding: '11px 0' }}>
               {loading ? 'Aggiornamento…' : 'Reimposta password'}
             </button>
 
             <p className="text-center text-sm">
-              <Link to="/" className="font-medium text-violet-600 hover:underline dark:text-violet-400">
+              <Link to="/" className="action-link">
                 Torna al login
               </Link>
             </p>

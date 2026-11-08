@@ -41,11 +41,15 @@ export default function DeduplicationPage() {
     <div className="flex flex-col-reverse gap-6 md:flex-row md:items-start">
       <div className="min-w-0 flex-1 space-y-6">
         {error ? (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-sm" style={{ color: '#FCA5A5' }}>
+            {error}
+          </p>
         ) : !groups ? (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
+          <p className="text-sm" style={{ color: '#8B93A5' }}>
+            Caricamento…
+          </p>
         ) : groups.length === 0 ? (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-sm" style={{ color: '#8B93A5' }}>
             Nessun gruppo di duplicati per ora: comparirà qui dopo aver aggiunto un gruppo di articoli simili dalla
             ricerca (bottone "Aggiungi tutto il gruppo" sui risultati evidenziati).
           </p>

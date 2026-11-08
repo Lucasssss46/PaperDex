@@ -1,77 +1,66 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useOutletContext } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import {
+  checkAllArticlesVersion,
+  checkArticleVersion,
   enrichAllArticles,
+  enrichArticle,
   listDuplicateGroups,
   listRicercaArticles,
   listRicercaCronologia,
   listRicercaQueries,
-  listRicercaTeam,
   removeRicercaArticle,
 } from '../api/ricerche'
-import ArticleListItem from '../components/ArticleListItem'
+import ArticleDial from '../components/ArticleDial'
 import ExportMenu from '../components/ExportMenu'
 import HistoryEntryItem from '../components/HistoryEntryItem'
+import Logo from '../components/Logo'
 import QueryListItem from '../components/QueryListItem'
-import TeamMemberItem from '../components/TeamMemberItem'
+import { SOURCE_COLORS } from '../constants'
 
-const PAGE_SIZE = 20
-const TEAM_PREVIEW_COUNT = 5
-const HISTORY_PREVIEW_COUNT = 5
-const QUERIES_PREVIEW_COUNT = 5
+const FETCH_PAGE_SIZE = 50
+// Anteprime della card "Attività": al massimo questi pochi elementi, non
+// l'intera lista — altrimenti la card crescerebbe senza limite con una
+// Ricerca attiva da tempo. "Vedi tutti" (le freccine) porta al resto.
+const HISTORY_PREVIEW_COUNT = 4
+const QUERIES_PREVIEW_COUNT = 4
 
-function SidebarSection({ title, viewAllTo, children }) {
+// Freccia corta e "cicciotta" (tratto breve, spessore alto) per "vai alla
+// pagina completa" — un carattere Unicode ("↗") non è controllabile a
+// sufficienza nello spessore/proporzioni, da qui un'icona propria.
+function ArrowUpRightIcon() {
   return (
-    <section className="rounded-2xl border border-violet-200 bg-violet-50/60 p-5 shadow-sm dark:border-violet-500/30 dark:bg-violet-500/5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-violet-900 dark:text-violet-200">{title}</h3>
-        {viewAllTo && (
-          <Link to={viewAllTo} className="text-xs font-medium text-violet-600 hover:underline dark:text-violet-400">
-            Vedi tutti →
-          </Link>
-        )}
-      </div>
-      <div className="mt-3">{children}</div>
-    </section>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 15 15 9" />
+      <path d="M10 9h5v5" />
+    </svg>
   )
 }
 
+// Unico contenuto che l'intera Ricerca può avere in quantità realistica
+// (decine/qualche centinaio, non migliaia — stessa assunzione già fatta
+// lato backend): la ruota vuole l'intera collezione per poterci scorrere
+// in continuo, non una pagina alla volta, quindi le carica tutte qui
+// invece di esporre Precedente/Successiva come prima.
+async function fetchAllArticles(researchId) {
+  let page = 1
+  let all = []
+  for (;;) {
+    const result = await listRicercaArticles(researchId, { page, pageSize: FETCH_PAGE_SIZE })
+    all = all.concat(result.articles)
+    if (page >= result.total_pages) break
+    page += 1
+  }
+  return all
+}
+
 export default function OverviewPage() {
-  const { researchId } = useOutletContext()
+  const { researchId, startNewSession, isOwner } = useOutletContext()
   const navigate = useNavigate()
-  const [page, setPage] = useState(1)
-  const [data, setData] = useState(null)
+
+  const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
-  const [enrichingAll, setEnrichingAll] = useState(false)
-  const [enrichAllMessage, setEnrichAllMessage] = useState('')
-
-  // Sollevato da ExportMenu (che genera il file ma non mostra più il link
-  // lui stesso): così il link può stare su una riga propria sotto l'intera
-  // barra "Articoli salvati", allineata a destra, invece che incollato solo
-  // sotto il bottone "Esporta".
-  const [exportReady, setExportReady] = useState(null)
-
-  // Libera l'URL blob precedente quando se ne prepara uno nuovo o si lascia
-  // la pagina, invece di lasciarlo vivere in memoria inutilizzato.
-  useEffect(() => {
-    return () => {
-      if (exportReady) URL.revokeObjectURL(exportReady.url)
-    }
-  }, [exportReady])
-
-  function handleExportReady(url, filename) {
-    setExportReady((prev) => {
-      if (prev) URL.revokeObjectURL(prev.url)
-      return { url, filename }
-    })
-  }
-
-  const [team, setTeam] = useState([])
-  const [isOwner, setIsOwner] = useState(false)
-  const [teamLoading, setTeamLoading] = useState(true)
-  const [teamError, setTeamError] = useState('')
 
   const [history, setHistory] = useState([])
   const [historyLoading, setHistoryLoading] = useState(true)
@@ -85,24 +74,43 @@ export default function OverviewPage() {
   const [dedupLoading, setDedupLoading] = useState(true)
   const [dedupError, setDedupError] = useState('')
 
+  // Selezione nella ruota + stato dell'azione sull'articolo selezionato.
+  const [selectedId, setSelectedId] = useState(null)
+  const [actionBusy, setActionBusy] = useState(false)
+  const [actionMsg, setActionMsg] = useState('')
+  const [actionColor, setActionColor] = useState('')
+
+  // "Manutenzione": chiuso di default (le due azioni bulk sono lente e
+  // non necessarie ad ogni visita — stavano dietro un tasto apposta per
+  // non sommergere l'utente appena entra in Overview).
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [enrichingAll, setEnrichingAll] = useState(false)
+  const [updatingAll, setUpdatingAll] = useState(false)
+  const [toast, setToast] = useState(null) // { kind: 'enrich'|'update', parts: [{text,color}], detailRows: [{title,msg,color}] }
+
+  const [exportReady, setExportReady] = useState(null)
+
   useEffect(() => {
-    listRicercaArticles(researchId, { page, pageSize: PAGE_SIZE })
-      .then((result) => {
-        setData(result)
+    return () => {
+      if (exportReady) URL.revokeObjectURL(exportReady.url)
+    }
+  }, [exportReady])
+
+  function handleExportReady(url, filename) {
+    setExportReady((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url)
+      return { url, filename }
+    })
+  }
+
+  useEffect(() => {
+    fetchAllArticles(researchId)
+      .then((all) => {
+        setArticles(all)
         setError('')
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
-  }, [researchId, page])
-
-  useEffect(() => {
-    listRicercaTeam(researchId)
-      .then((result) => {
-        setTeam(result.members)
-        setIsOwner(result.is_owner)
-      })
-      .catch((err) => setTeamError(err.message))
-      .finally(() => setTeamLoading(false))
   }, [researchId])
 
   useEffect(() => {
@@ -126,229 +134,415 @@ export default function OverviewPage() {
       .finally(() => setDedupLoading(false))
   }, [researchId])
 
-  function goToPage(newPage) {
-    setLoading(true)
-    setPage(newPage)
+  function selectRow(id) {
+    setSelectedId(id)
+    setActionMsg('')
+    setActionColor('')
   }
 
-  function handleUseQuery(query) {
-    navigate(`/ricerche/${researchId}/cerca`, { state: { applyQuery: query } })
-  }
+  const selectedArticle = articles.find((a) => a.id === selectedId) ?? null
 
-  async function handleRemoveArticle(articleId) {
+  async function handleEnrichSelected() {
+    if (!selectedArticle) return
+    setActionBusy(true)
+    setActionMsg('')
     try {
-      await removeRicercaArticle(researchId, articleId)
-      setData((current) => ({
-        ...current,
-        count: current.count - 1,
-        articles: current.articles.filter((a) => a.id !== articleId),
-      }))
+      const { article: updated, filled_fields } = await enrichArticle(researchId, selectedArticle.id)
+      setArticles((current) => current.map((a) => (a.id === updated.id ? updated : a)))
+      setActionMsg(filled_fields.length > 0 ? `+ ${filled_fields.join(', ')}` : 'Nessun nuovo dato trovato')
+      setActionColor(filled_fields.length > 0 ? '#6EE7B7' : '#55606E')
     } catch (err) {
-      setError(err.message)
+      setActionMsg(err.message)
+      setActionColor('#FCA5A5')
+    } finally {
+      setActionBusy(false)
     }
   }
 
-  function handleArticleEnriched(articleId, updatedArticle) {
-    setData((current) => ({
-      ...current,
-      articles: current.articles.map((a) => (a.id === articleId ? updatedArticle : a)),
-    }))
+  async function handleCheckVersionSelected() {
+    if (!selectedArticle) return
+    setActionBusy(true)
+    setActionMsg('')
+    try {
+      const result = await checkArticleVersion(researchId, selectedArticle.id)
+      if (!result.found) {
+        setActionMsg('Nessuna novità')
+        setActionColor('#55606E')
+      } else if (result.kind === 'revision') {
+        setActionMsg(result.message)
+        setActionColor('#D4FF24')
+      } else {
+        setActionMsg(`${result.message} — in Deduplicazione`)
+        setActionColor('#FCD34D')
+        listDuplicateGroups(researchId)
+          .then((r) => setDuplicateGroups(r.groups))
+          .catch(() => {})
+      }
+    } catch (err) {
+      setActionMsg(err.message)
+      setActionColor('#FCA5A5')
+    } finally {
+      setActionBusy(false)
+    }
+  }
+
+  async function handleRemoveSelected() {
+    if (!selectedArticle || !isOwner) return
+    try {
+      await removeRicercaArticle(researchId, selectedArticle.id)
+      setArticles((current) => current.filter((a) => a.id !== selectedArticle.id))
+      setSelectedId(null)
+    } catch (err) {
+      setActionMsg(err.message)
+      setActionColor('#FCA5A5')
+    }
   }
 
   async function handleEnrichAll() {
+    setMenuOpen(false)
     setEnrichingAll(true)
-    setEnrichAllMessage('')
     try {
       const result = await enrichAllArticles(researchId)
       const updatedById = new Map(result.enriched.map((e) => [e.article.id, e.article]))
-      // Copre l'intera Ricerca, non solo la pagina corrente: aggiorna quelli
-      // già visibili qui, gli altri si vedranno arricchiti passando pagina.
-      setData((current) => ({
-        ...current,
-        articles: current.articles.map((a) => updatedById.get(a.id) ?? a),
-      }))
-      const parts = [`${result.enriched.length} di ${result.total} articoli arricchiti`]
-      if (result.errors.length > 0) {
-        parts.push(`${result.errors.length} senza dati trovati`)
-      }
-      setEnrichAllMessage(parts.join(', '))
+      setArticles((current) => current.map((a) => updatedById.get(a.id) ?? a))
+      const parts = [{ text: `${result.enriched.length} di ${result.total} completati`, color: '#6EE7B7' }]
+      if (result.errors.length > 0) parts.push({ text: `${result.errors.length} senza dati`, color: '#FCA5A5' })
+      const detailRows = [
+        ...result.enriched.map((e) => ({
+          title: e.article.title,
+          msg: e.filled_fields.length ? `+ ${e.filled_fields.join(', ')}` : '',
+          color: '#6EE7B7',
+        })),
+        ...result.errors.map((e) => ({ title: e.title, msg: e.detail, color: '#FCA5A5' })),
+      ]
+      setToast({ kind: 'enrich', parts, detailRows })
     } catch (err) {
-      setEnrichAllMessage(err.message)
+      setToast({ kind: 'enrich', parts: [{ text: err.message, color: '#FCA5A5' }], detailRows: [] })
     } finally {
       setEnrichingAll(false)
     }
   }
 
+  async function handleUpdateAll() {
+    setMenuOpen(false)
+    setUpdatingAll(true)
+    try {
+      const result = await checkAllArticlesVersion(researchId)
+      const updatedById = new Map(result.revised.map((r) => [r.article.id, r.article]))
+      setArticles((current) => current.map((a) => updatedById.get(a.id) ?? a))
+      if (result.new_sources.length > 0) {
+        listDuplicateGroups(researchId)
+          .then((r) => setDuplicateGroups(r.groups))
+          .catch(() => {})
+      }
+      const parts = []
+      if (result.revised.length > 0) parts.push({ text: `${result.revised.length} revisioni applicate`, color: '#D4FF24' })
+      if (result.new_sources.length > 0) parts.push({ text: `${result.new_sources.length} in Deduplicazione`, color: '#FCD34D' })
+      if (result.errors.length > 0) parts.push({ text: `${result.errors.length} non raggiungibili`, color: '#FCA5A5' })
+      if (parts.length === 0) parts.push({ text: 'Nessuna novità', color: '#55606E' })
+      const detailRows = [
+        ...result.revised.map((r) => ({ title: r.article.title, msg: r.message, color: '#D4FF24' })),
+        ...result.new_sources.map((n) => ({ title: n.title, msg: n.message, color: '#FCD34D' })),
+        ...result.errors.map((e) => ({ title: e.title, msg: e.detail, color: '#FCA5A5' })),
+      ]
+      setToast({ kind: 'update', parts, detailRows })
+    } catch (err) {
+      setToast({ kind: 'update', parts: [{ text: err.message, color: '#FCA5A5' }], detailRows: [] })
+    } finally {
+      setUpdatingAll(false)
+    }
+  }
+
+  const dialItems = articles.map((article, i) => ({
+    id: article.id,
+    caught: true,
+    article,
+    num: String(i + 1).padStart(2, '0'),
+  }))
+
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-      {/* Contenuto principale: gli articoli salvati sono il concetto centrale dell'Overview. */}
-      <section className="min-w-0 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <div className="flex items-start justify-between">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Articoli salvati</h3>
-          {data && data.count > 0 && (
-            <div className="flex items-start gap-3">
-              <span className="pt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                {data.count} {data.count === 1 ? 'articolo salvato' : 'articoli salvati'}
-              </span>
-              <div className="flex flex-col items-end">
-                <button
-                  type="button"
-                  onClick={handleEnrichAll}
-                  disabled={enrichingAll}
-                  title="Completa i metadati mancanti di tutti gli articoli salvati tramite Zotero"
-                  className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-                >
+    <div style={{ paddingBottom: 40 }}>
+      {/* Niente titolo "{nome Ricerca}" (né "Salvati"/team) qui: li mostra
+          già ResearchLayout, accanto al nome della Ricerca — ripeterli qui
+          duplicherebbe lo stesso contenuto. Questa riga ha solo le azioni:
+          "Nuova sessione" a sinistra, "Manutenzione"/"Esporta" a destra,
+          sulla stessa riga. */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, paddingTop: 4, marginBottom: 24 }}>
+        <button type="button" className="pill-btn" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={startNewSession}>
+          <Logo size={18} />
+          Nuova sessione
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative' }}>
+            <button type="button" className="ghost-btn" onClick={() => setMenuOpen((v) => !v)}>
+              Manutenzione <span style={{ fontSize: 10 }}>▾</span>
+            </button>
+            {menuOpen && (
+              <div className="card maint-menu" style={{ padding: 6 }}>
+                <button type="button" className="maint-item" disabled={enrichingAll} onClick={handleEnrichAll}>
                   {enrichingAll ? 'Arricchimento…' : 'Arricchisci tutti'}
                 </button>
-                {enrichingAll && !enrichAllMessage && (
-                  <p className="mt-1 max-w-[12rem] text-right text-xs text-neutral-400 dark:text-neutral-500">
-                    Può richiedere qualche decina di secondi.
-                  </p>
-                )}
-                {enrichAllMessage && (
-                  <p className="mt-1 max-w-[12rem] text-right text-xs text-neutral-500 dark:text-neutral-400">
-                    {enrichAllMessage}
-                  </p>
-                )}
+                <button type="button" className="maint-item" disabled={updatingAll} onClick={handleUpdateAll}>
+                  {updatingAll ? 'Verifica…' : 'Aggiorna tutti'}
+                </button>
               </div>
-              <ExportMenu researchId={researchId} onReady={handleExportReady} />
-            </div>
-          )}
+            )}
+          </div>
+          <ExportMenu researchId={researchId} onReady={handleExportReady} />
+        </div>
+      </div>
+
+      {exportReady && (
+        <div style={{ marginTop: 4, display: 'flex', justifyContent: 'flex-end' }}>
+          <a href={exportReady.url} download={exportReady.filename} className="action-link" style={{ color: '#6EE7B7' }}>
+            Scarica {exportReady.filename}
+          </a>
+        </div>
+      )}
+
+      <div className="card" style={{ marginTop: 14, padding: 0, overflow: 'visible' }}>
+        <div className="ribbon-flat" style={{ fontSize: 18, paddingTop: 14, paddingBottom: 14 }}>
+          Articoli salvati
+          <Logo size={54} className="card-seal" />
         </div>
 
-        {/* Riga propria, allineata a destra sotto l'intera barra (non solo
-            sotto "Esporta"): il nome del file esportato resta per intero
-            (nessun troncamento — va comunque a capo se davvero troppo
-            lungo, non trabocca), senza spingere lateralmente conteggio
-            articoli e "Arricchisci tutti" sulla riga sopra. */}
-        {exportReady && (
-          <div className="mt-1 flex justify-end">
-            <a
-              href={exportReady.url}
-              download={exportReady.filename}
-              className="block max-w-full rounded-lg bg-emerald-100 px-3 py-1.5 text-right text-xs font-medium text-emerald-700 hover:underline dark:bg-emerald-500/20 dark:text-emerald-300"
-            >
-              Scarica {exportReady.filename}
-            </a>
+        {toast && (
+          <div className="toast-bar" style={{ marginTop: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {toast.parts.map((p, i) => (
+                <span key={i} style={{ color: p.color }}>
+                  {i > 0 ? ' · ' : ''}
+                  {p.text}
+                </span>
+              ))}
+            </div>
+            {toast.detailRows.length > 0 && (
+              <button
+                type="button"
+                className="action-link"
+                onClick={() =>
+                  navigate(`/ricerche/${researchId}/manutenzione/${toast.kind === 'enrich' ? 'arricchisci-tutti' : 'aggiorna-tutti'}`, {
+                    state: { result: { parts: toast.parts, detailRows: toast.detailRows } },
+                  })
+                }
+              >
+                Vedi dettagli →
+              </button>
+            )}
+            <span style={{ color: '#55606E', cursor: 'pointer', flex: '0 0 auto' }} onClick={() => setToast(null)}>
+              ✕
+            </span>
           </div>
         )}
 
-        <div className="mt-3">
+        <div style={{ padding: '18px 30px 22px 22px' }}>
           {loading ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
+            <p className="text-sm" style={{ color: '#8B93A5' }}>
+              Caricamento…
+            </p>
           ) : error ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-          ) : data.count === 0 ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Nessun articolo aggiunto per ora.</p>
+            <p className="text-sm" style={{ color: '#FCA5A5' }}>
+              {error}
+            </p>
+          ) : articles.length === 0 ? (
+            <p className="text-sm" style={{ color: '#8B93A5' }}>
+              Nessun articolo aggiunto per ora.
+            </p>
           ) : (
             <>
-              <ul className="space-y-2">
-                {data.articles.map((article, index) => (
-                  <ArticleListItem
-                    key={article.id ?? index}
-                    article={article}
-                    researchId={researchId}
-                    onRemove={isOwner ? handleRemoveArticle : undefined}
-                    onEnriched={handleArticleEnriched}
-                  />
-                ))}
-              </ul>
+              <ArticleDial
+                items={dialItems}
+                selectedId={selectedId}
+                onSelect={selectRow}
+                renderItem={(item) => (
+                  <>
+                    <div className="num-badge">{item.num}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        title={item.article.title}
+                        style={{
+                          fontSize: 14.5,
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          color: '#F3F4F6',
+                        }}
+                      >
+                        {item.article.title}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#8B93A5' }}>
+                        {[item.article.authors?.join(', '), item.article.publication_date?.slice(0, 4)]
+                          .filter(Boolean)
+                          .join(' • ')}
+                      </div>
+                    </div>
+                    <span
+                      className="src-pill"
+                      style={{
+                        background: SOURCE_COLORS[item.article.source]?.bg,
+                        color: SOURCE_COLORS[item.article.source]?.color,
+                      }}
+                    >
+                      {item.article.source}
+                    </span>
+                  </>
+                )}
+              />
 
-              {data.total_pages > 1 && (
-                <div className="mt-6 flex items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={() => goToPage(page - 1)}
-                    disabled={page <= 1}
-                    className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-                  >
-                    ← Precedente
-                  </button>
-                  <span className="text-sm text-neutral-500 dark:text-neutral-400">
-                    Pagina {data.page} di {data.total_pages}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => goToPage(page + 1)}
-                    disabled={page >= data.total_pages}
-                    className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-                  >
-                    Successiva →
-                  </button>
+              {selectedArticle && (
+                <div className="detail-strip">
+                  <div className="detail-title">{selectedArticle.title}</div>
+                  <div className="detail-actions">
+                    {selectedArticle.doi && (
+                      <a
+                        href={`https://doi.org/${selectedArticle.doi}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="action-link"
+                        style={{ color: '#8B93A5' }}
+                      >
+                        DOI ↗
+                      </a>
+                    )}
+                    <button type="button" className="action-link" disabled={actionBusy} onClick={handleEnrichSelected}>
+                      Arricchisci
+                    </button>
+                    <button type="button" className="action-link" disabled={actionBusy} onClick={handleCheckVersionSelected}>
+                      {actionBusy ? 'Verifica…' : 'Controlla versione'}
+                    </button>
+                    {isOwner && (
+                      <button type="button" className="action-link danger" onClick={handleRemoveSelected}>
+                        Rimuovi
+                      </button>
+                    )}
+                  </div>
+                  {actionMsg && <div className="detail-msg" style={{ color: actionColor }}>{actionMsg}</div>}
                 </div>
               )}
+
+              <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: '#55606E' }}>
+                ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per le sue azioni
+              </div>
             </>
           )}
         </div>
-      </section>
-
-      {/* Il resto vive in una sidebar: informazioni di contorno, non il focus principale. */}
-      <div className="min-w-0 space-y-6">
-        {/* Statistiche: contenuto da definire in seguito, per ora solo un placeholder. */}
-        <SidebarSection title="Statistiche">
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">In arrivo.</p>
-        </SidebarSection>
-
-        <SidebarSection title="Query salvate" viewAllTo={`/ricerche/${researchId}/query-salvate`}>
-          {queriesLoading ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
-          ) : queriesError ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{queriesError}</p>
-          ) : queries.length === 0 ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Nessuna query salvata per ora.</p>
-          ) : (
-            <ul className="space-y-2">
-              {queries.slice(0, QUERIES_PREVIEW_COUNT).map((query) => (
-                <QueryListItem key={query.id} query={query} onUse={() => handleUseQuery(query)} />
-              ))}
-            </ul>
-          )}
-        </SidebarSection>
-
-        <SidebarSection title="Cronologia" viewAllTo={`/ricerche/${researchId}/cronologia`}>
-          {historyLoading ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
-          ) : historyError ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{historyError}</p>
-          ) : history.length === 0 ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Nessuna aggiunta registrata per ora.</p>
-          ) : (
-            <ul className="space-y-2">
-              {history.map((entry) => (
-                <HistoryEntryItem key={entry.id} entry={entry} />
-              ))}
-            </ul>
-          )}
-        </SidebarSection>
-
-        <SidebarSection title="Deduplicazione" viewAllTo={`/ricerche/${researchId}/deduplicazione`}>
-          {dedupLoading ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
-          ) : dedupError ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{dedupError}</p>
-          ) : duplicateGroups.length === 0 ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Nessun gruppo da rivedere per ora.</p>
-          ) : (
-            <p className="text-sm text-neutral-600 dark:text-neutral-300">
-              {duplicateGroups.length} grupp{duplicateGroups.length === 1 ? 'o' : 'i'} di duplicati da rivedere.
-            </p>
-          )}
-        </SidebarSection>
-
-        <SidebarSection title="Team" viewAllTo={`/ricerche/${researchId}/team`}>
-          {teamLoading ? (
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
-          ) : teamError ? (
-            <p className="text-sm text-red-600 dark:text-red-400">{teamError}</p>
-          ) : (
-            <ul className="space-y-2">
-              {team.slice(0, TEAM_PREVIEW_COUNT).map((member) => (
-                <TeamMemberItem key={member.id} member={member} />
-              ))}
-            </ul>
-          )}
-        </SidebarSection>
       </div>
+
+      <div style={{ marginTop: 16, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <div className="card" style={{ flex: '1 1 280px', overflow: 'visible', padding: 0, borderColor: '#3A3410' }}>
+          <div className="ribbon-flat muted">Da rivedere</div>
+          <div style={{ padding: '14px 16px' }}>
+            {dedupLoading ? (
+              <p className="text-sm" style={{ color: '#8B93A5' }}>
+                Caricamento…
+              </p>
+            ) : dedupError ? (
+              <p className="text-sm" style={{ color: '#FCA5A5' }}>
+                {dedupError}
+              </p>
+            ) : duplicateGroups.length === 0 ? (
+              <p className="text-sm" style={{ color: '#8B93A5' }}>
+                Nessun gruppo da rivedere per ora.
+              </p>
+            ) : (
+              <>
+                <div style={{ fontSize: 13, color: '#D4FF24', fontWeight: 600 }}>
+                  {duplicateGroups.length} grupp{duplicateGroups.length === 1 ? 'o' : 'i'} di duplicati
+                </div>
+                <div style={{ fontSize: 11.5, color: '#8B93A5', marginTop: 2 }}>
+                  su tutta la Ricerca, non solo gli articoli appena aggiunti
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="card" style={{ flex: '2 1 420px', overflow: 'visible', padding: 0 }}>
+          <div className="ribbon-flat">Attività</div>
+          {/* minmax(0,1fr), non 1fr semplice: senza, la larghezza minima di
+              ogni traccia è quella del suo contenuto (min-content) — un
+              nome di query lungo farebbe sbordare la card oltre la pagina
+              invece di essere troncato, stesso bug già risolto nel pannello
+              di ricerca (Y). */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
+            <div style={{ padding: '12px 16px', borderRight: '1px solid #1B2130', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 12.5, color: '#55606E', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+                  Query salvate
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/ricerche/${researchId}/query-salvate`)}
+                  title="Vedi elenco completo"
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#9CC2FF', display: 'flex' }}
+                >
+                  <ArrowUpRightIcon />
+                </button>
+              </div>
+              {queriesLoading ? (
+                <p className="text-xs" style={{ color: '#8B93A5' }}>
+                  Caricamento…
+                </p>
+              ) : queriesError ? (
+                <p className="text-xs" style={{ color: '#FCA5A5' }}>
+                  {queriesError}
+                </p>
+              ) : queries.length === 0 ? (
+                <p className="text-xs" style={{ color: '#55606E' }}>
+                  Nessuna query salvata per ora.
+                </p>
+              ) : (
+                <ul className="compact-rows">
+                  {queries.slice(0, QUERIES_PREVIEW_COUNT).map((query) => (
+                    <QueryListItem key={query.id} query={query} />
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div style={{ padding: '12px 16px', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 12.5, color: '#55606E', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+                  Cronologia
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/ricerche/${researchId}/cronologia`)}
+                  title="Vedi cronologia completa"
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#9CC2FF', display: 'flex' }}
+                >
+                  <ArrowUpRightIcon />
+                </button>
+              </div>
+              {historyLoading ? (
+                <p className="text-xs" style={{ color: '#8B93A5' }}>
+                  Caricamento…
+                </p>
+              ) : historyError ? (
+                <p className="text-xs" style={{ color: '#FCA5A5' }}>
+                  {historyError}
+                </p>
+              ) : history.length === 0 ? (
+                <p className="text-xs" style={{ color: '#55606E' }}>
+                  Nessuna aggiunta registrata per ora.
+                </p>
+              ) : (
+                <ul className="compact-rows">
+                  {history.map((entry) => (
+                    <HistoryEntryItem key={entry.id} entry={entry} />
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Team ha qui solo lo stack di avatar accanto al nome della Ricerca
+          (cliccabile verso /team) — niente più un'anteprima dei membri
+          ripetuta anche qui sotto. "Statistiche" rimossa: era solo un
+          placeholder "In arrivo.", nessun contenuto reale dietro. */}
     </div>
   )
 }

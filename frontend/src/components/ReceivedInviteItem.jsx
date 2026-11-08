@@ -6,28 +6,29 @@ function statusLabel(state) {
   return 'In attesa'
 }
 
-function statusClass(state) {
-  if (state === 'accepted') return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
-  if (state === 'declined') return 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300'
-  return 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+function statusStyle(state) {
+  if (state === 'accepted') return { background: 'rgba(16,185,129,.15)', color: '#6EE7B7' }
+  if (state === 'declined') return { background: 'rgba(248,113,113,.15)', color: '#FCA5A5' }
+  return { background: 'rgba(217,119,6,.15)', color: '#FCD34D' }
 }
 
 export default function ReceivedInviteItem({ invite }) {
   return (
-    <li className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2.5 dark:border-neutral-800 dark:bg-neutral-900">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-neutral-900 dark:text-neutral-50">{invite.project_name}</p>
-        <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">da {invite.sender_name}</p>
+    <li className="row">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium" style={{ color: '#F3F4F6' }}>
+          {invite.project_name}
+        </p>
+        <p className="truncate text-xs" style={{ color: '#8B93A5' }}>
+          da {invite.sender_name}
+        </p>
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusClass(invite.state)}`}>
+        <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={statusStyle(invite.state)}>
           {statusLabel(invite.state)}
         </span>
         {invite.state === 'pending' && invite.token && (
-          <Link
-            to={`/inviti/accetta?token=${invite.token}`}
-            className="text-xs font-medium text-violet-600 hover:underline dark:text-violet-400"
-          >
+          <Link to={`/inviti/accetta?token=${invite.token}`} className="action-link">
             Rispondi
           </Link>
         )}

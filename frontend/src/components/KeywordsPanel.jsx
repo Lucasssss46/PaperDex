@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { expandKeywords } from '../api/keywords'
-import TagInput from './TagInput'
 import Field from './Field'
+import TagInput from './TagInput'
 
 export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAddGroups, onRemoveGroup }) {
   const [expandingIndex, setExpandingIndex] = useState(null)
@@ -20,9 +20,7 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
       // insieme ad essi: va in una nuova sezione OR tutta sua, non dentro
       // il gruppo esistente (che è in AND al suo interno).
       const existing = new Set(groups.flat().map((t) => t.toLowerCase()))
-      const newGroups = suggestions
-        .filter((s) => !existing.has(s.toLowerCase()))
-        .map((s) => [s])
+      const newGroups = suggestions.filter((s) => !existing.has(s.toLowerCase())).map((s) => [s])
       if (newGroups.length > 0) {
         onAddGroups(newGroups)
       }
@@ -34,10 +32,9 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
   }
 
   return (
-    <aside className="min-w-0 rounded-2xl border border-violet-200 bg-violet-50/60 p-5 shadow-sm dark:border-violet-500/30 dark:bg-violet-500/5">
-      <h2 className="text-sm font-semibold text-violet-900 dark:text-violet-200">Keyword</h2>
-
-      <div className="mt-4 space-y-4">
+    <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 0' }}>
+      <div className="ribbon-flat">Keyword</div>
+      <div className="flex flex-col gap-4" style={{ padding: '14px 16px' }}>
         {groups.map((group, index) => (
           <Field key={index} label={index === 0 ? 'Termini' : `Alternativa ${index} (OR)`}>
             <div className="flex items-start gap-2">
@@ -53,7 +50,8 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
                 onClick={() => handleExpand(index)}
                 disabled={expandingIndex === index || group.filter(Boolean).length === 0}
                 title="Suggerisci acronimi e sinonimi"
-                className="mt-2 shrink-0 text-sm text-violet-500 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-40 dark:text-violet-400 dark:hover:text-violet-300"
+                className="mt-2 shrink-0 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ color: '#9CC2FF' }}
               >
                 {expandingIndex === index ? '…' : '✨'}
               </button>
@@ -61,7 +59,8 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
                 <button
                   type="button"
                   onClick={() => onRemoveGroup(index)}
-                  className="mt-2 text-sm text-neutral-400 hover:text-red-500"
+                  className="mt-2 text-sm"
+                  style={{ color: '#55606E' }}
                   aria-label="Rimuovi alternativa"
                 >
                   ×
@@ -71,13 +70,13 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
           </Field>
         ))}
 
-        {expandError && <p className="text-xs text-red-600 dark:text-red-400">{expandError}</p>}
+        {expandError && (
+          <p className="text-xs" style={{ color: '#FCA5A5' }}>
+            {expandError}
+          </p>
+        )}
 
-        <button
-          type="button"
-          onClick={onAddGroup}
-          className="text-sm font-medium text-violet-600 hover:underline dark:text-violet-400"
-        >
+        <button type="button" onClick={onAddGroup} className="action-link text-left">
           + Aggiungi alternativa (OR)
         </button>
       </div>
