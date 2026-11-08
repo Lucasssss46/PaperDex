@@ -1848,3 +1848,15 @@ Persa rispetto a prima: l'aggiunta di una *singola* versione di un gruppo. Si ag
 **Verificato dal vivo** (Playwright, ricerca pubblica "cable management", 96 risultati): ruota, badge dei gruppi, card espansa centrata, elenco versioni. **Non verificato** il pallino che aggiunge davvero alla Ricerca (serve il login).
 
 **Stato.** Implementato (build + lint puliti).
+
+## 123. Semantic Scholar limitato all'informatica + fine risultati con HTTP 400 (2026-11-08)
+
+**Contesto.** Tre test dal vivo di Semantic Scholar fallivano in modo stabile. Indagato contro l'API reale (senza cache né filtro interno):
+- "Accelerating A/B-Tests with Counterfactual Estimation…" e "Cellular Plasticity Model for Bottom-Up Robotic Design" esistono ancora su S2 (`/paper/search/match` li trova), ma con le query minime dei test ("Counterfactual Estimation", "Cellular Plasticity") non comparivano nei primi 200 risultati: con ~2,2 milioni di risultati per keyword generiche, la rilevanza di S2 li schiaccia sotto paper di altri campi (es. biologia oncologica), oltre le pagine che la paginazione legge.
+- "Chess_db…" arriva primo, ma lo scarta il filtro venue: S2 ora restituisce la venue per esteso ("Electronic Proceedings in Theoretical Computer Science") e il test filtra per la sigla "EPTCS". Problema separato, non affrontato qui.
+
+**Decisione 1 — scope.** Aggiunto `fieldsOfStudy=Computer Science` alle query di `/paper/search`, lo stesso scope già usato per OpenAlex (`topics.field.id:17`). Verificato dal vivo: i due target passano a posizione 33 e 2 (risultati totali da ~2,2 milioni a 822 mila e 203 mila); tutti e 7 i target dei test S2 risultano classificati "Computer Science". Costo misurato: su tre query di informatica, l'1–8% dei primi 100 risultati non ha alcun campo assegnato (spesso paper recenti o con metadati poveri) e viene ora escluso — stesso limite noto del filtro di OpenAlex (vedi la nota sui target sostituiti nei test OpenAlex).
+
+**Decisione 2 — fine dei risultati.** Con lo scope ridotto i totali diventano piccoli, ed è emerso un bug latente: con `offset >= total` S2 risponde **HTTP 400** ("Requested data for this limit and/or offset is not available") invece di una pagina vuota — verificato dal vivo (total=250: offset 240 ok, offset 250 → 400). `paginated_fetch` smette di paginare solo dopo una pagina incompleta, quindi quando il totale è multiplo esatto della pagina chiedeva una pagina in più, riceveva il 400 e la sorgente risultava fallita (`PartialResultsError`). Ora un 400 con `offset > 0` è trattato come fine dei risultati (`[]`), come già il tetto dei 1000; a `offset 0` resta un errore vero. Test: `source_errors_test.py` (400 oltre la fine → `[]`; 400 alla prima pagina → errore).
+
+**Stato.** Implementato. Test S2 dal vivo: 6 su 7 (resta "Chess_db", problema della venue).

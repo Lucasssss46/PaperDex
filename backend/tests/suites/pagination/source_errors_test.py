@@ -48,6 +48,26 @@ async def test_semantic_scholar_stops_at_first_1000_results():
     assert not route.called
 
 
+@pytest.mark.asyncio
+async def test_semantic_scholar_400_past_the_end_is_end_of_results():
+    # offset == total (es. 250 risultati in pagine da 50): l'API risponde 400.
+    with respx.mock() as respx_mock:
+        respx_mock.get(host="api.semanticscholar.org").mock(
+            return_value=Response(400, json={"error": "Requested data for this limit and/or offset is not available"})
+        )
+        results = await SemanticScholarAdapter().fetch(SearchRequest(keyword_include=[["AI"]], limit=50), offset=250)
+
+    assert results == []
+
+
+@pytest.mark.asyncio
+async def test_semantic_scholar_400_on_first_page_is_an_error():
+    with respx.mock() as respx_mock:
+        respx_mock.get(host="api.semanticscholar.org").mock(return_value=Response(400, json={"error": "bad query"}))
+        with pytest.raises(SourceUnavailableError, match="HTTP 400"):
+            await SemanticScholarAdapter().fetch(SearchRequest(keyword_include=[["AI"]], limit=50), offset=0)
+
+
 def _page(size: int, matching: int) -> list:
     return [
         Article(id=f"p{i}", title=f"{'AI' if i < matching else 'Unrelated'} article {i}")
