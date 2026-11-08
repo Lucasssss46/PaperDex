@@ -32,6 +32,14 @@ export function enrichAllArticles(id) {
   return apiRequest(`/ricerche/${id}/articoli/enrich-all`, { method: 'POST' })
 }
 
+export function checkAllArticlesVersion(id) {
+  return apiRequest(`/ricerche/${id}/articoli/check-version-all`, { method: 'POST' })
+}
+
+export function checkArticleVersion(id, articleId) {
+  return apiRequest(`/ricerche/${id}/articoli/${encodeURIComponent(articleId)}/check-version`, { method: 'POST' })
+}
+
 export function listDuplicateGroups(id) {
   return apiRequest(`/ricerche/${id}/duplicate-groups`)
 }

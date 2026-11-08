@@ -1726,3 +1726,39 @@ Origine probabile, dedotta dal codice e non verificata sul record: in Crossref g
 **Test.** `test_blank_author_names_are_skipped` (`tests/suites/dedup/dedup_test.py`), `test_crossref_collective_and_empty_authors` (`tests/suites/normalization/crossref_norm_test.py`) e il nuovo `tests/suites/export/export_test.py`. Suite offline: 95 test passati.
 
 **Stato.** Implementato. Riprovato da Luca dall'app il 2026-10-26: la stessa ricerca dà risultati.
+
+---
+
+## 116. Controllo manuale di nuove versioni per un articolo salvato (2026-10-27)
+
+**Contesto.** Prima parte del monitoraggio discusso in `docs/monitoraggio-versioni-e-query.md`: dato un articolo già salvato, scoprire se ne esiste una versione più recente nelle fonti. Vincolo esplicito ricevuto dall'utente (richiesta a lui fatta da terzi): solo controllo **manuale** per ora, niente scheduler né ripartizione a bucket — quella parte del design resta sulla carta.
+
+**Decisione — due passi in cascata, non uno solo.** Verificato dal vivo prima di scrivere codice (non assunto): ri-interrogare la stessa fonte con lo stesso identificativo (`fetch_zotero_metadata`, già esistente per l'arricchimento) rileva le revisioni — confermato su "Attention Is All You Need" via arXiv, la cui data di record cambia da una richiesta all'altra riflettendo le revisioni del preprint. Non rileva però il passaggio da preprint a pubblicato: il DOI che arXiv assegna da solo (`10.48550/arXiv.*`, dal 2022) è identico prima e dopo la pubblicazione altrove, e non è un segnale utilizzabile. Per quel caso, nuovo passo 2: ricerca mirata titolo+cognome del primo autore su Crossref (bassa profondità, un'unica richiesta), attivata solo se l'articolo non ha ancora un DOI di editore.
+
+**Bug trovato in verifica e corretto — soglia aggiuntiva più severa per il passo 2.** Primo giro di test con un autore prolifico (Yann LeCun, titolo "Deep learning"): `are_duplicates` ha accettato come duplicato un suo lavoro completamente diverso ("Deep learning & convolutional networks", un talk IEEE) perché, quando l'articolo salvato non ha DOI, usa `fuzz.token_set_ratio` — che per design dà punteggio massimo a un titolo interamente contenuto in un altro (pensato per tollerare sottotitoli diversi tra fonti dello stesso lavoro). Lì ha senso, confronta pochi risultati della stessa ricerca; qui il pool è una ricerca per titolo apposta più ampia, dove la collisione è concreta. Aggiunta una soglia supplementare solo per questo contesto (`fuzz.ratio`, che non perdona parole extra — 52 contro i 100 di token_set_ratio sullo stesso caso), senza toccare `are_duplicates` stesso. Aggiunto anche il cognome dell'autore alla query mandata a Crossref (prima finiva solo nel filtro successivo, mai nella query vera): senza, il titolo generico non faceva emergere il paper giusto tra i primi risultati.
+
+**Decisione — l'esito non completato non è "trovato nulla".** Durante la verifica, una chiamata a Crossref ha incontrato un 429 dopo i tentativi: senza distinzione, sarebbe sembrato un controllo riuscito senza novità. Il passo 2 ora distingue `kind: "unavailable"` da "niente trovato", e la rotta lo traduce in un 502 invece di una risposta 200 silenziosa — stessa filosofia degli avvisi per sorgente già usata da `search_all_sources`.
+
+**Decisione — esiti diversi, trattamento diverso.** Una revisione della stessa fonte aggiorna l'articolo sul posto con la stessa politica non distruttiva di `apply_enrichment` (riempie solo campi vuoti). Una versione trovata su un'altra fonte diventa un'alternativa nel `DuplicateGroup` dell'articolo (riusa `attach_as_duplicate_alternatives`, introdotta per la deduplicazione tra sessioni), da rivedere nella tab Deduplicazione come un duplicato qualunque — niente di nuovo da costruire lì.
+
+Nuovo modulo `services/utils/versioning.py`; nuova rotta `POST /ricerche/{id}/articoli/{article_id}/check-version`. Non ancora collegata al frontend (richiesto esplicitamente solo il codice di controllo per ora).
+
+**Verifica.** Dal vivo contro backend e translation-server reali, nessun mock. Revisione: stesso articolo arXiv ri-controllato due volte, data del record diversa da quella salvata rilevata correttamente entrambe le volte. Nuova fonte: prima un falso positivo (lavoro diverso dello stesso autore) scartato dopo il fix, poi il vero paper Nature trovato con DOI, venue e abstract corretti, verificato sia come valore di ritorno della funzione sia end-to-end sulla rotta HTTP, con il `DuplicateGroup` risultante controllato via API. Fonte non raggiungibile: riprodotto un 429 reale di Crossref, confermato che la rotta risponde 502 invece di un falso "niente trovato". Dati di prova ripuliti al termine.
+
+**Stato.** Implementato e verificato dal vivo. Collegamento al frontend e ricerca incrementale delle query (la seconda metà del monitoraggio) restano da fare.
+
+## 117. Controllo di nuove versioni in blocco su tutta la Ricerca (2026-11-07)
+
+**Contesto.** Il punto 116 copre solo un articolo alla volta. Durante il redesign del frontend (fuori da questo documento, in un canvas di design separato) era emersa la necessità di una versione "tutti insieme" da agganciare a un'azione di massa in Overview ("Aggiorna tutti"), simmetrica a `enrich_all_articles` — che già esiste per l'arricchimento Zotero ma non aveva un equivalente per il controllo versioni.
+
+**Decisione.** Nuova rotta `POST /ricerche/{id}/articoli/check-version-all`, stessa forma di `enrich_all_articles`: raccoglie tutti gli `AddedArticle` della Ricerca (project-wide, non solo dell'utente corrente — stessa query di `export_ricerca_articles`), deduplica per articolo (un articolo salvato da più membri non va controllato due volte), e chiama `check_for_new_version` su ciascuno. Un esito per articolo, non interrotto dagli altri: una revisione trovata applica i campi sul posto (stessa politica non distruttiva del punto 116); una versione su un'altra fonte diventa un'alternativa nel `DuplicateGroup`, da rivedere in Deduplicazione; una fonte irraggiungibile finisce in `errors` invece di sembrare "niente trovato", stessa distinzione del punto 116. Risposta: `{total, revised[], new_sources[], errors[]}`.
+
+Nessuna novità logica rispetto al punto 116: è lo stesso `check_for_new_version` chiamato in loop con lo stesso trattamento per `kind`, sul modello letterale di come `enrich_all_articles` itera su `enrich_article`/`apply_enrichment`.
+
+**Non verificato dal vivo** (a differenza del punto 116): il file `.env` di questo progetto punta a un database MongoDB di **produzione**, non a un'istanza locale/di test — girare questa rotta contro dati reali per collaudarla avrebbe modificato articoli e `DuplicateGroup` veri. Verificato solo per lettura attenta rispetto al codice gemello già collaudato (`check_article_version`, `enrich_all_articles`). Da verificare dal vivo quando sarà disponibile un ambiente non di produzione, o con un test mockato — nessuna rotta di `ricerche.py` ne ha oggi (richiederebbero una connessione Mongo reale nel lifespan di `main.py`, stesso gap già annotato al punto 18).
+
+**Collegamento al frontend.** `checkAllArticlesVersion` in `api/ricerche.js`; voce "Aggiorna tutti" nel menu "Manutenzione" di `OverviewPage.jsx` (vedi punto 118 per il redesign completo di questa pagina, successivo a questa voce). A differenza di `handleEnrichAll`, qui un esito possibile (`new_sources`) tocca anche i `DuplicateGroup`: se la risposta ne contiene almeno uno, la sidebar "Deduplicazione" viene ricaricata, altrimenti resterebbe con un conteggio stantio dopo l'azione.
+
+**Stato.** Implementato (rotta + collegamento frontend), non verificato dal vivo (vedi nota sopra sul database di produzione).
+
+---

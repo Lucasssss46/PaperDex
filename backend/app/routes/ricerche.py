@@ -12,6 +12,7 @@ from backend.app.schemas.models import AddedArticle, Article, DuplicateGroup, In
 from backend.app.services.utils.dedup import DEFAULT_SOURCE_PRIORITY, are_duplicates, pick_preferred
 from backend.app.services.utils.email import EmailSendError, FRONTEND_URL, build_invite_email, send_email
 from backend.app.services.utils.export import EXPORT_FORMATS, EXPORTERS
+from backend.app.services.utils.versioning import check_for_new_version
 from backend.app.services.utils.zotero import (
     EnrichmentError,
     apply_enrichment,
@@ -800,6 +801,167 @@ async def enrich_all_articles(ricerca_id: str, current_user: User = Depends(get_
     return {
         "total": len(seen_article_ids),
         "enriched": enriched,
+        "errors": errors,
+    }
+
+
+@router.post("/ricerche/{ricerca_id}/articoli/{article_id:path}/check-version")
+async def check_article_version(ricerca_id: str, article_id: str, current_user: User = Depends(get_current_user)):
+    """Controllo manuale (non ancora automatico/periodico — richiesto così
+    per ora, vedi docs/monitoraggio-versioni-e-query.md) di una nuova
+    versione per un singolo articolo già salvato: prima una revisione della
+    stessa fonte (es. un aggiornamento arXiv), poi — solo se l'articolo non
+    ha ancora un DOI di editore — una ricerca mirata su un'altra fonte.
+    Una versione trovata su un'altra fonte diventa un'alternativa nel
+    DuplicateGroup dell'articolo, da rivedere nella tab Deduplicazione come
+    un duplicato qualunque; una revisione della stessa fonte viene invece
+    applicata sul posto (stessa politica non distruttiva di apply_enrichment:
+    riempie solo i campi vuoti, non sovrascrive mai)."""
+    project = await Project.get(ricerca_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Ricerca non trovata")
+
+    await require_access(project, current_user)
+
+    article = await Article.get(article_id)
+    if article is None:
+        raise HTTPException(status_code=404, detail="Articolo non trovato")
+
+    result = await check_for_new_version(article)
+    if result is None:
+        return {"found": False}
+
+    if result["kind"] == "unavailable":
+        # Non completato, non "cercato e non trovato nulla": un 502, non un
+        # 200 con found=False, altrimenti un rate limit momentaneo
+        # sembrerebbe un esito negativo legittimo.
+        raise HTTPException(status_code=502, detail=result["message"])
+
+    if result["kind"] == "revision":
+        filled_fields = apply_enrichment(article, result["item"])
+        if filled_fields:
+            await article.save()
+        return {
+            "found": True,
+            "kind": "revision",
+            "message": result["message"],
+            "filled_fields": filled_fields,
+        }
+
+    # kind == "new_source": upsert dell'articolo candidato nella cache
+    # globale (stesso pattern di add_article_to_ricerca) e aggancio come
+    # alternativa al gruppo di quello già salvato — individuato tra tutti gli
+    # AddedArticle della Ricerca, non solo quelli dell'utente corrente: un
+    # membro qualunque può avere salvato l'originale.
+    candidate = result["candidate"]
+    existing_candidate = await Article.get(candidate.id)
+    if existing_candidate is None:
+        await candidate.insert()
+    else:
+        candidate = existing_candidate
+
+    all_researches = await Research.find_all().to_list()
+    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_added = await AddedArticle.find_all().to_list()
+    anchor_added = next(
+        (
+            a
+            for a in all_added
+            if linked_id(a.research) in related_research_ids and linked_id(a.article) == article.id
+        ),
+        None,
+    )
+    if anchor_added is not None:
+        await attach_as_duplicate_alternatives(project, anchor_added, article.id, [candidate.id])
+
+    return {
+        "found": True,
+        "kind": "new_source",
+        "message": result["message"],
+        "candidate_id": candidate.id,
+    }
+
+
+@router.post("/ricerche/{ricerca_id}/articoli/check-version-all")
+async def check_all_articles_version(ricerca_id: str, current_user: User = Depends(get_current_user)):
+    """Come check_article_version, ma per tutti gli articoli salvati della
+    Ricerca in un colpo solo — stessa query project-wide già usata da
+    enrich_all_articles ed export_ricerca_articles. Un articolo che non trova
+    nulla, o per cui la fonte non è raggiungibile, non blocca gli altri,
+    stessa filosofia resiliente di search_all_sources/enrich_all_articles:
+    l'errore viene raccolto e restituito, non propagato."""
+    project = await Project.get(ricerca_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Ricerca non trovata")
+
+    await require_access(project, current_user)
+
+    all_researches = await Research.find_all().to_list()
+    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_added = await AddedArticle.find_all().to_list()
+    my_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+
+    revised = []
+    new_sources = []
+    errors = []
+    seen_article_ids = set()
+    for added in my_added:
+        article_id = linked_id(added.article)
+        if article_id in seen_article_ids:
+            # Stesso articolo aggiunto da più membri separatamente (un
+            # AddedArticle a testa, come già gestito da enrich_all_articles):
+            # controllarlo due volte nello stesso giro non serve a nulla.
+            continue
+        seen_article_ids.add(article_id)
+
+        article = await Article.get(article_id)
+        if article is None:
+            continue
+
+        result = await check_for_new_version(article)
+        if result is None:
+            continue
+
+        if result["kind"] == "unavailable":
+            errors.append({"article_id": article.id, "title": article.title, "detail": result["message"]})
+            continue
+
+        if result["kind"] == "revision":
+            filled_fields = apply_enrichment(article, result["item"])
+            if filled_fields:
+                await article.save()
+            revised.append(
+                {
+                    "article": article.model_dump(),
+                    "message": result["message"],
+                    "filled_fields": filled_fields,
+                }
+            )
+            continue
+
+        # kind == "new_source": stesso upsert + aggancio come alternativa già
+        # usato da check_article_version per il singolo articolo.
+        candidate = result["candidate"]
+        existing_candidate = await Article.get(candidate.id)
+        if existing_candidate is None:
+            await candidate.insert()
+        else:
+            candidate = existing_candidate
+
+        await attach_as_duplicate_alternatives(project, added, article.id, [candidate.id])
+        new_sources.append(
+            {
+                "article_id": article.id,
+                "title": article.title,
+                "message": result["message"],
+                "candidate_id": candidate.id,
+            }
+        )
+
+    return {
+        "total": len(seen_article_ids),
+        "revised": revised,
+        "new_sources": new_sources,
         "errors": errors,
     }
 
