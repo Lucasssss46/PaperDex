@@ -1874,3 +1874,5 @@ Scartata per ora l'alternativa di usare gli `alternate_names` che S2 espone per 
 Test: `filtering_test.py` (sigla → nome esteso, nome esteso → sigla, variante NIPS/NeurIPS, niente falsi positivi NAACL/ICMLA, venue sconosciuta invariata). "Chess_db" torna a passare: test S2 dal vivo 7 su 7.
 
 **Stato.** Implementato.
+
+**Aggiornamento (2026-11-08) — rimosso `arxiv_dblp_coverage_test.py`.** Su decisione dell'utente. Il test non verificava nulla: passava a `normalize_title` una stringa invece di un `Article` e falliva con `TypeError` prima di confrontare i titoli; anche corretto, chiedeva un indice di Jaccard > 0.75 tra arXiv e DBLP dal vivo, una soglia esplorativa (vedi la "Categoria 2" della voce sui test falliti) più che una verifica di correttezza. La misura della sovrapposizione tra fonti resta compito degli script di valutazione in `backend/app/statistics/`.
