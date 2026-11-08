@@ -1860,3 +1860,17 @@ Persa rispetto a prima: l'aggiunta di una *singola* versione di un gruppo. Si ag
 **Decisione 2 — fine dei risultati.** Con lo scope ridotto i totali diventano piccoli, ed è emerso un bug latente: con `offset >= total` S2 risponde **HTTP 400** ("Requested data for this limit and/or offset is not available") invece di una pagina vuota — verificato dal vivo (total=250: offset 240 ok, offset 250 → 400). `paginated_fetch` smette di paginare solo dopo una pagina incompleta, quindi quando il totale è multiplo esatto della pagina chiedeva una pagina in più, riceveva il 400 e la sorgente risultava fallita (`PartialResultsError`). Ora un 400 con `offset > 0` è trattato come fine dei risultati (`[]`), come già il tetto dei 1000; a `offset 0` resta un errore vero. Test: `source_errors_test.py` (400 oltre la fine → `[]`; 400 alla prima pagina → errore).
 
 **Stato.** Implementato. Test S2 dal vivo: 6 su 7 (resta "Chess_db", problema della venue).
+
+## 124. Filtro venue: sigle ↔ nomi estesi (2026-11-08)
+
+**Contesto.** Il test "Chess_db" (filtro journal "EPTCS") falliva perché Semantic Scholar restituisce la venue per esteso, "Electronic Proceedings in Theoretical Computer Science", e il filtro cercava la sigla come sottostringa. Verificato dal vivo su 20 paper noti: S2 usa sempre il nome esteso nel campo `venue` (es. "Neural Information Processing Systems", "Annual Meeting of the Association for Computational Linguistics"), mentre DBLP usa di solito la sigla. Chi filtra per sigla perdeva quindi i risultati S2 (e, per lo più, OpenAlex/Crossref), e chi filtra per nome esteso quelli DBLP.
+
+**Decisione.** Scelta dell'utente tra le opzioni proposte: un elenco statico di sigle → nomi estesi delle venue più note dell'informatica (`services/utils/venue_aliases.py`, ~65 venue tra AI/ML, visione, NLP, dati/IR, ingegneria del software, sistemi, sicurezza, teoria, HCI e collane come EPTCS/LIPIcs/LNCS). Stesso approccio e stessi limiti del dizionario statico delle keyword (voce sull'espansione delle keyword): copertura volutamente limitata, da estendere a mano.
+
+`_matches_journal` prova prima il testo cercato così com'è (sottostringa, comportamento invariato) e poi, se il testo è una sigla o un nome esteso dell'elenco (uguaglianza esatta, senza maiuscole), le altre forme della stessa venue. Le forme alternative si cercano come parole intere e non seguite da "and"/"&", per evitare falsi positivi verificati sui nomi reali: "ACL" non trova "NAACL", "International Conference on Machine Learning" non trova "... Machine Learning and Applications" (ICMLA). Limite noto lasciato con un commento `shortcut:`: il nome esteso di KDD è contenuto in quello di PAKDD.
+
+Scartata per ora l'alternativa di usare gli `alternate_names` che S2 espone per ogni venue (`publicationVenue`): darebbe una copertura vera, ma solo per i risultati S2 e con un campo in più da richiedere e salvare per ogni articolo.
+
+Test: `filtering_test.py` (sigla → nome esteso, nome esteso → sigla, variante NIPS/NeurIPS, niente falsi positivi NAACL/ICMLA, venue sconosciuta invariata). "Chess_db" torna a passare: test S2 dal vivo 7 su 7.
+
+**Stato.** Implementato.
