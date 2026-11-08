@@ -41,3 +41,37 @@ def test_repeated_word_needs_repeated_word():
 
 def test_dblp_homonym_number_is_ignored():
     assert _kept({"a": ["Wei Wang 0001"]}, ["Wei Wang"]) == ["a"]
+
+
+def _kept_venues(venue_by_id, searched):
+    articles = [Article(id=id_, title="Un titolo", venue=venue) for id_, venue in venue_by_id.items()]
+    return [a.id for a in filter_articles(articles, SearchRequest(journal=searched))]
+
+
+def test_acronym_finds_full_venue_name():
+    # Caso reale: Semantic Scholar scrive il nome esteso, il test cercava "EPTCS".
+    assert _kept_venues({"a": "Electronic Proceedings in Theoretical Computer Science"}, ["EPTCS"]) == ["a"]
+
+
+def test_full_name_finds_acronym_venue():
+    # Verso opposto: DBLP scrive di solito la sigla.
+    assert _kept_venues({"a": "NeurIPS", "b": "Advances in Neural Information Processing Systems"}, ["neural information processing systems"]) == ["a", "b"]
+
+
+def test_alias_acronym_variant():
+    assert _kept_venues({"a": "NIPS"}, ["NeurIPS"]) == ["a"]
+
+
+def test_alias_does_not_match_inside_other_acronyms_or_longer_names():
+    kept = _kept_venues(
+        {
+            "naacl": "NAACL",  # "ACL" come forma alternativa non deve trovare NAACL
+            "icmla": "International Conference on Machine Learning and Applications",
+        },
+        ["Meeting of the Association for Computational Linguistics", "ICML"],
+    )
+    assert kept == []
+
+
+def test_unknown_venue_keeps_plain_substring_match():
+    assert _kept_venues({"a": "Journal of Obscure Studies", "b": "Other"}, ["Obscure"]) == ["a"]

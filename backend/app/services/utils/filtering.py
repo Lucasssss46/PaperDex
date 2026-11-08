@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from backend.app.schemas.models import Article
 from backend.app.schemas.search import SearchRequest
+from backend.app.services.utils.venue_aliases import venue_alternatives, venue_mentions
 
 
 def _contains_term(text: Optional[str], term: str) -> bool:
@@ -69,7 +70,13 @@ def _matches_authors(article: Article, authors: Optional[list]) -> bool:
 def _matches_journal(article: Article, journals: Optional[list]) -> bool:
     if not journals:
         return True
-    return any(_contains_term(article.venue, journal) for journal in journals)
+    # Prima il testo cercato così com'è (comportamento di sempre), poi le altre
+    # forme note della stessa venue: sigla ↔ nome esteso (venue_aliases.py).
+    return any(
+        _contains_term(article.venue, journal)
+        or any(venue_mentions(article.venue, form) for form in venue_alternatives(journal))
+        for journal in journals
+    )
 
 
 def _matches_year_range(article: Article, year_start: Optional[int], year_end: Optional[int]) -> bool:
