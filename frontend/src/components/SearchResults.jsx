@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { addArticleGroupToRicerca, addArticleToRicerca } from '../api/ricerche'
 import { SOURCE_COLORS } from '../constants'
+import ArticleDial from './ArticleDial'
+import AuthorsYear from './AuthorsYear'
+import ExpandedArticleCard from './ExpandedArticleCard'
+import { useArticleMorph } from './useArticleMorph'
 import Spinner from './Spinner'
 import SourceIcon from './SourceIcon'
 
@@ -30,149 +34,60 @@ function pickPreferred(articles) {
 
 // Un gruppo per ogni group_key distinto, nell'ordine di prima comparsa —
 // gruppi da un solo articolo restano tali (si raggruppano solo i duplicati).
+// Senza group_key l'articolo fa gruppo a sé, invece di finire con tutti gli
+// altri senza chiave sotto `undefined`.
 function groupResults(results) {
   const order = []
   const map = new Map()
   results.forEach((article) => {
-    const key = article.group_key
+    const key = article.group_key ?? article.id
     if (!map.has(key)) {
       map.set(key, [])
       order.push(key)
     }
     map.get(key).push(article)
   })
-  return order.map((key) => map.get(key))
+  return order.map((key) => ({ key, members: map.get(key) }))
 }
 
-function ArticleCard({ article, research, onAdded, preferred }) {
-  const [expanded, setExpanded] = useState(false)
-  const [addState, setAddState] = useState('idle')
-  const year = article.publication_date ? String(article.publication_date).slice(0, 4) : null
-  const srcColors = SOURCE_COLORS[article.source]
-
-  async function handleAdd() {
-    setAddState('adding')
-    try {
-      await addArticleToRicerca(research.id, article)
-      setAddState('added')
-      onAdded?.([article])
-    } catch {
-      setAddState('error')
-    }
-  }
-
+// Versioni di un gruppo di duplicati, sotto l'abstract nella card espansa:
+// solo informative (fonte, venue/anno, DOI) — si aggiunge il gruppo intero.
+function GroupVersions({ members, preferred }) {
   return (
-    <li className="card" style={{ padding: 20 }}>
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="font-semibold" style={{ color: '#F3F4F6' }}>
-          {article.title}
-        </h3>
-        <div className="flex shrink-0 items-center gap-2">
-          {preferred && (
-            <span className="rounded-full px-2 py-1 text-xs font-medium" style={{ background: 'rgba(212,255,36,.12)', color: '#D4FF24' }}>
-              Preferito per il gruppo
-            </span>
-          )}
-          <span className="src-pill" style={{ background: srcColors?.bg, color: srcColors?.color, padding: '4px 10px' }}>
-            <SourceIcon name={article.source} className="h-4" />
-          </span>
-        </div>
+    <div className="mt-5">
+      <div className="text-xs font-semibold" style={{ color: '#9CC2FF' }}>
+        {members.length} versioni dello stesso articolo
       </div>
-
-      <p className="mt-1 text-sm" style={{ color: '#8B93A5' }}>
-        {[article.authors?.join(', '), article.venue, year].filter(Boolean).join(' • ')}
-      </p>
-
-      {article.abstract && (
-        <p className={`mt-3 text-sm ${expanded ? '' : 'line-clamp-3'}`} style={{ color: '#C3C9D4' }}>
-          {article.abstract}
-        </p>
-      )}
-
-      <div className="mt-3 flex items-center justify-between gap-4 text-xs">
-        <div className="flex items-center gap-4">
-          {article.abstract && (
-            <button type="button" onClick={() => setExpanded((e) => !e)} className="action-link">
-              {expanded ? 'Mostra meno' : 'Mostra tutto'}
-            </button>
-          )}
-          {article.doi && (
-            <a href={`https://doi.org/${article.doi}`} target="_blank" rel="noreferrer" className="action-link" style={{ color: '#8B93A5' }}>
-              DOI ↗
-            </a>
-          )}
-        </div>
-
-        {/* Fuori da una Ricerca specifica non ha senso poter salvare gli articoli. */}
-        {research && (
-          <button
-            type="button"
-            onClick={handleAdd}
-            disabled={addState === 'adding' || addState === 'added'}
-            className="ghost-btn"
-            style={{ fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600 }}
-          >
-            {ADD_LABELS[addState]}
-          </button>
-        )}
-      </div>
-    </li>
-  )
-}
-
-// Un gruppo di articoli considerati duplicati tra loro (stesso group_key):
-// evidenziato graficamente, con un'azione in più per aggiungerli tutti in
-// blocco (ne verrà comunque salvato solo uno, per preferenza — vedi
-// Deduplicazione) oltre alla possibilità di aggiungerli singolarmente.
-function DuplicateGroupCard({ articles, research, onAdded }) {
-  const [addState, setAddState] = useState('idle')
-  const preferred = pickPreferred(articles)
-
-  async function handleAddGroup() {
-    setAddState('adding')
-    try {
-      await addArticleGroupToRicerca(research.id, articles)
-      setAddState('added')
-      onAdded?.(articles)
-    } catch {
-      setAddState('error')
-    }
-  }
-
-  return (
-    <li className="card" style={{ padding: 16, borderColor: 'rgba(43,124,255,.4)', borderWidth: 2 }}>
-      <div className="mb-3 flex items-center justify-between gap-3 px-1">
-        <span className="text-xs font-semibold" style={{ color: '#9CC2FF' }}>
-          {articles.length} versioni dello stesso articolo trovate
-        </span>
-        {research && (
-          <button
-            type="button"
-            onClick={handleAddGroup}
-            disabled={addState === 'adding' || addState === 'added'}
-            className="ghost-btn"
-            style={{ fontFamily: 'inherit', fontSize: 11.5, fontWeight: 600 }}
-          >
-            {GROUP_ADD_LABELS[addState]}
-          </button>
-        )}
-      </div>
-      <ul className="space-y-3">
-        {articles.map((article, index) => (
-          <ArticleCard
-            key={article.id ?? index}
-            article={article}
-            research={research}
-            onAdded={onAdded}
-            preferred={article.id === preferred.id}
-          />
-        ))}
+      <ul className="mt-2 space-y-2">
+        {members.map((m, i) => {
+          const colors = SOURCE_COLORS[m.source]
+          const year = m.publication_date ? String(m.publication_date).slice(0, 4) : null
+          return (
+            <li key={m.id ?? i} className="flex flex-wrap items-center gap-2 text-xs" style={{ color: '#8B93A5' }}>
+              <span className="src-pill" style={{ background: colors?.bg, color: colors?.color, padding: '3px 8px' }}>
+                <SourceIcon name={m.source} className="h-3.5" />
+              </span>
+              <span>{[m.venue, year].filter(Boolean).join(' • ') || '—'}</span>
+              {m.id === preferred.id && <span style={{ color: '#D4FF24' }}>preferita</span>}
+              {m.doi && (
+                <a href={`https://doi.org/${m.doi}`} target="_blank" rel="noreferrer" className="action-link" style={{ color: '#8B93A5' }}>
+                  DOI ↗
+                </a>
+              )}
+            </li>
+          )
+        })}
       </ul>
-    </li>
+    </div>
   )
 }
 
 export default function SearchResults({ results, count, loading, error, searched, research, onArticleAdded }) {
+  // Stato di aggiunta per gruppo (chiave = group_key): 'idle' | 'adding' | 'added' | 'error'.
+  const [addStates, setAddStates] = useState({})
+  const [openKey, setOpenKey] = useState(null)
+  const morph = useArticleMorph()
+
   if (loading) {
     return (
       <div className="flex flex-col items-center gap-3 py-16" style={{ color: '#8B93A5' }}>
@@ -201,21 +116,106 @@ export default function SearchResults({ results, count, loading, error, searched
   }
 
   const groups = groupResults(results)
+  const items = groups.map((g, i) => ({
+    id: g.key,
+    members: g.members,
+    article: pickPreferred(g.members),
+    caught: addStates[g.key] === 'added',
+    num: String(i + 1).padStart(2, '0'),
+  }))
+  const openItem = items.find((it) => it.id === openKey) ?? null
+
+  // Il pallino aggiunge alla Ricerca: un articolo singolo, o l'intero gruppo
+  // di duplicati (ne verrà salvato uno per preferenza — vedi Deduplicazione).
+  async function addItem(key) {
+    const item = items.find((it) => it.id === key)
+    const state = addStates[key]
+    if (!research || !item || state === 'adding' || state === 'added') return
+    setAddStates((s) => ({ ...s, [key]: 'adding' }))
+    try {
+      if (item.members.length > 1) await addArticleGroupToRicerca(research.id, item.members)
+      else await addArticleToRicerca(research.id, item.article)
+      setAddStates((s) => ({ ...s, [key]: 'added' }))
+      onArticleAdded?.(item.members)
+    } catch {
+      setAddStates((s) => ({ ...s, [key]: 'error' }))
+    }
+  }
+
+  function selectItem(key, rowEl) {
+    if (key) morph.open(rowEl, () => setOpenKey(key))
+    else morph.close(() => setOpenKey(null))
+  }
 
   return (
     <div>
       <p className="mb-4 text-sm" style={{ color: '#8B93A5' }}>
         {count} risultat{count === 1 ? 'o' : 'i'}
       </p>
-      <ul className="space-y-4">
-        {groups.map((group) =>
-          group.length > 1 ? (
-            <DuplicateGroupCard key={group[0].group_key} articles={group} research={research} onAdded={onArticleAdded} />
-          ) : (
-            <ArticleCard key={group[0].id} article={group[0]} research={research} onAdded={onArticleAdded} />
-          ),
+
+      <ArticleDial
+        items={items}
+        selectedId={openKey}
+        onSelect={selectItem}
+        // Fuori da una Ricerca specifica non ha senso poter salvare gli articoli: pallino solo indicatore.
+        onToggle={research ? addItem : undefined}
+        dotLabel="Aggiungi alla ricerca"
+        renderItem={(item) => {
+          const state = addStates[item.id]
+          const colors = SOURCE_COLORS[item.article.source]
+          return (
+            <>
+              <div className="num-badge">{item.num}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  title={item.article.title}
+                  style={{ fontSize: 14.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#F3F4F6' }}
+                >
+                  {item.article.title}
+                </div>
+                {state === 'error' || state === 'adding' ? (
+                  <div style={{ fontSize: 12, color: state === 'error' ? '#FCA5A5' : '#8B93A5', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {state === 'error' ? 'Aggiunta non riuscita — clicca il pallino per riprovare' : 'Aggiunta…'}
+                  </div>
+                ) : (
+                  <AuthorsYear authors={item.article.authors} date={item.article.publication_date} />
+                )}
+              </div>
+              {item.members.length > 1 && (
+                <span className="src-pill" style={{ background: 'rgba(43,124,255,.15)', color: '#9CC2FF' }}>
+                  ×{item.members.length} fonti
+                </span>
+              )}
+              <span className="src-pill" style={{ background: colors?.bg, color: colors?.color }}>
+                {item.article.source}
+              </span>
+            </>
+          )
+        }}
+      />
+
+      <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: '#55606E' }}>
+        ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per aprirlo
+        {research ? ' · il pallino lo aggiunge alla ricerca' : ''}
+      </div>
+
+      <ExpandedArticleCard
+        article={openItem?.article ?? null}
+        onClose={() => selectItem(null)}
+        extra={openItem && openItem.members.length > 1 && <GroupVersions members={openItem.members} preferred={openItem.article} />}
+      >
+        {research && openItem && (
+          <button
+            type="button"
+            onClick={() => addItem(openItem.id)}
+            disabled={addStates[openItem.id] === 'adding' || addStates[openItem.id] === 'added'}
+            className="ghost-btn"
+            style={{ fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600 }}
+          >
+            {(openItem.members.length > 1 ? GROUP_ADD_LABELS : ADD_LABELS)[addStates[openItem.id] ?? 'idle']}
+          </button>
         )}
-      </ul>
+      </ExpandedArticleCard>
     </div>
   )
 }

@@ -2,15 +2,15 @@ import { useLocation } from 'react-router-dom'
 
 const COPY = {
   enrich: {
-    empty: 'Nessun esito da mostrare: questa pagina si raggiunge da "Vedi dettagli" nel toast dopo aver lanciato "Arricchisci tutti" dal menu Manutenzione di Overview.',
+    empty: 'Nessun esito da mostrare: questa pagina si raggiunge da "Vedi dettagli" nel toast dopo aver lanciato "Arricchisci selezionati" dal menu Manutenzione di Overview.',
   },
   update: {
-    empty: 'Nessun esito da mostrare: questa pagina si raggiunge da "Vedi dettagli" nel toast dopo aver lanciato "Aggiorna tutti" dal menu Manutenzione di Overview.',
+    empty: 'Nessun esito da mostrare: questa pagina si raggiunge da "Vedi dettagli" nel toast dopo aver lanciato "Aggiorna selezionati" dal menu Manutenzione di Overview.',
   },
 }
 
 // Dettaglio per-articolo di un'azione bulk di Overview (Arricchisci
-// tutti/Aggiorna tutti): i dati arrivano via stato di navigazione (lo
+// selezionati/Aggiorna selezionati): i dati arrivano via stato di navigazione (lo
 // stesso meccanismo già usato da "Usa" per le query salvate), non da una
 // chiamata server — l'esito di un'azione già conclusa non è altro da
 // recuperare, e non è pensato per essere raggiunto direttamente via URL

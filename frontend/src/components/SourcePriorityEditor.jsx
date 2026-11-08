@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { getSourcePriority, setSourcePriority } from '../api/ricerche'
 import SourceIcon from './SourceIcon'
 
+// Loghi che da soli (senza nome accanto) risultano piccoli in questa lista.
+const ENLARGED_LOGOS = new Set(['ArXiv', 'Crossref'])
+
 // Blocchi trascinabili (drag-and-drop HTML5 nativo, nessuna libreria: solo 5
 // elementi da riordinare, non serve altro) per la classifica delle sorgenti
 // usata nella scelta automatica di un gruppo di duplicati — priorità
@@ -88,10 +91,20 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
             <span className="w-4 text-xs font-semibold" style={{ color: '#55606E' }}>
               {index + 1}
             </span>
-            <SourceIcon name={source} className="h-4" />
-            <span className="text-sm" style={{ color: '#C3C9D4' }}>
-              {source}
+            {/* transform, non width/height/zoom: ingrandisce solo a vista, senza cambiare
+                l'ingombro nel layout — la riga resta alta uguale (c'è margine nel padding). */}
+            <span
+              className="inline-flex"
+              style={ENLARGED_LOGOS.has(source) ? { transform: 'scale(1.25)', transformOrigin: 'left center' } : undefined}
+            >
+              <SourceIcon name={source} className="h-4" />
             </span>
+            {/* Gli altri loghi contengono già il nome; quello di DBLP da solo è poco leggibile. */}
+            {source === 'DBLP' && (
+              <span className="text-sm" style={{ color: '#C3C9D4' }}>
+                {source}
+              </span>
+            )}
           </li>
         ))}
       </ol>

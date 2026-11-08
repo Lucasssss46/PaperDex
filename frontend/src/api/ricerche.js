@@ -28,12 +28,13 @@ export function enrichArticle(id, articleId) {
   return apiRequest(`/ricerche/${id}/articoli/${encodeURIComponent(articleId)}/enrich`, { method: 'POST' })
 }
 
-export function enrichAllArticles(id) {
-  return apiRequest(`/ricerche/${id}/articoli/enrich-all`, { method: 'POST' })
+// `articleIds` limita l'operazione a quegli articoli; omesso = tutti quelli della Ricerca.
+export function enrichAllArticles(id, articleIds) {
+  return apiRequest(`/ricerche/${id}/articoli/enrich-all`, { method: 'POST', body: { article_ids: articleIds ?? null } })
 }
 
-export function checkAllArticlesVersion(id) {
-  return apiRequest(`/ricerche/${id}/articoli/check-version-all`, { method: 'POST' })
+export function checkAllArticlesVersion(id, articleIds) {
+  return apiRequest(`/ricerche/${id}/articoli/check-version-all`, { method: 'POST', body: { article_ids: articleIds ?? null } })
 }
 
 export function checkArticleVersion(id, articleId) {

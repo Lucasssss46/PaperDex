@@ -78,9 +78,18 @@ export default function SessionEnrichPage() {
             <button type="button" onClick={toggleAll} disabled={running} className="action-link disabled:cursor-not-allowed disabled:opacity-60">
               {allSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
             </button>
-            <button type="button" onClick={handleEnrich} disabled={running || selectedIds.length === 0} className="pill-btn">
-              {running ? 'Arricchimento…' : `Arricchisci ${selectedIds.length} selezionat${selectedIds.length === 1 ? 'o' : 'i'}`}
-            </button>
+            {/* Credito al tool che fa davvero il lavoro di arricchimento, sotto
+                il tasto che lo lancia — discreto, qui è il posto giusto perché è
+                la pagina dove l'integrazione è reale e visibile, non un'etichetta
+                di navigazione (vedi SessionStepper) che deve restare pulita. */}
+            <div className="flex flex-col items-end gap-1.5">
+              <button type="button" onClick={handleEnrich} disabled={running || selectedIds.length === 0} className="pill-btn">
+                {running ? 'Arricchimento…' : `Arricchisci ${selectedIds.length} selezionat${selectedIds.length === 1 ? 'o' : 'i'}`}
+              </button>
+              <span className="text-xs" style={{ color: '#55606E' }}>
+                Arricchimento powered by <strong style={{ color: '#8B93A5' }}>Zotero</strong>
+              </span>
+            </div>
           </div>
 
           <ul>
@@ -118,16 +127,6 @@ export default function SessionEnrichPage() {
               )
             })}
           </ul>
-
-          {/* Credito al tool che fa davvero il lavoro di arricchimento —
-              discreto, qui è il posto giusto perché è la pagina dove
-              l'integrazione è reale e visibile, non un'etichetta di
-              navigazione (vedi SessionStepper) che deve restare pulita. */}
-          <div className="flex justify-end border-t pt-3" style={{ borderColor: '#1B2130' }}>
-            <span className="text-xs" style={{ color: '#55606E' }}>
-              Arricchimento powered by <strong style={{ color: '#8B93A5' }}>Zotero</strong>
-            </span>
-          </div>
         </>
       )}
 

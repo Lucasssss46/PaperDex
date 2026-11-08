@@ -140,7 +140,7 @@ export default function ResearchLayout() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3.5">
-          <Link to={`/ricerche/${id}/overview`} className="head text-xl font-semibold hover:underline" style={{ color: '#F3F4F6' }}>
+          <Link to={`/ricerche/${id}/overview`} className={`head ${pageName ? 'text-xl' : 'text-4xl ml-4'} font-semibold hover:underline`} style={{ color: '#F3F4F6' }}>
             {name ?? 'Caricamento…'}
           </Link>
           {pageName && <span className="head text-xl font-semibold" style={{ color: '#55606E' }}>- {pageName}</span>}
@@ -155,6 +155,7 @@ export default function ResearchLayout() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
+                marginLeft: 10,
                 border: '1.5px solid #1B2130',
                 borderRadius: 999,
                 padding: '5px 14px',
