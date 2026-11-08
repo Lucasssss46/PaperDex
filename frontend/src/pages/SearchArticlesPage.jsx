@@ -134,9 +134,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
   }
 
   function toggleSource(name) {
-    setSources((current) =>
-      current.includes(name) ? current.filter((s) => s !== name) : [...current, name],
-    )
+    setSources((current) => (current.includes(name) ? current.filter((s) => s !== name) : [...current, name]))
   }
 
   async function handleFormSubmit(formValues) {
@@ -222,14 +220,19 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
   return (
     <>
       {research ? (
-        <div className="mb-6 rounded-lg border border-violet-300 bg-violet-100 px-4 py-2.5 text-sm font-medium text-violet-800 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-violet-300">
+        <div
+          className="mb-6 rounded-lg px-4 py-2.5 text-sm font-medium"
+          style={{ border: '1px solid #1B2130', background: 'rgba(43,124,255,.08)', color: '#9CC2FF' }}
+        >
           Stai cercando all'interno di <strong>{research.name}</strong> — gli articoli trovati possono essere
           aggiunti a questa ricerca.
         </div>
       ) : (
         <>
-          <h2 className="mb-4 text-xl font-semibold text-neutral-900 dark:text-neutral-50">Ricerca rapida</h2>
-          <div className="mb-6 rounded-lg border border-neutral-300 bg-neutral-100 px-4 py-2.5 text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+          <h2 className="head mb-4 text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+            Ricerca rapida
+          </h2>
+          <div className="mb-6 rounded-lg px-4 py-2.5 text-sm" style={{ border: '1px solid #1B2130', background: '#0C1119', color: '#8B93A5' }}>
             Sei fuori da qualsiasi Ricerca, qui puoi solo cercare gli articoli, non salvarli.
           </div>
         </>
@@ -242,32 +245,21 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           dall'utente — da qui in poi non si torna all'Overview senza
           passare anche da Deduplicazione e Arricchisci con Zotero. */}
       {research && sessionArticles.length > 0 && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 dark:border-emerald-500/40 dark:bg-emerald-500/10">
-          <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+        <div
+          className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3"
+          style={{ border: '1px solid rgba(212,255,36,.25)', background: 'rgba(212,255,36,.08)' }}
+        >
+          <span className="text-sm font-medium" style={{ color: '#D4FF24' }}>
             {sessionArticles.length} articol{sessionArticles.length === 1 ? 'o' : 'i'} aggiunt
             {sessionArticles.length === 1 ? 'o' : 'i'} in questa sessione
           </span>
-          <Link
-            to={`/ricerche/${research.id}/sessione/duplicati`}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-          >
+          <Link to={`/ricerche/${research.id}/sessione/duplicati`} className="pill-btn" style={{ textDecoration: 'none' }}>
             Continua: rivedi duplicati →
           </Link>
         </div>
       )}
 
-      {research && savedQueries.length > 0 && (
-        <div className="mb-6 rounded-2xl border border-violet-200 bg-violet-50/60 p-4 dark:border-violet-500/30 dark:bg-violet-500/5">
-          <h3 className="text-sm font-semibold text-violet-900 dark:text-violet-200">Query salvate</h3>
-          <ul className="mt-2 max-h-48 space-y-2 overflow-y-auto pr-1">
-            {savedQueries.map((query) => (
-              <QueryListItem key={query.id} query={query} onUse={() => applyQuery(query)} />
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-6 min-[1180px]:grid-cols-[260px_minmax(0,1fr)_320px] min-[1180px]:items-start">
+      <div className="flex flex-wrap items-start gap-4">
         <SourcesPanel
           sources={sources}
           onToggle={toggleSource}
@@ -297,11 +289,27 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           onDepthChange={setDepth}
           onSubmit={handleFormSubmit}
         />
+        {research && (
+          <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 0' }}>
+            <div className="ribbon-flat">Query salvate</div>
+            <div style={{ padding: '10px 12px', maxHeight: 280, overflowY: 'auto' }}>
+              {savedQueries.length === 0 ? (
+                <p className="text-xs" style={{ color: '#55606E' }}>
+                  Nessuna query salvata per ora.
+                </p>
+              ) : (
+                savedQueries.map((query) => (
+                  <QueryListItem key={query.id} query={query} onUse={() => applyQuery(query)} />
+                ))
+              )}
+            </div>
+          </aside>
+        )}
       </div>
 
-      <div className="mt-6 flex flex-col items-center gap-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+      <div className="mt-6 flex flex-col items-center gap-3 border-t pt-6" style={{ borderColor: '#1B2130' }}>
         {validationError && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400">
+          <p className="rounded-md px-3 py-2 text-sm" style={{ background: 'rgba(248,113,113,.1)', color: '#FCA5A5' }}>
             {validationError}
           </p>
         )}
@@ -309,7 +317,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           type="submit"
           form="search-form"
           disabled={loading}
-          className="flex w-full max-w-[160px] items-center justify-center gap-2 rounded-lg bg-violet-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="pill-btn flex w-full max-w-[160px] items-center justify-center gap-2"
         >
           {loading && <Spinner />}
           {loading ? 'Ricerca in corso…' : 'Cerca'}
@@ -319,10 +327,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
       {warnings.length > 0 && (
         <div className="mt-6 space-y-2">
           {warnings.map((w) => (
-            <p
-              key={w.source}
-              className="rounded-lg bg-amber-50 px-4 py-2.5 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
-            >
+            <p key={w.source} className="rounded-lg px-4 py-2.5 text-sm" style={{ background: 'rgba(217,119,6,.1)', color: '#FCD34D' }}>
               <strong>{w.source}:</strong> {w.message}
             </p>
           ))}

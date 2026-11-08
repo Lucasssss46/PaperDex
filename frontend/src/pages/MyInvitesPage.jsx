@@ -17,22 +17,32 @@ export default function MyInvitesPage() {
     <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Inviti ricevuti</h2>
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+          <h2 className="head text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+            Inviti ricevuti
+          </h2>
+          <p className="mt-2 text-sm" style={{ color: '#8B93A5' }}>
             Gli inviti a partecipare a una Ricerca che altri utenti ti hanno mandato.
           </p>
         </div>
         <BackLink to="/profilo" label="Profilo" />
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && (
+        <p className="mt-4 text-sm" style={{ color: '#FCA5A5' }}>
+          {error}
+        </p>
+      )}
 
       {!invites ? (
-        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
+        <p className="mt-4 text-sm" style={{ color: '#8B93A5' }}>
+          Caricamento…
+        </p>
       ) : invites.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">Nessun invito ricevuto per ora.</p>
+        <p className="mt-4 text-sm" style={{ color: '#8B93A5' }}>
+          Nessun invito ricevuto per ora.
+        </p>
       ) : (
-        <ul className="mt-6 space-y-2">
+        <ul className="mt-6">
           {invites.map((invite) => (
             <ReceivedInviteItem key={invite.id} invite={invite} />
           ))}

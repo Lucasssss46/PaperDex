@@ -7,6 +7,7 @@ import ResearchLayout from './components/ResearchLayout'
 import ApiKeysPage from './pages/ApiKeysPage'
 import ConfermaEmailPage from './pages/ConfermaEmailPage'
 import DeduplicationPage from './pages/DeduplicationPage'
+import EnrichAllResultsPage from './pages/EnrichAllResultsPage'
 import HistoryPage from './pages/HistoryPage'
 import HomePage from './pages/HomePage'
 import InvitePage from './pages/InvitePage'
@@ -22,6 +23,7 @@ import SavedQueriesPage from './pages/SavedQueriesPage'
 import SessionDuplicatesPage from './pages/SessionDuplicatesPage'
 import SessionEnrichPage from './pages/SessionEnrichPage'
 import TeamPage from './pages/TeamPage'
+import UpdateAllResultsPage from './pages/UpdateAllResultsPage'
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
@@ -97,6 +99,8 @@ function App() {
               <Route path="team" element={<TeamPage />} />
               <Route path="sessione/duplicati" element={<SessionDuplicatesPage />} />
               <Route path="sessione/arricchisci" element={<SessionEnrichPage />} />
+              <Route path="manutenzione/arricchisci-tutti" element={<EnrichAllResultsPage />} />
+              <Route path="manutenzione/aggiorna-tutti" element={<UpdateAllResultsPage />} />
             </Route>
             <Route path="profilo" element={<ProfilePage />} />
             <Route path="profilo/api-keys" element={<ApiKeysPage />} />

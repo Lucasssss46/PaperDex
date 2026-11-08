@@ -48,25 +48,22 @@ export default function ExportMenu({ researchId, onReady }) {
 
   return (
     <div className="relative" ref={menuRef}>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="rounded-lg border border-neutral-300 px-2.5 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-      >
-        Esporta ▾
+      <button type="button" onClick={() => setOpen((v) => !v)} className="ghost-btn">
+        Esporta <span style={{ fontSize: 10 }}>▾</span>
       </button>
 
       {/* Il menu formati resta un overlay fluttuante (dropdown classico, di
           passaggio): non deve spostare il layout della barra sotto di sé. */}
       {open && (
-        <div className="absolute right-0 top-full z-10 mt-1 w-36 space-y-1 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="card maint-menu" style={{ width: 144, padding: 6 }}>
           {FORMATS.map((f) => (
             <button
               key={f.id}
               type="button"
               onClick={() => handleFormat(f.id)}
               disabled={generating !== null}
-              className="block w-full rounded-lg px-3 py-1.5 text-right text-sm text-neutral-600 transition-colors hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              className="maint-item"
+              style={{ textAlign: 'right', opacity: generating !== null ? 0.6 : 1 }}
             >
               {generating === f.id ? 'Generazione…' : f.label}
             </button>
@@ -75,7 +72,7 @@ export default function ExportMenu({ researchId, onReady }) {
       )}
 
       {error && (
-        <p className="absolute right-0 top-full mt-1 w-56 rounded-lg bg-red-50 px-2 py-1 text-right text-xs text-red-600 dark:bg-red-950/40 dark:text-red-400">
+        <p className="absolute right-0 top-full mt-1 w-56 text-right text-xs" style={{ color: '#FCA5A5' }}>
           {error}
         </p>
       )}

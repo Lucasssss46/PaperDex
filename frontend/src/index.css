@@ -1,13 +1,30 @@
 @import "tailwindcss";
+@import "./styles/brand.css";
 
 @theme {
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Baloo 2", system-ui, sans-serif;
+
+  --color-bg: #030407;
+  --color-surface: #0c1119;
+  --color-border: #1b2130;
+  --color-blue: #2b7cff;
+  --color-lime: #d4ff24;
+  --color-ink-1: #f3f4f6;
+  --color-ink-2: #c3c9d4;
+  --color-ink-3: #9cc2ff;
+  --color-ink-4: #8b93a5;
+  --color-ink-5: #55606e;
 }
 
+/* App dark-only per scelta di design (nessuna variante chiara è mai stata
+   disegnata in tutto il redesign): niente più `color-scheme: light dark`
+   né `dark:` sparsi nei componenti. */
 html {
-  color-scheme: light dark;
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100;
+  background: var(--color-bg);
+  color: var(--color-ink-1);
 }

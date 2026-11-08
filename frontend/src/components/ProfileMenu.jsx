@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { getCurrentUser } from '../api/auth'
 
-const linkActive = 'bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300'
-const linkInactive =
-  'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
+const linkActive = 'bg-[rgba(43,124,255,.15)] text-[#9CC2FF]'
+const linkInactive = 'text-[#8B93A5] hover:bg-[#1B2130]'
 
 const subLinkBase = 'block rounded-lg px-3 py-1.5 text-sm transition-colors text-right'
 
@@ -126,7 +125,7 @@ export default function ProfileMenu({ onLogout }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-10 mt-1 w-32 space-y-1 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="card absolute right-0 top-full z-10 mt-1 w-32 space-y-1 p-2">
           <NavLink to="/profilo" end className={subLinkClass}>
             Profilo
           </NavLink>
@@ -136,7 +135,7 @@ export default function ProfileMenu({ onLogout }) {
           <NavLink to="/profilo/inviti" className={subLinkClass}>
             Inviti
           </NavLink>
-          <hr className="my-1 border-neutral-200 dark:border-neutral-800" />
+          <hr className="my-1 border-[#1B2130]" />
           <button
             type="button"
             onClick={onLogout}

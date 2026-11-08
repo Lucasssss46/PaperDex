@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { getRicerca } from '../api/ricerche'
+import { getRicerca, listRicercaArticles, listRicercaTeam } from '../api/ricerche'
 import BackLink from './BackLink'
 import SessionStepper from './SessionStepper'
+
+const AVATAR_COLORS = ['#2B7CFF', '#9D174D', '#0E7490']
+
+function initials(name) {
+  return (name ?? '')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('')
+}
 
 // Ogni Ricerca ha le proprie query salvate e il proprio team: queste due
 // pagine, come la ricerca vera e propria, sono raggiungibili solo dall'interno
@@ -20,6 +31,8 @@ const PAGE_NAMES = {
   team: 'Team',
   duplicati: 'Duplicati della sessione',
   arricchisci: 'Arricchisci con Zotero',
+  'arricchisci-tutti': 'Dettagli arricchimento',
+  'aggiorna-tutti': 'Dettagli aggiornamento',
 }
 
 export default function ResearchLayout() {
@@ -53,6 +66,15 @@ export default function ResearchLayout() {
   const [enrichExcluded, setEnrichExcluded] = useState(new Set())
   const [enrichResults, setEnrichResults] = useState({})
 
+  // Team e conteggio articoli: vivono qui (non in OverviewPage) perché
+  // "SALVATI" e lo stack di avatar vanno accanto al nome della Ricerca,
+  // che questo layout mostra — non sulla pagina sotto. `isOwner` resta
+  // comunque utile anche alle sotto-pagine (es. il permesso di "Rimuovi"
+  // in Overview), quindi passato giù via contesto a prescindere.
+  const [team, setTeam] = useState([])
+  const [isOwner, setIsOwner] = useState(false)
+  const [articlesCount, setArticlesCount] = useState(0)
+
   function addToSession(articles) {
     setSessionArticles((current) => {
       const byId = new Map(current.map((a) => [a.id, a]))
@@ -74,8 +96,30 @@ export default function ResearchLayout() {
       .catch((err) => setError(err.message))
   }, [id])
 
+  // Solo sull'Overview (nessun `pageName`): le altre sotto-pagine non
+  // mostrano questa riga, non serve richiamarla ad ogni cambio pagina.
+  // Conteggio con `pageSize:1` (non l'elenco intero, già a carico della
+  // ruota in OverviewPage): qui serve solo il numero.
+  useEffect(() => {
+    const segment = location.pathname.split('/').pop()
+    if (PAGE_NAMES[segment]) return
+    listRicercaTeam(id)
+      .then((result) => {
+        setTeam(result.members)
+        setIsOwner(result.is_owner)
+      })
+      .catch(() => {})
+    listRicercaArticles(id, { page: 1, pageSize: 1 })
+      .then((result) => setArticlesCount(result.count))
+      .catch(() => {})
+  }, [id, location.pathname])
+
   if (error) {
-    return <p className="mx-auto max-w-3xl px-4 py-8 text-sm text-red-600 dark:text-red-400">{error}</p>
+    return (
+      <p className="mx-auto max-w-3xl px-4 py-8 text-sm" style={{ color: '#FCA5A5' }}>
+        {error}
+      </p>
+    )
   }
 
   const currentSegment = location.pathname.split('/').pop()
@@ -95,27 +139,52 @@ export default function ResearchLayout() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <Link
-            to={`/ricerche/${id}/overview`}
-            className="text-xl font-semibold text-neutral-900 hover:underline dark:text-neutral-50"
-          >
+        <div className="flex flex-wrap items-center gap-3.5">
+          <Link to={`/ricerche/${id}/overview`} className="head text-xl font-semibold hover:underline" style={{ color: '#F3F4F6' }}>
             {name ?? 'Caricamento…'}
           </Link>
-          {pageName && (
-            <span className="text-xl font-semibold text-neutral-400 dark:text-neutral-500"> - {pageName}</span>
-          )}
+          {pageName && <span className="head text-xl font-semibold" style={{ color: '#55606E' }}>- {pageName}</span>}
 
+          {/* "Salvati" + team: solo sull'Overview (vedi l'effetto sopra),
+              accanto al nome della Ricerca invece che su una riga propria
+              più in basso. */}
           {!pageName && (
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={startNewSession}
-                className="inline-block rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-700"
-              >
-                + Inizia una nuova sessione
-              </button>
+            <div
+              className="head"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                border: '1.5px solid #1B2130',
+                borderRadius: 999,
+                padding: '5px 14px',
+                fontSize: 12,
+                color: '#8B93A5',
+              }}
+            >
+              <span>
+                SALVATI <strong style={{ color: '#D4FF24', fontSize: 13 }}>{articlesCount}</strong>
+              </span>
             </div>
+          )}
+          {!pageName && team.length > 0 && (
+            <button
+              type="button"
+              onClick={() => navigate(`/ricerche/${id}/team`)}
+              style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              title={`Team: ${team.map((m) => m.name).join(', ')} — vai alla pagina Team`}
+            >
+              {team.slice(0, 3).map((m, i) => (
+                <div key={m.id} className="avatar" style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length], marginRight: -8, zIndex: 3 - i }}>
+                  {initials(m.name)}
+                </div>
+              ))}
+              {team.length > 3 && (
+                <div className="avatar" style={{ background: '#1B2130', color: '#8B93A5' }}>
+                  +{team.length - 3}
+                </div>
+              )}
+            </button>
           )}
         </div>
 
@@ -142,8 +211,10 @@ export default function ResearchLayout() {
           context={{
             researchId: id,
             researchName: name,
+            isOwner,
             sessionArticles,
             addToSession,
+            startNewSession,
             enrichExcluded,
             setEnrichExcluded,
             enrichResults,

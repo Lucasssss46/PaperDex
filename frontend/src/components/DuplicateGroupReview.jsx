@@ -12,33 +12,31 @@ function GroupMember({ article, isChosen, onChoose, busy }) {
 
   return (
     <li
-      className={`rounded-lg border p-3 ${
+      className="rounded-lg p-3"
+      style={
         isChosen
-          ? 'border-emerald-300 bg-emerald-50/60 dark:border-emerald-500/40 dark:bg-emerald-500/10'
-          : 'border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
-      }`}
+          ? { border: '1px solid rgba(212,255,36,.35)', background: 'rgba(212,255,36,.06)' }
+          : { border: '1px solid #1B2130', background: '#0C1119' }
+      }
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <SourceIcon name={article.source} className="h-4 shrink-0" />
-            <p className="truncate text-sm font-medium text-neutral-900 dark:text-neutral-50">{article.title}</p>
+            <p className="truncate text-sm font-medium" style={{ color: '#F3F4F6' }}>
+              {article.title}
+            </p>
           </div>
-          <p className="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 truncate text-xs" style={{ color: '#8B93A5' }}>
             {[article.authors?.join(', '), article.venue, year].filter(Boolean).join(' • ')}
           </p>
         </div>
         {isChosen ? (
-          <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+          <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'rgba(212,255,36,.12)', color: '#D4FF24' }}>
             Salvato
           </span>
         ) : (
-          <button
-            type="button"
-            onClick={onChoose}
-            disabled={busy}
-            className="shrink-0 rounded-lg border border-violet-300 px-3 py-1.5 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-violet-500/40 dark:text-violet-300 dark:hover:bg-violet-500/10"
-          >
+          <button type="button" onClick={onChoose} disabled={busy} className="ghost-btn shrink-0" style={{ fontFamily: 'inherit', fontSize: 12, fontWeight: 600 }}>
             Scegli questo
           </button>
         )}
@@ -75,9 +73,9 @@ export default function DuplicateGroupReview({ researchId, group, onUpdated }) {
   const members = [group.chosen, ...group.alternatives]
 
   return (
-    <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+    <section className="card" style={{ padding: 20 }}>
       <div className="flex items-center justify-between gap-3">
-        <h3 className="min-w-0 truncate text-sm font-semibold text-neutral-900 dark:text-neutral-50">
+        <h3 className="min-w-0 truncate text-sm font-semibold" style={{ color: '#F3F4F6' }}>
           {group.chosen.title}
         </h3>
         {undoStack.length > 0 && (
@@ -85,7 +83,7 @@ export default function DuplicateGroupReview({ researchId, group, onUpdated }) {
             type="button"
             onClick={() => applyChoice(undoStack[undoStack.length - 1], { recordUndo: false })}
             disabled={busy}
-            className="shrink-0 text-xs font-medium text-violet-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-violet-400"
+            className="action-link shrink-0"
           >
             Annulla ultima scelta
           </button>
@@ -102,7 +100,11 @@ export default function DuplicateGroupReview({ researchId, group, onUpdated }) {
           />
         ))}
       </ul>
-      {error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && (
+        <p className="mt-2 text-sm" style={{ color: '#FCA5A5' }}>
+          {error}
+        </p>
+      )}
     </section>
   )
 }

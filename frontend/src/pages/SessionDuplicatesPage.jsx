@@ -37,19 +37,23 @@ export default function SessionDuplicatesPage() {
   return (
     <div className="space-y-6">
       {sessionArticles.length === 0 ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-          Nessun articolo aggiunto in questa sessione:{' '}
-          <Link to={`/ricerche/${researchId}/cerca`} className="text-violet-600 hover:underline dark:text-violet-400">
+        <p className="text-sm" style={{ color: '#8B93A5' }}>
+          Nessun articolo aggiunto in questa sessione{' '}
+          <Link to={`/ricerche/${researchId}/cerca`} className="action-link">
             torna a Cerca
           </Link>{' '}
           per aggiungerne.
         </p>
       ) : error ? (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-sm" style={{ color: '#FCA5A5' }}>
+          {error}
+        </p>
       ) : !sessionGroups ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">Caricamento…</p>
+        <p className="text-sm" style={{ color: '#8B93A5' }}>
+          Caricamento…
+        </p>
       ) : sessionGroups.length === 0 ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm" style={{ color: '#8B93A5' }}>
           Nessun duplicato tra gli articoli aggiunti in questa sessione.
         </p>
       ) : (
@@ -63,17 +67,11 @@ export default function SessionDuplicatesPage() {
           verso Arricchisci con Zotero — mai direttamente all'Overview da
           qui. Cambiamenti già persistiti lato server (chooseDuplicate), non
           si perde nulla tornando indietro. */}
-      <div className="flex justify-between border-t border-neutral-200 pt-6 dark:border-neutral-800">
-        <Link
-          to={`/ricerche/${researchId}/cerca`}
-          className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-        >
+      <div className="flex justify-between border-t pt-6" style={{ borderColor: '#1B2130' }}>
+        <Link to={`/ricerche/${researchId}/cerca`} className="ghost-btn" style={{ textDecoration: 'none' }}>
           ← Indietro
         </Link>
-        <Link
-          to={`/ricerche/${researchId}/sessione/arricchisci`}
-          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-700"
-        >
+        <Link to={`/ricerche/${researchId}/sessione/arricchisci`} className="pill-btn" style={{ textDecoration: 'none' }}>
           Continua: arricchisci con Zotero →
         </Link>
       </div>
