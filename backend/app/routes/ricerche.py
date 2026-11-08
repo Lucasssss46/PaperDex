@@ -752,8 +752,24 @@ async def enrich_article(ricerca_id: str, article_id: str, current_user: User = 
     return {"article": article.model_dump(), "filled_fields": filled_fields}
 
 
+class ArticleSelectionIn(BaseModel):
+    # Articoli spuntati nell'Overview: None (o body assente) = tutti quelli della Ricerca.
+    article_ids: Optional[List[str]] = None
+
+
+def only_selected(added_list: list, selection: Optional[ArticleSelectionIn]) -> list:
+    if selection is None or selection.article_ids is None:
+        return added_list
+    wanted = set(selection.article_ids)
+    return [a for a in added_list if linked_id(a.article) in wanted]
+
+
 @router.post("/ricerche/{ricerca_id}/articoli/enrich-all")
-async def enrich_all_articles(ricerca_id: str, current_user: User = Depends(get_current_user)):
+async def enrich_all_articles(
+    ricerca_id: str,
+    selection: Optional[ArticleSelectionIn] = None,
+    current_user: User = Depends(get_current_user),
+):
     """Come enrich_article, ma per tutti gli articoli salvati della Ricerca
     in un colpo solo — non solo la pagina corrente di /articoli (che è
     paginata): stessa query "tutti gli AddedArticle della Ricerca" già usata
@@ -771,6 +787,8 @@ async def enrich_all_articles(ricerca_id: str, current_user: User = Depends(get_
     related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
     all_added = await AddedArticle.find_all().to_list()
     my_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+
+    my_added = only_selected(my_added, selection)
 
     enriched = []
     errors = []
@@ -883,7 +901,11 @@ async def check_article_version(ricerca_id: str, article_id: str, current_user: 
 
 
 @router.post("/ricerche/{ricerca_id}/articoli/check-version-all")
-async def check_all_articles_version(ricerca_id: str, current_user: User = Depends(get_current_user)):
+async def check_all_articles_version(
+    ricerca_id: str,
+    selection: Optional[ArticleSelectionIn] = None,
+    current_user: User = Depends(get_current_user),
+):
     """Come check_article_version, ma per tutti gli articoli salvati della
     Ricerca in un colpo solo — stessa query project-wide già usata da
     enrich_all_articles ed export_ricerca_articles. Un articolo che non trova
@@ -900,6 +922,8 @@ async def check_all_articles_version(ricerca_id: str, current_user: User = Depen
     related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
     all_added = await AddedArticle.find_all().to_list()
     my_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+
+    my_added = only_selected(my_added, selection)
 
     revised = []
     new_sources = []

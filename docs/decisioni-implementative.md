@@ -1802,3 +1802,49 @@ Rimosse da `brand.css` le classi `.ball-oct`/`.logo-outline`/`.logo`/`.logo .top
 **Non verificato dal vivo** il risultato di questa correzione specifica (nessun accesso a un browser in questa sessione) — da confermare che le lineette siano davvero sparite.
 
 **Stato.** Implementato (build + lint puliti). Da confermare dal vivo.
+
+## 120. Card espandibili per gli articoli (Overview e risultati di ricerca) (2026-11-08)
+
+**Contesto.** L'utente ha chiesto card "espandibili" sul modello del componente Expandable Card di Aceternity UI: l'anteprima di un articolo mostra poche informazioni, e un click la apre in una card più grande al centro dello schermo con il dettaglio (in primis l'abstract). Serve anche come base per il restyling della pagina della query.
+
+**Decisione.** Un componente unico, `components/ExpandedArticleCard.jsx` (titolo, fonte, autori/venue/anno, abstract completo, DOI, più uno slot `children` per le azioni del contesto), usato in due punti:
+- **Overview**: il click su una riga della ruota (`ArticleDial`) apre la card espansa, che sostituisce la vecchia striscia di dettaglio sotto la ruota (rimosse da `brand.css` `.detail-strip`/`.detail-title`); Arricchisci / Controlla versione / Rimuovi e il loro messaggio d'esito si sono spostati nella card.
+- **Risultati di ricerca** (`SearchResults`): l'anteprima non mostra più abstract, "Mostra tutto" e DOI; il click sull'anteprima (o sul titolo da tastiera) apre la card espansa. "Aggiungi alla ricerca" resta sia nell'anteprima, per un salvataggio veloce, sia nella card.
+
+Il componente di Aceternity si appoggia alla libreria `motion` (layout animation con `layoutId`). Qui l'effetto è ottenuto **senza nuove dipendenze**: un `<dialog>` modale nativo (focus, Esc, blocco dello scroll gestiti dal browser) e le **View Transitions** native (`document.startViewTransition`), con l'hook `components/useArticleMorph.js` che assegna un `view-transition-name` condiviso all'elemento cliccato e alla card espansa, così il browser anima l'una nell'altra in apertura e in chiusura. Nei browser senza View Transitions, o con `prefers-reduced-motion`, la card si apre/chiude uguale ma senza animazione.
+
+**Non verificato dal vivo** (nessun login nel browser in questa sessione): da collaudare l'animazione in entrambe le pagine.
+
+**Stato.** Implementato (build + lint puliti). Da confermare dal vivo.
+
+## 121. Selezione degli articoli in Overview e manutenzione solo sui selezionati (2026-11-08)
+
+**Contesto.** Nella ruota dell'Overview il click su una riga apriva la card espansa (voce 120) e il pallino era solo decorativo (sempre pieno). L'utente ha chiesto di separare le due cose: il pallino diventa una checkbox, e le azioni del menu Manutenzione devono agire solo sugli articoli spuntati invece che sull'intera Ricerca.
+
+**Decisione.**
+- `ArticleDial`: il pallino è un `<button role="checkbox">` (`onToggle(id)`); il resto della riga, dal numero in poi, apre la card espansa. Riga spuntata: pallino pieno e sfondo lime tenue; non spuntata: pallino vuoto e sfondo blu tenue (stessa trasparenza).
+- La selezione è solo stato locale dell'Overview (`checkedIds`), vuota all'apertura della pagina e non persistita.
+- "Arricchisci tutti" / "Aggiorna tutti" diventano "Arricchisci selezionati (N)" / "Aggiorna selezionati (N)", disabilitati con 0 spuntati.
+- Backend: `enrich-all` e `check-version-all` accettano un body opzionale `{ "article_ids": [...] }` (`ArticleSelectionIn` + `only_selected` in `routes/ricerche.py`) che restringe gli articoli della Ricerca a quelli indicati. Body assente o `article_ids: null` = comportamento di prima (tutta la Ricerca), quindi nessuna rottura per altri chiamanti. Scelto questo invece di un ciclo lato frontend sugli endpoint per articolo singolo per tenere una sola richiesta e la stessa forma di risposta: il toast e le pagine "Vedi dettagli" restano invariati.
+
+Test: `backend/tests/suites/routes/ricerche_selection_test.py` (filtro, assenza di selezione, lista vuota).
+
+**Stato.** Implementato (test, build e lint puliti). Non verificato dal vivo.
+
+**Aggiornamento (2026-11-08) — "Seleziona tutti".** Aggiunto un controllo "Seleziona tutti / Deseleziona tutti" (con stato parziale e conteggio) nella fascia "Articoli salvati", accanto al titolo. Provato prima sopra la ruota, allineato ai pallini delle righe: scartato, all'utente non piaceva la posizione. Nemmeno la fascia convince del tutto l'utente, ma per ora resta lì.
+
+**Idea aperta, da rivalutare dopo qualche giorno d'uso:** una *barra contestuale* (stile Gmail/Google Foto) che compare sopra la ruota appena si spunta il primo articolo — `N selezionati · Seleziona tutti · Arricchisci · Aggiorna · ✕` — così selezione e azioni stanno nello stesso punto e "Arricchisci/Aggiorna selezionati" potrebbero uscire dal menu Manutenzione. Motivo: oggi la selezione serve solo a quelle due azioni, che però vivono lontano (menu in alto a destra), ed è probabilmente questo il disagio percepito, più della posizione del controllo in sé.
+
+## 122. Risultati di ricerca sulla ruota (ArticleDial) (2026-11-08)
+
+**Contesto.** Con la card espansa (voce 120) l'anteprima di un risultato non deve più portare abstract e dettagli: l'utente ha chiesto di riusare nella pagina di ricerca il layout a ruota dell'Overview.
+
+**Decisione.** `SearchResults` ora mostra i risultati in `ArticleDial` (righe: numero, titolo, autori • anno, fonte) invece della lista di card. Scelte dell'utente, tra le opzioni proposte:
+- **Pallino = "Aggiungi alla ricerca"**: vuoto/sfondo blu tenue = non salvato; click = aggiunta, il pallino diventa pieno/lime. Fuori da una Ricerca (ricerca rapida/pubblica) il pallino è solo un indicatore non cliccabile (`ArticleDial` senza `onToggle`). Errore di aggiunta mostrato nella riga, al posto degli autori, con invito a riprovare.
+- **Una riga per gruppo di duplicati**: riga con l'articolo preferito e badge `×N fonti`; il pallino aggiunge l'intero gruppo (come il vecchio "Aggiungi tutto il gruppo"); la card espansa elenca sotto l'abstract le versioni (fonte, venue/anno, DOI, quale è la preferita), tramite la nuova prop `extra` di `ExpandedArticleCard`.
+
+Persa rispetto a prima: l'aggiunta di una *singola* versione di un gruppo. Si aggiunge il gruppo intero e la scelta della versione avviene in Deduplicazione. Aggiunta anche una correzione minore: un risultato senza `group_key` fa gruppo a sé, invece di finire raggruppato con tutti gli altri senza chiave sotto `undefined`.
+
+**Verificato dal vivo** (Playwright, ricerca pubblica "cable management", 96 risultati): ruota, badge dei gruppi, card espansa centrata, elenco versioni. **Non verificato** il pallino che aggiunge davvero alla Ricerca (serve il login).
+
+**Stato.** Implementato (build + lint puliti).

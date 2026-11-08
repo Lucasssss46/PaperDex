@@ -12,6 +12,9 @@ import {
   removeRicercaArticle,
 } from '../api/ricerche'
 import ArticleDial from '../components/ArticleDial'
+import AuthorsYear from '../components/AuthorsYear'
+import ExpandedArticleCard from '../components/ExpandedArticleCard'
+import { useArticleMorph } from '../components/useArticleMorph'
 import ExportMenu from '../components/ExportMenu'
 import HistoryEntryItem from '../components/HistoryEntryItem'
 import Logo from '../components/Logo'
@@ -24,6 +27,7 @@ const FETCH_PAGE_SIZE = 50
 // Ricerca attiva da tempo. "Vedi tutti" (le freccine) porta al resto.
 const HISTORY_PREVIEW_COUNT = 4
 const QUERIES_PREVIEW_COUNT = 4
+const DEDUP_PREVIEW_COUNT = 3
 
 // Freccia corta e "cicciotta" (tratto breve, spessore alto) per "vai alla
 // pagina completa" — un carattere Unicode ("↗") non è controllabile a
@@ -76,6 +80,9 @@ export default function OverviewPage() {
 
   // Selezione nella ruota + stato dell'azione sull'articolo selezionato.
   const [selectedId, setSelectedId] = useState(null)
+  const morph = useArticleMorph()
+  // Articoli spuntati col pallino (checkbox), separati dalla card aperta.
+  const [checkedIds, setCheckedIds] = useState(() => new Set())
   const [actionBusy, setActionBusy] = useState(false)
   const [actionMsg, setActionMsg] = useState('')
   const [actionColor, setActionColor] = useState('')
@@ -134,10 +141,14 @@ export default function OverviewPage() {
       .finally(() => setDedupLoading(false))
   }, [researchId])
 
-  function selectRow(id) {
-    setSelectedId(id)
-    setActionMsg('')
-    setActionColor('')
+  function selectRow(id, rowEl) {
+    const update = () => {
+      setSelectedId(id)
+      setActionMsg('')
+      setActionColor('')
+    }
+    if (id) morph.open(rowEl, update)
+    else morph.close(update)
   }
 
   const selectedArticle = articles.find((a) => a.id === selectedId) ?? null
@@ -191,6 +202,11 @@ export default function OverviewPage() {
     try {
       await removeRicercaArticle(researchId, selectedArticle.id)
       setArticles((current) => current.filter((a) => a.id !== selectedArticle.id))
+      setCheckedIds((current) => {
+        const next = new Set(current)
+        next.delete(selectedArticle.id)
+        return next
+      })
       setSelectedId(null)
     } catch (err) {
       setActionMsg(err.message)
@@ -202,7 +218,7 @@ export default function OverviewPage() {
     setMenuOpen(false)
     setEnrichingAll(true)
     try {
-      const result = await enrichAllArticles(researchId)
+      const result = await enrichAllArticles(researchId, [...checkedIds])
       const updatedById = new Map(result.enriched.map((e) => [e.article.id, e.article]))
       setArticles((current) => current.map((a) => updatedById.get(a.id) ?? a))
       const parts = [{ text: `${result.enriched.length} di ${result.total} completati`, color: '#6EE7B7' }]
@@ -227,7 +243,7 @@ export default function OverviewPage() {
     setMenuOpen(false)
     setUpdatingAll(true)
     try {
-      const result = await checkAllArticlesVersion(researchId)
+      const result = await checkAllArticlesVersion(researchId, [...checkedIds])
       const updatedById = new Map(result.revised.map((r) => [r.article.id, r.article]))
       setArticles((current) => current.map((a) => updatedById.get(a.id) ?? a))
       if (result.new_sources.length > 0) {
@@ -253,9 +269,11 @@ export default function OverviewPage() {
     }
   }
 
+  const allChecked = articles.length > 0 && articles.every((a) => checkedIds.has(a.id))
+
   const dialItems = articles.map((article, i) => ({
     id: article.id,
-    caught: true,
+    caught: checkedIds.has(article.id),
     article,
     num: String(i + 1).padStart(2, '0'),
   }))
@@ -268,9 +286,10 @@ export default function OverviewPage() {
           "Nuova sessione" a sinistra, "Manutenzione"/"Esporta" a destra,
           sulla stessa riga. */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, paddingTop: 4, marginBottom: 24 }}>
-        <button type="button" className="pill-btn" style={{ display: 'flex', alignItems: 'center', gap: 6 }} onClick={startNewSession}>
-          <Logo size={18} />
-          Nuova sessione
+        <button type="button" className="pill-btn" style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 16, padding: '3px 20px 3px 10px', lineHeight: 1, textAlign: 'left' }} onClick={startNewSession}>
+          <Logo size={23} />
+          {/* Due righe con padding verticale ridotto: stessa altezza della pill a una riga, ma più stretta. */}
+          <span>Nuova<br />sessione</span>
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -280,11 +299,24 @@ export default function OverviewPage() {
             </button>
             {menuOpen && (
               <div className="card maint-menu" style={{ padding: 6 }}>
-                <button type="button" className="maint-item" disabled={enrichingAll} onClick={handleEnrichAll}>
-                  {enrichingAll ? 'Arricchimento…' : 'Arricchisci tutti'}
+                {/* Agiscono solo sugli articoli spuntati col pallino nella ruota. */}
+                <button
+                  type="button"
+                  className="maint-item"
+                  disabled={enrichingAll || checkedIds.size === 0}
+                  title={checkedIds.size === 0 ? 'Spunta prima uno o più articoli col pallino' : undefined}
+                  onClick={handleEnrichAll}
+                >
+                  {enrichingAll ? 'Arricchimento…' : `Arricchisci selezionati (${checkedIds.size})`}
                 </button>
-                <button type="button" className="maint-item" disabled={updatingAll} onClick={handleUpdateAll}>
-                  {updatingAll ? 'Verifica…' : 'Aggiorna tutti'}
+                <button
+                  type="button"
+                  className="maint-item"
+                  disabled={updatingAll || checkedIds.size === 0}
+                  title={checkedIds.size === 0 ? 'Spunta prima uno o più articoli col pallino' : undefined}
+                  onClick={handleUpdateAll}
+                >
+                  {updatingAll ? 'Verifica…' : `Aggiorna selezionati (${checkedIds.size})`}
                 </button>
               </div>
             )}
@@ -301,9 +333,36 @@ export default function OverviewPage() {
         </div>
       )}
 
-      <div className="card" style={{ marginTop: 14, padding: 0, overflow: 'visible' }}>
-        <div className="ribbon-flat" style={{ fontSize: 18, paddingTop: 14, paddingBottom: 14 }}>
-          Articoli salvati
+      <div style={{ marginTop: 14, padding: 0, overflow: 'visible' }}>
+        <div className="ribbon-flat" style={{ fontSize: 18, paddingTop: 14, paddingBottom: 14, borderBottomLeftRadius: 17, background: 'linear-gradient(to right, var(--color-blue) 35%, transparent)' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
+            Articoli salvati
+            {/* "Seleziona tutti": tutto il testo è cliccabile, non solo il pallino. Pieno = tutti,
+                bordo lime col trattino = alcuni, vuoto = nessuno. */}
+            {articles.length > 0 && (
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={allChecked ? true : checkedIds.size > 0 ? 'mixed' : false}
+                onClick={() => setCheckedIds(allChecked ? new Set() : new Set(articles.map((a) => a.id)))}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.85)' }}
+              >
+                <span
+                  className={allChecked ? 'dot-caught' : 'dot-seen'}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ...(allChecked ? {} : { borderColor: checkedIds.size > 0 ? '#D4FF24' : 'rgba(255,255,255,.7)' }),
+                  }}
+                >
+                  {checkedIds.size > 0 && !allChecked && <span style={{ width: 5, height: 2, background: '#D4FF24', borderRadius: 1 }} />}
+                </span>
+                {allChecked ? 'Deseleziona tutti' : 'Seleziona tutti'}
+                {checkedIds.size > 0 && <span style={{ color: '#D4FF24' }}>· {checkedIds.size}</span>}
+              </button>
+            )}
+          </span>
           <Logo size={54} className="card-seal" />
         </div>
 
@@ -355,6 +414,14 @@ export default function OverviewPage() {
                 items={dialItems}
                 selectedId={selectedId}
                 onSelect={selectRow}
+                onToggle={(id) =>
+                  setCheckedIds((current) => {
+                    const next = new Set(current)
+                    if (next.has(id)) next.delete(id)
+                    else next.add(id)
+                    return next
+                  })
+                }
                 renderItem={(item) => (
                   <>
                     <div className="num-badge">{item.num}</div>
@@ -372,11 +439,7 @@ export default function OverviewPage() {
                       >
                         {item.article.title}
                       </div>
-                      <div style={{ fontSize: 12, color: '#8B93A5' }}>
-                        {[item.article.authors?.join(', '), item.article.publication_date?.slice(0, 4)]
-                          .filter(Boolean)
-                          .join(' • ')}
-                      </div>
+                      <AuthorsYear authors={item.article.authors} date={item.article.publication_date} />
                     </div>
                     <span
                       className="src-pill"
@@ -391,21 +454,9 @@ export default function OverviewPage() {
                 )}
               />
 
-              {selectedArticle && (
-                <div className="detail-strip">
-                  <div className="detail-title">{selectedArticle.title}</div>
+              <ExpandedArticleCard article={selectedArticle} onClose={() => selectRow(null)}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                   <div className="detail-actions">
-                    {selectedArticle.doi && (
-                      <a
-                        href={`https://doi.org/${selectedArticle.doi}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="action-link"
-                        style={{ color: '#8B93A5' }}
-                      >
-                        DOI ↗
-                      </a>
-                    )}
                     <button type="button" className="action-link" disabled={actionBusy} onClick={handleEnrichSelected}>
                       Arricchisci
                     </button>
@@ -418,12 +469,12 @@ export default function OverviewPage() {
                       </button>
                     )}
                   </div>
-                  {actionMsg && <div className="detail-msg" style={{ color: actionColor }}>{actionMsg}</div>}
+                  {actionMsg && <div className="detail-msg" style={{ color: actionColor, textAlign: 'right' }}>{actionMsg}</div>}
                 </div>
-              )}
+              </ExpandedArticleCard>
 
               <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: '#55606E' }}>
-                ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per le sue azioni
+                ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per aprirlo
               </div>
             </>
           )}
@@ -431,7 +482,10 @@ export default function OverviewPage() {
       </div>
 
       <div style={{ marginTop: 16, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <div className="card" style={{ flex: '1 1 280px', overflow: 'visible', padding: 0, borderColor: '#3A3410' }}>
+        {/* minWidth 0: senza, la larghezza minima della card sarebbe quella dei titoli
+            dell'anteprima per intero (anche se troncati coi puntini), e andrebbe a capo
+            sotto invece di stare accanto ad "Attività" — stesso problema di minmax(0,1fr) lì. */}
+        <div className="card" style={{ flex: '1 1 280px', minWidth: 0, overflow: 'visible', padding: 0, borderColor: '#3A3410' }}>
           <div className="ribbon-flat muted">Da rivedere</div>
           <div style={{ padding: '14px 16px' }}>
             {dedupLoading ? (
@@ -448,12 +502,60 @@ export default function OverviewPage() {
               </p>
             ) : (
               <>
-                <div style={{ fontSize: 13, color: '#D4FF24', fontWeight: 600 }}>
-                  {duplicateGroups.length} grupp{duplicateGroups.length === 1 ? 'o' : 'i'} di duplicati
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <div style={{ fontSize: 13, color: '#D4FF24', fontWeight: 600 }}>
+                    {duplicateGroups.length} grupp{duplicateGroups.length === 1 ? 'o' : 'i'} di duplicati
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/ricerche/${researchId}/deduplicazione`)}
+                    title="Vai a Deduplicazione"
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#9CC2FF', display: 'flex' }}
+                  >
+                    <ArrowUpRightIcon />
+                  </button>
                 </div>
                 <div style={{ fontSize: 11.5, color: '#8B93A5', marginTop: 2 }}>
                   su tutta la Ricerca, non solo gli articoli appena aggiunti
                 </div>
+
+                {/* Anteprima: i primi gruppi, titolo + numero di versioni (non le icone delle
+                    fonti: con molte versioni non ci starebbero); il resto in Deduplicazione. */}
+                <ul style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {duplicateGroups.slice(0, DEDUP_PREVIEW_COUNT).map((group) => (
+                    <li key={group.id}>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/ricerche/${researchId}/deduplicazione`)}
+                        title={group.chosen.title}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          width: '100%',
+                          padding: '6px 10px',
+                          borderRadius: 10,
+                          background: 'rgba(212,255,36,.04)',
+                          border: '1px solid #1B2130',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: '#C3C9D4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {group.chosen.title}
+                        </span>
+                        <span className="src-pill" style={{ flex: '0 0 auto', background: 'rgba(43,124,255,.15)', color: '#9CC2FF' }}>
+                          ×{group.alternatives.length + 1}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {duplicateGroups.length > DEDUP_PREVIEW_COUNT && (
+                  <div style={{ fontSize: 11.5, color: '#55606E', marginTop: 6 }}>
+                    e altri {duplicateGroups.length - DEDUP_PREVIEW_COUNT}…
+                  </div>
+                )}
               </>
             )}
           </div>

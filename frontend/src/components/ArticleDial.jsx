@@ -14,11 +14,14 @@ const DEG_PER_STEP = 42
 // diventare un vezzo ridondante applicato ovunque.
 //
 // `items`: array di oggetti con almeno `id` e `caught` (bool — pieno/vuoto
-// il pallino). `renderItem(item, index)` restituisce il contenuto della
+// il pallino, che fa da checkbox: il click chiama `onToggle(id)`; senza
+// `onToggle` il pallino è solo un indicatore, non cliccabile). `dotLabel`
+// è l'etichetta accessibile del pallino (cosa fa nel contesto). `renderItem(item, index)` restituisce il contenuto della
 // riga (numero, titolo, pillola sorgente...): il pallino caught/seen e il
 // posizionamento/la curvatura sono già gestiti qui. `selectedId`/`onSelect`
-// pilotano la riga aperta (striscia di dettaglio, gestita dal chiamante).
-export default function ArticleDial({ items, renderItem, selectedId, onSelect }) {
+// pilotano la riga aperta (card espansa, gestita dal chiamante): `onSelect`
+// riceve anche l'elemento della riga, punto di partenza dell'animazione.
+export default function ArticleDial({ items, renderItem, selectedId, onSelect, onToggle, dotLabel = 'Seleziona articolo' }) {
   const [scrollPos, setScrollPos] = useState(0)
   const scrollRef = useRef(null)
   const maxOffset = Math.max(items.length - VISIBLE, 0)
@@ -66,13 +69,30 @@ export default function ArticleDial({ items, renderItem, selectedId, onSelect })
                   top: i * STEP,
                   transform: `translateX(-${shift}px)`,
                   opacity,
-                  background: item.caught ? 'rgba(212,255,36,.06)' : 'transparent',
+                  background: item.caught ? 'rgba(212,255,36,.06)' : 'rgba(43,124,255,.06)',
                   boxShadow: selected ? '0 0 0 2px #2B7CFF inset' : 'none',
                 }}
-                onClick={() => onSelect?.(selected ? null : item.id)}
               >
-                <div className={item.caught ? 'dot-caught' : 'dot-seen'} />
-                {renderItem(item, i)}
+                {onToggle ? (
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={item.caught}
+                    aria-label={dotLabel}
+                    className={item.caught ? 'dot-caught' : 'dot-seen'}
+                    style={{ padding: 0, cursor: 'pointer' }}
+                    onClick={() => onToggle(item.id)}
+                  />
+                ) : (
+                  <div className={item.caught ? 'dot-caught' : 'dot-seen'} />
+                )}
+                {/* Dal numero in poi: apre la card espansa (il pallino è solo la spunta). */}
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: 11, flex: 1, minWidth: 0, alignSelf: 'stretch' }}
+                  onClick={(e) => onSelect?.(selected ? null : item.id, e.currentTarget.parentElement)}
+                >
+                  {renderItem(item, i)}
+                </div>
               </div>
             )
           })}
@@ -81,7 +101,7 @@ export default function ArticleDial({ items, renderItem, selectedId, onSelect })
 
       <div className="dial">
         <div className="dial-spin">
-          <Logo size="100%" rotate={angle} style={{ position: 'absolute', inset: 0 }} />
+          <Logo size="100%" rotate={angle} style={{ position: 'absolute', inset: 0, overflow: 'visible' }} />
         </div>
         <div className="dial-fixed">
           <div className="dial-arrow" onClick={() => move(-1)}>
