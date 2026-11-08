@@ -67,6 +67,15 @@ class SemanticScholarAdapter(BaseAdapter):
                     self.api_key = None
                     continue
 
+                if response.status_code == 400 and offset > 0:
+                    # Con offset >= total l'API risponde 400 ("Requested data for this
+                    # limit and/or offset is not available") invece di una pagina vuota:
+                    # succede quando il totale è multiplo esatto della pagina. È la fine
+                    # dei risultati, non un guasto (verificato dal vivo, voce 123).
+                    # A offset 0 un 400 resta un errore vero: non ci sono pagine
+                    # precedenti, quindi è la query stessa a essere rifiutata.
+                    return []
+
                 if response.status_code != 200:
                     # Un'eccezione invece di []: la lista vuota finirebbe in
                     # cache e l'utente non saprebbe che la sorgente è mancata.
@@ -97,7 +106,10 @@ class SemanticScholarAdapter(BaseAdapter):
 
         # Niente `sort`: esiste solo su /paper/search/bulk, questo endpoint
         # ordina sempre per rilevanza (https://api.semanticscholar.org/graph/v1/swagger.json).
-        return f"{query}{fields}{mailto}&limit={request.limit}&offset={offset}"
+        # Solo informatica, stesso scope di OpenAlex (topics.field.id:17): senza, su
+        # keyword generiche i paper giusti finiscono oltre le pagine lette (voce 123).
+        fields_of_study = "&fieldsOfStudy=Computer%20Science"
+        return f"{query}{fields}{fields_of_study}{mailto}&limit={request.limit}&offset={offset}"
         
 
     def _normalize(self, items: List[dict]) -> List[Article]:
