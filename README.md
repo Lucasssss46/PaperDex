@@ -1,0 +1,1 @@
+Aggregatore collaborativo per la raccolta di letteratura scientifica
