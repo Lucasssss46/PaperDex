@@ -5,8 +5,10 @@ import ArticleDial from './ArticleDial'
 import AuthorsYear from './AuthorsYear'
 import ExpandedArticleCard from './ExpandedArticleCard'
 import { useArticleMorph } from './useArticleMorph'
-import Spinner from './Spinner'
 import SourceIcon from './SourceIcon'
+
+// Larghezze (%) variate dei titoli finti, così lo scheletro non sembra una griglia.
+const SKELETON_ITEMS = [78, 62, 85, 55, 72, 66].map((w, i) => ({ id: i, w, caught: false }))
 
 const ADD_LABELS = {
   idle: '+ Aggiungi alla ricerca',
@@ -89,10 +91,26 @@ export default function SearchResults({ results, count, loading, error, searched
   const morph = useArticleMorph()
 
   if (loading) {
+    // Stessa ruota e stesse righe dei risultati veri, con barre al posto del testo.
     return (
-      <div className="flex flex-col items-center gap-3 py-16" style={{ color: '#8B93A5' }}>
-        <Spinner className="h-8 w-8" />
-        <p className="text-sm">Ricerca in corso… con profondità alta può richiedere fino a un minuto.</p>
+      <div aria-busy="true" aria-label="Ricerca in corso">
+        <p className="mb-4 text-sm" style={{ color: '#8B93A5' }}>
+          Ricerca in corso… con profondità alta può richiedere fino a un minuto.
+        </p>
+        <ArticleDial
+          items={SKELETON_ITEMS}
+          dotLabel=""
+          renderItem={(item) => (
+            <>
+              <div className="num-badge skeleton" style={{ borderRadius: 999 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="skeleton" style={{ height: 12, width: `${item.w}%`, marginBottom: 7 }} />
+                <div className="skeleton" style={{ height: 9, width: '35%' }} />
+              </div>
+              <span className="skeleton" style={{ width: 64, height: 18, borderRadius: 999, flex: '0 0 auto' }} />
+            </>
+          )}
+        />
       </div>
     )
   }

@@ -7,7 +7,6 @@ import QueryListItem from '../components/QueryListItem'
 import SearchForm from '../components/SearchForm'
 import SearchResults from '../components/SearchResults'
 import SourcesPanel from '../components/SourcesPanel'
-import Spinner from '../components/Spinner'
 import { ALL_SOURCES } from '../constants'
 
 // Una query "usata" da Query salvate arriva qui come stato di navigazione
@@ -319,7 +318,6 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           disabled={loading}
           className="pill-btn flex w-full max-w-[160px] items-center justify-center gap-2"
         >
-          {loading && <Spinner />}
           {loading ? 'Ricerca in corso…' : 'Cerca'}
         </button>
       </div>
