@@ -393,7 +393,7 @@ export default function ProfilePage() {
           <div className="card" style={{ padding: 0, position: 'relative', overflow: 'visible' }}>
             <div className="ribbon-flat">
               Informazioni personali
-              <Logo size={54} className="card-seal" />
+              <Logo size={54} className="card-seal" style={{ top: -18, right: -18 }} />
             </div>
             <div className="flex flex-wrap items-start gap-6" style={{ padding: '22px 24px' }}>
               <AvatarUpload user={user} onUpdated={handleUpdated} />
