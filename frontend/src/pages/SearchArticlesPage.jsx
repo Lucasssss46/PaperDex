@@ -218,15 +218,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
 
   return (
     <>
-      {research ? (
-        <div
-          className="mb-6 rounded-lg px-4 py-2.5 text-sm font-medium"
-          style={{ border: '1px solid #1B2130', background: 'rgba(43,124,255,.08)', color: '#9CC2FF' }}
-        >
-          Stai cercando all'interno di <strong>{research.name}</strong> — gli articoli trovati possono essere
-          aggiunti a questa ricerca.
-        </div>
-      ) : (
+      {!research && (
         <>
           <h2 className="head mb-4 text-xl font-semibold" style={{ color: '#F3F4F6' }}>
             Ricerca rapida
@@ -235,27 +227,6 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
             Sei fuori da qualsiasi Ricerca, qui puoi solo cercare gli articoli, non salvarli.
           </div>
         </>
-      )}
-
-      {/* Barra di sessione: compare solo dopo il primo articolo aggiunto in
-          questa visita (vedi "Inizia una nuova sessione" in ResearchLayout).
-          Un solo passo avanti possibile (Duplicati, mai direttamente
-          Zotero): percorso lineare forzato, richiesto esplicitamente
-          dall'utente — da qui in poi non si torna all'Overview senza
-          passare anche da Deduplicazione e Arricchisci con Zotero. */}
-      {research && sessionArticles.length > 0 && (
-        <div
-          className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3"
-          style={{ border: '1px solid rgba(212,255,36,.25)', background: 'rgba(212,255,36,.08)' }}
-        >
-          <span className="text-sm font-medium" style={{ color: '#D4FF24' }}>
-            {sessionArticles.length} articol{sessionArticles.length === 1 ? 'o' : 'i'} aggiunt
-            {sessionArticles.length === 1 ? 'o' : 'i'} in questa sessione
-          </span>
-          <Link to={`/ricerche/${research.id}/sessione/duplicati`} className="pill-btn" style={{ textDecoration: 'none' }}>
-            Continua: rivedi duplicati →
-          </Link>
-        </div>
       )}
 
       <div className="flex flex-wrap items-start gap-4">
@@ -343,6 +314,28 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           onArticleAdded={handleArticleAdded}
         />
       </div>
+
+      {/* Barra di sessione, in fondo come nelle altre pagine della sessione:
+          compare solo dopo il primo articolo aggiunto in questa visita (vedi
+          "Inizia una nuova sessione" in ResearchLayout). Un solo passo avanti
+          possibile (Duplicati, mai direttamente Zotero): percorso lineare
+          forzato, richiesto esplicitamente dall'utente — da qui in poi non si
+          torna all'Overview senza passare anche da Deduplicazione e
+          Arricchisci con Zotero. */}
+      {research && sessionArticles.length > 0 && (
+        <div
+          className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3"
+          style={{ border: '1px solid rgba(212,255,36,.25)', background: 'rgba(212,255,36,.08)' }}
+        >
+          <span className="text-sm font-medium" style={{ color: '#D4FF24' }}>
+            {sessionArticles.length} articol{sessionArticles.length === 1 ? 'o' : 'i'} aggiunt
+            {sessionArticles.length === 1 ? 'o' : 'i'} in questa sessione
+          </span>
+          <Link to={`/ricerche/${research.id}/sessione/duplicati`} className="pill-btn" style={{ textDecoration: 'none' }}>
+            Continua: rivedi duplicati →
+          </Link>
+        </div>
+      )}
     </>
   )
 }
