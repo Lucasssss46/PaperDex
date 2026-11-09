@@ -1,0 +1,30 @@
+# Deploy del server di traduzione Zotero, usato per l'arricchimento dei
+# metadati degli articoli salvati (voce 74 del log delle decisioni). Non fa
+# parte dello stack di sviluppo: in locale backend e frontend continuano a
+# girare direttamente con uvicorn/Vite, e translation-server con `npm start`
+# nella sua cartella. Questo file serve per un deploy live, dove il servizio
+# deve restare sempre attivo e riavviarsi da solo — non avviato a mano.
+#
+# Prerequisito: una copia locale del repository di translation-server,
+# clonata CON i submodule Git (altrimenti la build fallisce, mancano i
+# moduli translate/utilities/zotero-schema):
+#
+#   git clone --recurse-submodules https://github.com/zotero/translation-server ../translation-server
+#
+# Il percorso è fuori da questo repository di proposito: è codice di terze
+# parti con i propri submodule, non va vendorizzato dentro PapérDex.
+#
+# Non usiamo l'immagine pubblica pre-costruita (`docker pull
+# zotero/translation-server`): al momento è pubblicata solo per
+# architettura arm64 e non girerebbe su un server x86_64/amd64 comune senza
+# emulazione. Costruendo dal sorgente in locale (`build:` sotto), Docker
+# compila per l'architettura della macchina che esegue `docker compose up`,
+# qualunque essa sia.
+services:
+  zotero-translation-server:
+    build:
+      context: ../translation-server
+    container_name: paperdex-zotero-translation
+    restart: unless-stopped
+    ports:
+      - "1969:1969"

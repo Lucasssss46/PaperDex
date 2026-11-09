@@ -1,0 +1,216 @@
+{
+    "result": {
+        "query": "Graph* Neural* Networks*",
+        "status": {
+            "@code": "200",
+            "text": "OK"
+        },
+        "time": {
+            "@unit": "msecs",
+            "text": "51.41"
+        },
+        "completions": {
+            "@total": "3",
+            "@computed": "3",
+            "@sent": "3",
+            "c": [
+                {
+                    "@sc": "11261",
+                    "@dc": "10735",
+                    "@oc": "11261",
+                    "@id": "70197481",
+                    "text": "networks"
+                },
+                {
+                    "@sc": "1",
+                    "@dc": "1",
+                    "@oc": "1",
+                    "@id": "70197502",
+                    "text": "networkspre"
+                },
+                {
+                    "@sc": "1",
+                    "@dc": "1",
+                    "@oc": "1",
+                    "@id": "70197503",
+                    "text": "networkss"
+                }
+            ]
+        },
+        "hits": {
+            "@total": "10736",
+            "@computed": "100",
+            "@sent": "5",
+            "@first": "0",
+            "hit": [
+                {
+                    "@score": "7",
+                    "@id": "416387",
+                    "info": {
+                        "authors": {
+                            "author": [
+                                {
+                                    "@pid": "384/9998",
+                                    "text": "Mohan Honnagudi Gururaj"
+                                },
+                                {
+                                    "@pid": "168/6922",
+                                    "text": "Jalesh Kumar"
+                                }
+                            ]
+                        },
+                        "title": "BotMHG: a hybrid deep learning-based graphical approach to detect botnets using graph neural networks and graph attention networks on topological and temporal features.",
+                        "venue": "Neural Comput. Appl.",
+                        "volume": "37",
+                        "number": "23",
+                        "pages": "19303-19337",
+                        "year": "2025",
+                        "type": "Journal Articles",
+                        "access": "closed",
+                        "key": "journals/nca/GururajK25",
+                        "doi": "10.1007/S00521-025-11402-3",
+                        "ee": "https://doi.org/10.1007/s00521-025-11402-3",
+                        "url": "https://dblp.org/rec/journals/nca/GururajK25"
+                    },
+                    "url": "URL#416387"
+                },
+                {
+                    "@score": "7",
+                    "@id": "1407732",
+                    "info": {
+                        "authors": {
+                            "author": [
+                                {
+                                    "@pid": "389/3236",
+                                    "text": "Amy Ancelotti"
+                                },
+                                {
+                                    "@pid": "389/2944",
+                                    "text": "Claudia Liason"
+                                }
+                            ]
+                        },
+                        "title": "Review of blockchain application with Graph Neural Networks, Graph Convolutional Networks and Convolutional Neural Networks.",
+                        "venue": "CoRR",
+                        "volume": "abs/2410.00875",
+                        "year": "2024",
+                        "type": "Informal and Other Publications",
+                        "access": "open",
+                        "key": "journals/corr/abs-2410-00875",
+                        "doi": "10.48550/ARXIV.2410.00875",
+                        "ee": "https://doi.org/10.48550/arXiv.2410.00875",
+                        "url": "https://dblp.org/rec/journals/corr/abs-2410-00875"
+                    },
+                    "url": "URL#1407732"
+                },
+                {
+                    "@score": "7",
+                    "@id": "3088965",
+                    "info": {
+                        "authors": {
+                            "author": [
+                                {
+                                    "@pid": "145/1221",
+                                    "text": "Fernando Gama"
+                                },
+                                {
+                                    "@pid": "156/9608",
+                                    "text": "Elvin Isufi"
+                                },
+                                {
+                                    "@pid": "50/3359",
+                                    "text": "Geert Leus"
+                                },
+                                {
+                                    "@pid": "32/15",
+                                    "text": "Alejandro Ribeiro"
+                                }
+                            ]
+                        },
+                        "title": "Graphs, Convolutions, and Neural Networks: From Graph Filters to Graph Neural Networks.",
+                        "venue": "IEEE Signal Process. Mag.",
+                        "volume": "37",
+                        "number": "6",
+                        "pages": "128-138",
+                        "year": "2020",
+                        "type": "Journal Articles",
+                        "access": "closed",
+                        "key": "journals/spm/GamaILR20",
+                        "doi": "10.1109/MSP.2020.3016143",
+                        "ee": "https://doi.org/10.1109/MSP.2020.3016143",
+                        "url": "https://dblp.org/rec/journals/spm/GamaILR20"
+                    },
+                    "url": "URL#3088965"
+                },
+                {
+                    "@score": "6",
+                    "@id": "83100",
+                    "info": {
+                        "authors": {
+                            "author": [
+                                {
+                                    "@pid": "345/4966",
+                                    "text": "Asela Hevapathige"
+                                },
+                                {
+                                    "@pid": "97/6505",
+                                    "text": "Qing Wang"
+                                }
+                            ]
+                        },
+                        "title": "Permutation-Invariant graph partitioning: How graph neural networks capture structural interactions?",
+                        "venue": "Neural Networks",
+                        "volume": "200",
+                        "pages": "108869",
+                        "year": "2026",
+                        "type": "Journal Articles",
+                        "access": "open",
+                        "key": "journals/nn/HevapathigeW26",
+                        "doi": "10.1016/J.NEUNET.2026.108869",
+                        "ee": "https://doi.org/10.1016/j.neunet.2026.108869",
+                        "url": "https://dblp.org/rec/journals/nn/HevapathigeW26"
+                    },
+                    "url": "URL#83100"
+                },
+                {
+                    "@score": "6",
+                    "@id": "83541",
+                    "info": {
+                        "authors": {
+                            "author": [
+                                {
+                                    "@pid": "282/0360",
+                                    "text": "Jingye Tang"
+                                },
+                                {
+                                    "@pid": "19/8310",
+                                    "text": "Tianqing Zhu"
+                                },
+                                {
+                                    "@pid": "92/2939",
+                                    "text": "Wanlei Zhou 0001"
+                                },
+                                {
+                                    "@pid": "z/WeiZhao-1",
+                                    "text": "Wei Zhao 0001"
+                                }
+                            ]
+                        },
+                        "title": "Graph neural networks for fMRI functional brain networks: A survey.",
+                        "venue": "Neural Networks",
+                        "volume": "194",
+                        "pages": "108137",
+                        "year": "2026",
+                        "type": "Journal Articles",
+                        "access": "closed",
+                        "key": "journals/nn/TangZZZ26",
+                        "doi": "10.1016/J.NEUNET.2025.108137",
+                        "ee": "https://doi.org/10.1016/j.neunet.2025.108137",
+                        "url": "https://dblp.org/rec/journals/nn/TangZZZ26"
+                    },
+                    "url": "URL#83541"
+                }
+            ]
+        }
+    }
+}
