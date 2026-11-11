@@ -144,7 +144,7 @@ def annotate_with_group_key(articles: List[Article]) -> List[dict]:
 
 # --- Preferenza sorgente (scelta automatica in un gruppo) -------------------
 # Classifica di default, usata finché una Ricerca non ne imposta una propria
-# (tendina trascinabile nella tab Deduplicazione — vedi Project.source_priority
+# (tendina trascinabile nella tab Deduplicazione — vedi Research.source_priority
 # e le rotte source-priority in routes/ricerche.py). Non è una preferenza
 # personale dell'utente ma della Ricerca: la scelta automatica è condivisa da
 # tutto il team, coerente con "Articoli salvati"/Query salvate/Team.

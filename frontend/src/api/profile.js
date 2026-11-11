@@ -33,10 +33,10 @@ export function setApiKey(sourceId, apiKey) {
   return apiRequest(`/users/me/api-keys/${sourceId}`, { method: 'PUT', body: { api_key: apiKey } })
 }
 
-export function setApiKeySharing(sourceId, projectIds) {
+export function setApiKeySharing(sourceId, researchIds) {
   return apiRequest(`/users/me/api-keys/${sourceId}/sharing`, {
     method: 'PUT',
-    body: { project_ids: projectIds },
+    body: { research_ids: researchIds },
   })
 }
 

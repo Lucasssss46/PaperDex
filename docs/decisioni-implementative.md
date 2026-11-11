@@ -1876,3 +1876,21 @@ Test: `filtering_test.py` (sigla → nome esteso, nome esteso → sigla, variant
 **Stato.** Implementato.
 
 **Aggiornamento (2026-11-08) — rimosso `arxiv_dblp_coverage_test.py`.** Su decisione dell'utente. Il test non verificava nulla: passava a `normalize_title` una stringa invece di un `Article` e falliva con `TypeError` prima di confrontare i titoli; anche corretto, chiedeva un indice di Jaccard > 0.75 tra arXiv e DBLP dal vivo, una soglia esplorativa (vedi la "Categoria 2" della voce sui test falliti) più che una verifica di correttezza. La misura della sovrapposizione tra fonti resta compito degli script di valutazione in `backend/app/statistics/`.
+
+---
+
+## 125. Rinomina dei modelli: `Project` → `Research`, `Research` → `Participation` (2026-11-11)
+
+**Contesto.** Nel codice il progetto condiviso si chiamava `Project` e la partecipazione di un utente a un progetto `Research`, mentre nell'interfaccia e nella tesi la "Ricerca" è il progetto condiviso. L'utente ha chiesto di allineare i nomi: `Project` diventa `Research`, e per la partecipazione serviva un nome che non si sovrapponesse a "Ricerca".
+
+**Decisione.** Scelto `Participation` (collezione `participations`), lo stesso nome della relazione `Partecipazione(Utente, Progetto, ruolo)` dello schema logico iniziale. Scartati `Membership` (suona come un abbonamento) e `Collaboration` (troppo vago). Rinominati di conseguenza:
+- modelli e collezioni: `Project`/`projects` → `Research`/`researches`; `Research`/`researches` → `Participation`/`participations`;
+- campi: `project` → `research` in `Participation`, `Query`, `Invite`, `DuplicateGroup`; `research` → `participation` in `AddedArticle`;
+- variabili e funzioni nelle rotte (`find_my_research` → `find_my_participation`, `serialize_project` → `serialize_research`, `my_owned_project_ids` → `my_owned_research_ids`);
+- chiavi JSON dell'API: `project_id`, `project_name`, `project_description` (inviti) → `research_*`; `project_ids` (condivisione chiavi API) → `research_ids`, con il frontend aggiornato insieme. Gli URL (`/api/ricerche/...`) non cambiano.
+
+Scelta dell'utente: rinominare anche le collezioni su MongoDB Atlas, invece di lasciare i vecchi nomi con `Settings.name`, così codice e database coincidono. Lo script `backend/scripts/migrazione_research_participation.py` rinomina prima `researches` → `participations` e poi `projects` → `researches` (ordine obbligato), quindi rinomina i campi aggiornando anche il nome della collezione dentro i DBRef dei `Link`. Senza `--apply` mostra solo un'anteprima; con `--apply` salva prima un backup JSON in `backend/scripts/backup_migrazione/` (escluso da git). È idempotente.
+
+**Verifica.** Suite offline: 105 test passati (esclusi i test `singles` dal vivo). Script provato su un database simulato (mongomock) con un documento per collezione: collezioni e DBRef corretti, seconda esecuzione senza modifiche, gestito il caso di una `participations` vuota creata dal nuovo codice prima della migrazione.
+
+**Stato.** Codice implementato. Migrazione su Atlas da eseguire con lo script.

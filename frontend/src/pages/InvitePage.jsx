@@ -18,7 +18,7 @@ export default function InvitePage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [actionError, setActionError] = useState('')
   const [outcome, setOutcome] = useState(null) // null | 'accepted' | 'declined'
-  const [acceptedProjectId, setAcceptedProjectId] = useState(null)
+  const [acceptedResearchId, setAcceptedResearchId] = useState(null)
 
   // Solo per lo scenario "destinatario non ancora registrato".
   const [firstName, setFirstName] = useState('')
@@ -38,7 +38,7 @@ export default function InvitePage() {
     setActionError('')
     try {
       const data = await acceptInvite(token)
-      setAcceptedProjectId(data.project_id)
+      setAcceptedResearchId(data.research_id)
       setOutcome('accepted')
     } catch (err) {
       setActionError(err.message)
@@ -101,7 +101,7 @@ export default function InvitePage() {
           ) : outcome === 'accepted' ? (
             <div className="flex flex-col items-center gap-3.5 text-center">
               <p className="notice-ok">Invito accettato! Accedi al tuo account per vedere la ricerca.</p>
-              <Link to={`/ricerche/${acceptedProjectId}/overview`} className="action-link">
+              <Link to={`/ricerche/${acceptedResearchId}/overview`} className="action-link">
                 Vai alla ricerca
               </Link>
             </div>
@@ -116,10 +116,10 @@ export default function InvitePage() {
           ) : (
             <>
               <div className="invite-box">
-                <strong>{invite.sender_name}</strong> ti ha invitato a partecipare a <strong>{invite.project_name}</strong>.
-                {invite.project_description && (
+                <strong>{invite.sender_name}</strong> ti ha invitato a partecipare a <strong>{invite.research_name}</strong>.
+                {invite.research_description && (
                   <p className="mt-1" style={{ color: '#9CC2FF' }}>
-                    {invite.project_description}
+                    {invite.research_description}
                   </p>
                 )}
               </div>

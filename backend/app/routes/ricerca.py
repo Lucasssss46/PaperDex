@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from backend.app.routes.utenti import get_optional_user
-from backend.app.schemas.models import Project, Research, User
+from backend.app.schemas.models import Research, Participation, User
 from backend.app.schemas.search import SearchRequest
 from backend.app.services.utils.dedup import annotate_with_group_key
 from backend.app.services.utils.orchestrator import ADAPTER_REGISTRY, search_all_sources
@@ -40,15 +40,15 @@ async def resolve_api_keys(current_user: Optional[User], ricerca_id: Optional[st
     if not ricerca_id or current_user is None:
         return resolved
 
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         return resolved
 
     my_id = str(current_user.id)
-    teammate_ids = {str(project.owner.ref.id)}
-    all_researches = await Research.find_all().to_list()
-    for r in all_researches:
-        if str(r.project.ref.id) == str(project.id):
+    teammate_ids = {str(research.owner.ref.id)}
+    all_participations = await Participation.find_all().to_list()
+    for r in all_participations:
+        if str(r.research.ref.id) == str(research.id):
             teammate_ids.add(str(r.user.ref.id))
 
     if my_id not in teammate_ids:
@@ -61,7 +61,7 @@ async def resolve_api_keys(current_user: Optional[User], ricerca_id: Optional[st
         for source_id, key in teammate.api_keys.items():
             if source_id in resolved:
                 continue
-            if str(project.id) in teammate.api_key_shared_with.get(source_id, []):
+            if str(research.id) in teammate.api_key_shared_with.get(source_id, []):
                 resolved[source_id] = key
 
     return resolved

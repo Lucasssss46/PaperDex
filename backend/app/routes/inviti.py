@@ -4,7 +4,7 @@ from beanie.operators import Or
 from fastapi import APIRouter, HTTPException
 
 from backend.app.routes.utenti import decode_action_token_payload
-from backend.app.schemas.models import Invite, Project, Research, User
+from backend.app.schemas.models import Invite, Research, Participation, User
 
 router = APIRouter()
 
@@ -27,7 +27,7 @@ async def _get_invite(token: str) -> Invite:
 @router.get("/inviti/{token}")
 async def get_invite(token: str):
     invite = await _get_invite(token)
-    project = await Project.get(invite.project.ref.id)
+    research = await Research.get(invite.research.ref.id)
     sender = await User.get(invite.sender.ref.id)
     # Conta anche se l'email invitata è una additional_email di un account
     # esistente, non solo l'email principale.
@@ -37,8 +37,8 @@ async def get_invite(token: str):
         "state": invite.state,
         "receiver_email": invite.receiver_email,
         "sender_name": sender.name if sender is not None else None,
-        "project_name": project.name if project is not None else None,
-        "project_description": project.description if project is not None else None,
+        "research_name": research.name if research is not None else None,
+        "research_description": research.description if research is not None else None,
         "user_exists": existing_user is not None,
     }
 
@@ -55,23 +55,23 @@ async def accept_invite(token: str):
         # l'invite_token, crea da sola la partecipazione): vedi POST /users.
         raise HTTPException(status_code=404, detail="Nessun account registrato con questa email: registrati per accettare")
 
-    project = await Project.get(invite.project.ref.id)
-    if project is None:
+    research = await Research.get(invite.research.ref.id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    all_researches = await Research.find_all().to_list()
+    all_participations = await Participation.find_all().to_list()
     already_participant = any(
-        linked_id(r.project) == str(project.id) and linked_id(r.user) == str(user.id) for r in all_researches
+        linked_id(r.research) == str(research.id) and linked_id(r.user) == str(user.id) for r in all_participations
     )
-    if not already_participant and linked_id(project.owner) != str(user.id):
-        await Research(user=user, project=project, date=date.today()).insert()
+    if not already_participant and linked_id(research.owner) != str(user.id):
+        await Participation(user=user, research=research, date=date.today()).insert()
 
     invite.state = "accepted"
     await invite.save()
 
     # Restituito per permettere al frontend di linkare direttamente alla
     # Ricerca appena accettata, invece che genericamente al login.
-    return {"message": "Invito accettato", "project_id": str(project.id)}
+    return {"message": "Invito accettato", "research_id": str(research.id)}
 
 
 @router.post("/inviti/{token}/decline")

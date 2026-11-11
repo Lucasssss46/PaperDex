@@ -45,9 +45,9 @@ class User(Document):
     # (vedi API_KEY_SOURCES in routes/utenti.py). Chiave = identificativo
     # della sorgente, valore = la chiave inserita dall'utente.
     api_keys: dict[str, str] = Field(default_factory=dict)
-    # Ricerche (Project) a cui l'utente ha scelto di condividere
+    # Ricerche (Research) a cui l'utente ha scelto di condividere
     # trasparentemente la propria chiave di una data sorgente con gli altri
-    # membri del team: chiave = source_id, valore = lista di id di Project.
+    # membri del team: chiave = source_id, valore = lista di id di Research.
     # Disattivata di default (liste vuote/assenti): va attivata esplicitamente
     # ricerca per ricerca dalle impostazioni API keys. La chiave personale di
     # chi cerca ha comunque sempre priorità su una condivisa (vedi
@@ -127,9 +127,9 @@ class Query(Document):
     # Una query salvata riproduce esattamente i parametri di SearchRequest
     # (schemas/search.py) / SearchRequestIn (routes/ricerca.py), così da poter
     # essere reimpostata tale e quale nel form di ricerca tramite "Usa".
-    # Condivisa da tutta la Ricerca (il Project), non da una singola
+    # Condivisa da tutta la Ricerca (Research), non da una singola
     # partecipazione: chiunque vi partecipi la vede e può riusarla.
-    project: Link["Project"]
+    research: Link["Research"]
     name: str
     keyword_include: Optional[list[list[str]]] = None
     keyword_exclude: Optional[list[str]] = None
@@ -143,7 +143,7 @@ class Query(Document):
     class Settings:
         name = "queries"
 
-class Project(Document):
+class Research(Document):
     name: str
     description: str
     creation_date: date
@@ -158,7 +158,7 @@ class Project(Document):
     source_priority: Optional[list[str]] = None
 
     class Settings:
-        name = "projects"
+        name = "researches"
 
 class Invite(Document):
     sender: Link["User"]
@@ -167,23 +167,23 @@ class Invite(Document):
     # invite_token). Un utente già registrato conta come destinatario anche
     # se questa email è una delle sue additional_emails, non solo la principale.
     receiver_email: EmailStr
-    project: Link["Project"]
+    research: Link["Research"]
     state: str = Field(default="pending")  # pending | accepted | declined
     date_sent: date
 
     class Settings:
         name = "invites"
 
-class Research(Document):
+class Participation(Document):
     user: Link["User"]
-    project: Link["Project"]
+    research: Link["Research"]
     date: date
 
     class Settings:
-        name = "researches"
+        name = "participations"
 
 class AddedArticle(Document):
-    research: Link["Research"]
+    participation: Link["Participation"]
     article: Link["Article"]
 
     class Settings:
@@ -195,7 +195,7 @@ class DuplicateGroup(Document):
     # salvati, gli altri restano qui come alternative — consultabili e
     # selezionabili in un secondo momento nella tab "Deduplicazione" della
     # Ricerca, senza dover rifare la ricerca per ritrovarli.
-    project: Link["Project"]
+    research: Link["Research"]
     added_article: Link["AddedArticle"]
     # Id di Article (non Link): sono record già presenti nella cache globale
     # di Article (inseriti al momento dell'aggiunta di gruppo) ma senza un

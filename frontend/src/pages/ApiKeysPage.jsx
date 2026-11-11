@@ -15,12 +15,12 @@ function ShareSection({ source, researches, onSharingUpdated }) {
 
   if (researches.length === 0) return null
 
-  async function toggle(projectId) {
-    const next = source.shared_with.includes(projectId)
-      ? source.shared_with.filter((id) => id !== projectId)
-      : [...source.shared_with, projectId]
+  async function toggle(researchId) {
+    const next = source.shared_with.includes(researchId)
+      ? source.shared_with.filter((id) => id !== researchId)
+      : [...source.shared_with, researchId]
 
-    setSavingId(projectId)
+    setSavingId(researchId)
     setError('')
     try {
       const result = await setApiKeySharing(source.id, next)

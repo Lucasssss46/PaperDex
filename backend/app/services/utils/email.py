@@ -92,12 +92,12 @@ def build_password_changed_email() -> tuple[str, str]:
     return subject, html
 
 
-def build_invite_email(sender_name: str, project_name: str, accept_url: str) -> tuple[str, str]:
+def build_invite_email(sender_name: str, research_name: str, accept_url: str) -> tuple[str, str]:
     subject = f"{sender_name} ti ha invitato su PapérDex"
     html = _wrap(
         "Sei stato invitato",
         f"<p><strong>{sender_name}</strong> ti ha invitato a partecipare alla ricerca "
-        f'<strong>{project_name}</strong> su PapérDex.</p>'
+        f'<strong>{research_name}</strong> su PapérDex.</p>'
         f'<p><a href="{accept_url}">{accept_url}</a></p>'
         f"<p>Se non ti aspettavi questo invito, puoi ignorare questa email.</p>",
     )

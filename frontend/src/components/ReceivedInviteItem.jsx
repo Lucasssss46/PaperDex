@@ -17,7 +17,7 @@ export default function ReceivedInviteItem({ invite }) {
     <li className="row">
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium" style={{ color: '#F3F4F6' }}>
-          {invite.project_name}
+          {invite.research_name}
         </p>
         <p className="truncate text-xs" style={{ color: '#8B93A5' }}>
           da {invite.sender_name}

@@ -4,7 +4,7 @@ from pathlib import Path
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from dotenv import load_dotenv
-from backend.app.schemas.models import AddedArticle, DuplicateGroup, User, Project, Article, Query, Invite, Research
+from backend.app.schemas.models import AddedArticle, DuplicateGroup, User, Research, Article, Query, Invite, Participation
 
 # Ancorato alla posizione del file, non alla working directory del processo:
 # `load_dotenv()` senza argomenti cerca risalendo da `os.getcwd()`, che con
@@ -25,7 +25,7 @@ async def init_db():
         # Inizializza Beanie
         await init_beanie(
             database=client.PaperDex,
-            document_models=[User, Project, Article, Query, Invite, Research, AddedArticle, DuplicateGroup]
+            document_models=[User, Research, Article, Query, Invite, Participation, AddedArticle, DuplicateGroup]
         )
 
     except Exception as e:

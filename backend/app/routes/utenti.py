@@ -13,7 +13,7 @@ from pydantic import BaseModel, EmailStr
 from pymongo.errors import DuplicateKeyError
 from typing import Optional
 
-from backend.app.schemas.models import DEFAULT_PROFILE_IMG, Invite, Project, Research, UserCreate, User
+from backend.app.schemas.models import DEFAULT_PROFILE_IMG, Invite, Research, Participation, UserCreate, User
 from backend.app.services.llm import LLM_PROVIDERS
 from backend.app.services.utils.email import (
     EmailSendError,
@@ -157,9 +157,9 @@ async def subscribe(data: UserCreate):
         raise HTTPException(status_code=400, detail="Email già in uso da un altro account")
 
     if invite is not None:
-        project = await Project.get(invite.project.ref.id)
-        if project is not None:
-            await Research(user=new_user, project=project, date=date.today()).insert()
+        research = await Research.get(invite.research.ref.id)
+        if research is not None:
+            await Participation(user=new_user, research=research, date=date.today()).insert()
         invite.state = "accepted"
         await invite.save()
 
@@ -412,11 +412,11 @@ async def list_my_invites(current_user: User = Depends(get_current_user)):
     results = []
     for invite in mine:
         sender = await User.get(invite.sender.ref.id)
-        project = await Project.get(invite.project.ref.id)
+        research = await Research.get(invite.research.ref.id)
         entry = {
             "id": str(invite.id),
             "sender_name": sender.name if sender is not None else None,
-            "project_name": project.name if project is not None else None,
+            "research_name": research.name if research is not None else None,
             "state": invite.state,
             "date_sent": invite.date_sent.isoformat(),
         }
@@ -433,22 +433,22 @@ async def list_my_invites(current_user: User = Depends(get_current_user)):
     return {"invites": results}
 
 
-async def my_owned_project_ids(current_user: User) -> set[str]:
+async def my_owned_research_ids(current_user: User) -> set[str]:
     """Id delle Ricerche di cui l'utente è proprietario. Solo il proprietario
     può decidere di condividere una chiave con l'intero team di una Ricerca —
     un semplice partecipante non ha voce in capitolo su questo, anche se ne fa
     parte (stessa asimmetria di "invita"/"rimuovi membro"/"elimina Ricerca",
     tutte azioni riservate al proprietario in routes/ricerche.py)."""
     my_id = str(current_user.id)
-    all_projects = await Project.find_all().to_list()
-    return {str(p.id) for p in all_projects if str(p.owner.ref.id) == my_id}
+    all_researches = await Research.find_all().to_list()
+    return {str(p.id) for p in all_researches if str(p.owner.ref.id) == my_id}
 
 
 @router.get("/users/me/api-keys")
 async def get_api_keys(current_user: User = Depends(get_current_user)):
-    my_ids = await my_owned_project_ids(current_user)
-    all_projects = await Project.find_all().to_list()
-    my_researches = [{"id": str(p.id), "name": p.name} for p in all_projects if str(p.id) in my_ids]
+    my_ids = await my_owned_research_ids(current_user)
+    all_researches = await Research.find_all().to_list()
+    my_researches = [{"id": str(p.id), "name": p.name} for p in all_researches if str(p.id) in my_ids]
 
     # Non viene mai restituita la chiave salvata, solo se è impostata o meno
     # (stesso principio della password: si può sovrascrivere, non rileggere).
@@ -495,7 +495,7 @@ async def set_api_key(source_id: str, data: ApiKeySet, current_user: User = Depe
 
 
 class ApiKeySharingSet(BaseModel):
-    project_ids: list[str]
+    research_ids: list[str]
 
 
 @router.put("/users/me/api-keys/{source_id}/sharing")
@@ -508,8 +508,8 @@ async def set_api_key_sharing(
     # Solo Ricerche di cui l'utente è proprietario: non deve poter attivare la
     # condivisione verso una Ricerca a cui partecipa soltanto, né verso una a
     # cui non partecipa affatto.
-    my_ids = await my_owned_project_ids(current_user)
-    valid_ids = [pid for pid in dict.fromkeys(data.project_ids) if pid in my_ids]
+    my_ids = await my_owned_research_ids(current_user)
+    valid_ids = [pid for pid in dict.fromkeys(data.research_ids) if pid in my_ids]
 
     current_user.api_key_shared_with[source_id] = valid_ids
     await current_user.save()

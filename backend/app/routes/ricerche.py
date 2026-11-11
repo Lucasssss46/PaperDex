@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, EmailStr
 
 from backend.app.routes.utenti import create_action_token, get_current_user
-from backend.app.schemas.models import AddedArticle, Article, DuplicateGroup, Invite, Project, Query, Research, User
+from backend.app.schemas.models import AddedArticle, Article, DuplicateGroup, Invite, Research, Query, Participation, User
 from backend.app.services.utils.dedup import DEFAULT_SOURCE_PRIORITY, are_duplicates, pick_preferred
 from backend.app.services.utils.email import EmailSendError, FRONTEND_URL, build_invite_email, send_email
 from backend.app.services.utils.export import EXPORT_FORMATS, EXPORTERS
@@ -28,12 +28,12 @@ class RicercaCreate(BaseModel):
     description: str = ""
 
 
-def serialize_project(project: Project) -> dict:
+def serialize_research(research: Research) -> dict:
     return {
-        "id": str(project.id),
-        "name": project.name,
-        "description": project.description,
-        "creation_date": str(project.creation_date),
+        "id": str(research.id),
+        "name": research.name,
+        "description": research.description,
+        "creation_date": str(research.creation_date),
     }
 
 
@@ -45,21 +45,21 @@ def linked_id(link) -> str:
     return str(link.ref.id)
 
 
-async def find_my_research(project_id: str, user_id: str) -> Optional[Research]:
-    """Research (partecipazione) dell'utente in un progetto, o None se non ne
+async def find_my_participation(research_id: str, user_id: str) -> Optional[Participation]:
+    """Participation (partecipazione) dell'utente in un progetto, o None se non ne
     fa parte. Fattorizzato perché usato da più endpoint del flusso di
     deduplicazione, oltre che qui sotto."""
-    all_researches = await Research.find_all().to_list()
+    all_participations = await Participation.find_all().to_list()
     return next(
-        (r for r in all_researches if linked_id(r.project) == project_id and linked_id(r.user) == user_id),
+        (r for r in all_participations if linked_id(r.research) == research_id and linked_id(r.user) == user_id),
         None,
     )
 
 
 async def find_cross_session_duplicate(
-    project_id: str, candidates: List[Article], exclude_ids: set[str]
+    research_id: str, candidates: List[Article], exclude_ids: set[str]
 ) -> Optional[tuple[Article, AddedArticle]]:
-    """Cerca, tra gli articoli GIÀ salvati in questa Ricerca (project-wide: a
+    """Cerca, tra gli articoli GIÀ salvati in questa Ricerca (research-wide: a
     prescindere da quale membro li abbia aggiunti o in quale sessione di
     ricerca), uno che risulti duplicato (are_duplicates) di uno dei
     `candidates` appena aggiunti. Il dedup "normale" raggruppa solo i
@@ -69,14 +69,14 @@ async def find_cross_session_duplicate(
     Confronto O(n) contro i soli articoli già salvati (non O(n²) su tutta la
     storia, che servirebbe solo per riraggruppare tutto da capo): economico
     anche per Ricerche con molti salvati, eseguibile ad ogni aggiunta."""
-    all_researches = await Research.find_all().to_list()
-    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == project_id}
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == research_id}
 
     all_added = await AddedArticle.find_all().to_list()
-    project_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+    research_added = [a for a in all_added if linked_id(a.participation) in related_participation_ids]
 
     seen_ids: set[str] = set()
-    for added in project_added:
+    for added in research_added:
         article_id = linked_id(added.article)
         if article_id in seen_ids or article_id in exclude_ids:
             continue
@@ -92,7 +92,7 @@ async def find_cross_session_duplicate(
 
 
 async def attach_as_duplicate_alternatives(
-    project: Project, anchor_added: AddedArticle, anchor_article_id: str, new_alternative_ids: List[str]
+    research: Research, anchor_added: AddedArticle, anchor_article_id: str, new_alternative_ids: List[str]
 ) -> None:
     """Aggiunge `new_alternative_ids` come alternative del DuplicateGroup
     ancorato a `anchor_added` (lo crea se non esiste ancora), consultabili in
@@ -116,7 +116,7 @@ async def attach_as_duplicate_alternatives(
         (
             g
             for g in all_groups
-            if linked_id(g.project) == str(project.id) and linked_id(g.added_article) == str(anchor_added.id)
+            if linked_id(g.research) == str(research.id) and linked_id(g.added_article) == str(anchor_added.id)
         ),
         None,
     )
@@ -124,50 +124,50 @@ async def attach_as_duplicate_alternatives(
         existing_group.alternative_ids = list(dict.fromkeys(existing_group.alternative_ids + new_alternative_ids))
         await existing_group.save()
     else:
-        await DuplicateGroup(project=project, added_article=anchor_added, alternative_ids=new_alternative_ids).insert()
+        await DuplicateGroup(research=research, added_article=anchor_added, alternative_ids=new_alternative_ids).insert()
 
 
 @router.post("/ricerche")
 async def create_ricerca(data: RicercaCreate, current_user: User = Depends(get_current_user)):
-    project = Project(
+    research = Research(
         name=data.name,
         description=data.description,
         creation_date=date.today(),
         owner=current_user,
     )
-    await project.insert()
-
-    # Il creatore partecipa automaticamente alla propria ricerca.
-    research = Research(user=current_user, project=project, date=date.today())
     await research.insert()
 
-    return serialize_project(project)
+    # Il creatore partecipa automaticamente alla propria ricerca.
+    participation = Participation(user=current_user, research=research, date=date.today())
+    await participation.insert()
+
+    return serialize_research(research)
 
 
 @router.get("/ricerche")
 async def list_ricerche(current_user: User = Depends(get_current_user)):
     my_id = str(current_user.id)
 
-    all_projects = await Project.find_all().to_list()
-    mine = [p for p in all_projects if linked_id(p.owner) == my_id]
-
     all_researches = await Research.find_all().to_list()
-    my_project_ids = {linked_id(r.project) for r in all_researches if linked_id(r.user) == my_id}
-    participating = [p for p in all_projects if str(p.id) in my_project_ids and linked_id(p.owner) != my_id]
+    mine = [p for p in all_researches if linked_id(p.owner) == my_id]
+
+    all_participations = await Participation.find_all().to_list()
+    my_research_ids = {linked_id(r.research) for r in all_participations if linked_id(r.user) == my_id}
+    participating = [p for p in all_researches if str(p.id) in my_research_ids and linked_id(p.owner) != my_id]
 
     return {
-        "mine": [serialize_project(p) for p in mine],
-        "participating": [serialize_project(p) for p in participating],
+        "mine": [serialize_research(p) for p in mine],
+        "participating": [serialize_research(p) for p in participating],
     }
 
 
-async def require_access(project: Project, current_user: User) -> None:
-    if linked_id(project.owner) == str(current_user.id):
+async def require_access(research: Research, current_user: User) -> None:
+    if linked_id(research.owner) == str(current_user.id):
         return
-    all_researches = await Research.find_all().to_list()
+    all_participations = await Participation.find_all().to_list()
     participates = any(
-        linked_id(r.project) == str(project.id) and linked_id(r.user) == str(current_user.id)
-        for r in all_researches
+        linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id)
+        for r in all_participations
     )
     if not participates:
         raise HTTPException(status_code=403, detail="Non partecipi a questa ricerca")
@@ -175,13 +175,13 @@ async def require_access(project: Project, current_user: User) -> None:
 
 @router.get("/ricerche/{ricerca_id}")
 async def get_ricerca(ricerca_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
-    return serialize_project(project)
+    return serialize_research(research)
 
 
 # Limite di pagina fisso: una ricerca bibliografica realisticamente raccoglie
@@ -198,20 +198,20 @@ async def list_ricerca_articles(
     page: int = 1,
     page_size: int = DEFAULT_PAGE_SIZE,
 ):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     page = max(page, 1)
     page_size = min(max(page_size, 1), MAX_PAGE_SIZE)
 
-    all_researches = await Research.find_all().to_list()
-    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == str(research.id)}
 
     all_added = await AddedArticle.find_all().to_list()
-    my_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+    my_added = [a for a in all_added if linked_id(a.participation) in related_participation_ids]
     # Gli ObjectId di Mongo sono monotonicamente crescenti nel tempo: bastano
     # per ordinare dal più recente senza un campo timestamp dedicato.
     my_added.sort(key=lambda a: str(a.id), reverse=True)
@@ -244,17 +244,17 @@ async def export_ricerca_articles(
             status_code=422, detail=f"Formato sconosciuto: {format!r}. Disponibili: {list(EXPORT_FORMATS)}"
         )
 
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
-    all_researches = await Research.find_all().to_list()
-    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == str(research.id)}
 
     all_added = await AddedArticle.find_all().to_list()
-    my_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+    my_added = [a for a in all_added if linked_id(a.participation) in related_participation_ids]
 
     articles = []
     for added in my_added:
@@ -278,7 +278,7 @@ async def export_ricerca_articles(
     # Slug dal nome della Ricerca per un nome file leggibile, invece del solo
     # id Mongo: non deve contenere caratteri che rompano l'header o il
     # filesystem di chi lo scarica.
-    slug = re.sub(r"[^a-z0-9]+", "-", project.name.lower()).strip("-") or "ricerca"
+    slug = re.sub(r"[^a-z0-9]+", "-", research.name.lower()).strip("-") or "ricerca"
     filename = f"{slug}.{extension}"
 
     return Response(
@@ -295,25 +295,25 @@ async def list_ricerca_cronologia(
     page: int = 1,
     page_size: int = DEFAULT_PAGE_SIZE,
 ):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     page = max(page, 1)
     page_size = min(max(page_size, 1), MAX_PAGE_SIZE)
 
-    all_researches = await Research.find_all().to_list()
-    related_researches = {str(r.id): r for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_participations = await Participation.find_all().to_list()
+    related_participations = {str(r.id): r for r in all_participations if linked_id(r.research) == str(research.id)}
 
     all_added = await AddedArticle.find_all().to_list()
-    my_added = [a for a in all_added if linked_id(a.research) in related_researches]
+    my_added = [a for a in all_added if linked_id(a.participation) in related_participations]
     # Stesso trucco di /articoli: gli ObjectId sono monotonicamente crescenti nel
     # tempo, quindi bastano sia per ordinare dal più recente sia per ricavare
     # un timestamp reale (`generation_time`) senza un campo dedicato — e "chi"
-    # ha aggiunto l'articolo è già ricavabile da `research.user`, la Research
-    # con cui è stato inserito (una Research è la partecipazione di un
+    # ha aggiunto l'articolo è già ricavabile da `participation.user`, la Participation
+    # con cui è stato inserito (una Participation è la partecipazione di un
     # singolo utente a una Ricerca), senza bisogno di un campo separato.
     my_added.sort(key=lambda a: str(a.id), reverse=True)
 
@@ -324,8 +324,8 @@ async def list_ricerca_cronologia(
     entries = []
     for added in page_items:
         article = await Article.get(added.article.ref.id)
-        research = related_researches.get(linked_id(added.research))
-        added_by = await User.get(research.user.ref.id) if research is not None else None
+        participation = related_participations.get(linked_id(added.participation))
+        added_by = await User.get(participation.user.ref.id) if participation is not None else None
         entries.append(
             {
                 "id": str(added.id),
@@ -361,14 +361,14 @@ def serialize_query(query: Query) -> dict:
 
 @router.get("/ricerche/{ricerca_id}/query")
 async def list_ricerca_queries(ricerca_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     all_queries = await Query.find_all().to_list()
-    my_queries = [q for q in all_queries if linked_id(q.project) == str(project.id)]
+    my_queries = [q for q in all_queries if linked_id(q.research) == str(research.id)]
     # Più recenti prima, stesso trucco ObjectId usato altrove in questo file.
     my_queries.sort(key=lambda q: str(q.id), reverse=True)
 
@@ -408,13 +408,13 @@ def _query_criteria(obj) -> tuple:
 async def create_ricerca_query(
     ricerca_id: str, data: QueryCreate, current_user: User = Depends(get_current_user)
 ):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
     # Chiunque partecipi (non solo il proprietario) può salvare una query: è
     # condivisa con tutta la Ricerca, coerente con Team/Cronologia.
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     name = data.name.strip()
     if not name:
@@ -430,7 +430,7 @@ async def create_ricerca_query(
         (
             q
             for q in all_queries
-            if linked_id(q.project) == str(project.id) and _query_criteria(q) == _query_criteria(data)
+            if linked_id(q.research) == str(research.id) and _query_criteria(q) == _query_criteria(data)
         ),
         None,
     )
@@ -438,7 +438,7 @@ async def create_ricerca_query(
         return serialize_query(existing)
 
     query = Query(
-        project=project,
+        research=research,
         name=name,
         keyword_include=data.keyword_include,
         keyword_exclude=data.keyword_exclude,
@@ -456,16 +456,16 @@ async def create_ricerca_query(
 
 @router.get("/ricerche/{ricerca_id}/team")
 async def list_ricerca_team(ricerca_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     # Il proprietario fa sempre parte del team, anche se per qualche motivo
-    # non avesse (più) una Research propria collegata alla Ricerca.
+    # non avesse (più) una Participation propria collegata alla Ricerca.
     members = {}
-    owner = await User.get(project.owner.ref.id)
+    owner = await User.get(research.owner.ref.id)
     if owner is not None:
         members[str(owner.id)] = {
             "id": str(owner.id),
@@ -474,9 +474,9 @@ async def list_ricerca_team(ricerca_id: str, current_user: User = Depends(get_cu
             "is_owner": True,
         }
 
-    all_researches = await Research.find_all().to_list()
-    for r in all_researches:
-        if linked_id(r.project) != str(project.id):
+    all_participations = await Participation.find_all().to_list()
+    for r in all_participations:
+        if linked_id(r.research) != str(research.id):
             continue
         user_id = linked_id(r.user)
         if user_id in members:
@@ -489,32 +489,32 @@ async def list_ricerca_team(ricerca_id: str, current_user: User = Depends(get_cu
         "members": list(members.values()),
         # Così il frontend sa se mostrare il form di invito senza dover
         # ricavarlo confrontando la propria identità con la lista dei membri.
-        "is_owner": linked_id(project.owner) == str(current_user.id),
+        "is_owner": linked_id(research.owner) == str(current_user.id),
     }
 
 
 @router.delete("/ricerche/{ricerca_id}/team/{user_id}")
 async def remove_team_member(ricerca_id: str, user_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
-    if linked_id(project.owner) != str(current_user.id):
+    if linked_id(research.owner) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Solo il proprietario può rimuovere membri")
-    if user_id == linked_id(project.owner):
+    if user_id == linked_id(research.owner):
         raise HTTPException(status_code=400, detail="Il proprietario non può rimuovere se stesso")
 
-    all_researches = await Research.find_all().to_list()
+    all_participations = await Participation.find_all().to_list()
     to_remove = [
-        r for r in all_researches if linked_id(r.project) == str(project.id) and linked_id(r.user) == user_id
+        r for r in all_participations if linked_id(r.research) == str(research.id) and linked_id(r.user) == user_id
     ]
     if not to_remove:
         raise HTTPException(status_code=404, detail="Utente non nel team di questa ricerca")
 
     # Gli articoli già aggiunti da questo membro restano nella Ricerca (sono un
     # contributo condiviso, non suoi personalmente, coerente con "Query
-    # salvate"): si rimuove solo la sua partecipazione (Research), non gli
+    # salvate"): si rimuove solo la sua partecipazione (Participation), non gli
     # AddedArticle che vi fanno riferimento — la Cronologia mostra già
-    # "Utente rimosso" per un added_by che punta a una Research sparita.
+    # "Utente rimosso" per un added_by che punta a una Participation sparita.
     for r in to_remove:
         await r.delete()
 
@@ -526,24 +526,24 @@ async def leave_ricerca(ricerca_id: str, current_user: User = Depends(get_curren
     """Azione self-service simmetrica a remove_team_member: un membro (non il
     proprietario) può abbandonare una Ricerca di propria iniziativa, senza
     passare dal proprietario."""
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
-    if linked_id(project.owner) == str(current_user.id):
+    if linked_id(research.owner) == str(current_user.id):
         raise HTTPException(status_code=400, detail="Il proprietario non può abbandonare la propria Ricerca")
 
-    all_researches = await Research.find_all().to_list()
-    my_researches = [
+    all_participations = await Participation.find_all().to_list()
+    my_participations = [
         r
-        for r in all_researches
-        if linked_id(r.project) == str(project.id) and linked_id(r.user) == str(current_user.id)
+        for r in all_participations
+        if linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id)
     ]
-    if not my_researches:
+    if not my_participations:
         raise HTTPException(status_code=403, detail="Non partecipi a questa ricerca")
 
     # Stessa scelta di remove_team_member: gli articoli già aggiunti restano nella
     # Ricerca come contributo condiviso, si rimuove solo la partecipazione.
-    for r in my_researches:
+    for r in my_participations:
         await r.delete()
 
     return {"message": "Hai abbandonato la Ricerca"}
@@ -555,10 +555,10 @@ class InviteCreate(BaseModel):
 
 @router.post("/ricerche/{ricerca_id}/invite")
 async def invite_to_ricerca(ricerca_id: str, data: InviteCreate, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
-    if linked_id(project.owner) != str(current_user.id):
+    if linked_id(research.owner) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Solo il proprietario può invitare nuovi membri")
 
     email = data.email.strip()
@@ -567,12 +567,12 @@ async def invite_to_ricerca(ricerca_id: str, data: InviteCreate, current_user: U
 
     existing_user = await User.find_one(Or(User.email == email, User.additional_emails == email))
     if existing_user is not None:
-        if linked_id(project.owner) == str(existing_user.id):
+        if linked_id(research.owner) == str(existing_user.id):
             raise HTTPException(status_code=400, detail="È già il proprietario di questa ricerca")
-        all_researches = await Research.find_all().to_list()
+        all_participations = await Participation.find_all().to_list()
         already_participant = any(
-            linked_id(r.project) == str(project.id) and linked_id(r.user) == str(existing_user.id)
-            for r in all_researches
+            linked_id(r.research) == str(research.id) and linked_id(r.user) == str(existing_user.id)
+            for r in all_participations
         )
         if already_participant:
             raise HTTPException(status_code=400, detail="È già nel team di questa ricerca")
@@ -585,17 +585,17 @@ async def invite_to_ricerca(ricerca_id: str, data: InviteCreate, current_user: U
         (
             i
             for i in all_invites
-            if linked_id(i.project) == str(project.id) and i.receiver_email == email and i.state == "pending"
+            if linked_id(i.research) == str(research.id) and i.receiver_email == email and i.state == "pending"
         ),
         None,
     )
     if invite is None:
-        invite = Invite(sender=current_user, receiver_email=email, project=project, state="pending", date_sent=date.today())
+        invite = Invite(sender=current_user, receiver_email=email, research=research, state="pending", date_sent=date.today())
         await invite.insert()
 
     token = create_action_token(email, "invite", expires_hours=24 * 7, invite_id=str(invite.id))
     accept_url = f"{FRONTEND_URL}/inviti/accetta?token={token}"
-    subject, html = build_invite_email(current_user.name, project.name, accept_url)
+    subject, html = build_invite_email(current_user.name, research.name, accept_url)
     # A differenza delle notifiche di cambio password, qui l'invio è l'intera
     # azione richiesta: se fallisce, chi invita deve saperlo con un errore
     # leggibile (non un log silenzioso, ma nemmeno un 500 grezzo).
@@ -609,14 +609,14 @@ async def invite_to_ricerca(ricerca_id: str, data: InviteCreate, current_user: U
 
 @router.get("/ricerche/{ricerca_id}/invites")
 async def list_ricerca_invites(ricerca_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
-    if linked_id(project.owner) != str(current_user.id):
+    if linked_id(research.owner) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Solo il proprietario può vedere gli inviti mandati")
 
     all_invites = await Invite.find_all().to_list()
-    related = [i for i in all_invites if linked_id(i.project) == str(project.id)]
+    related = [i for i in all_invites if linked_id(i.research) == str(research.id)]
     # Più recenti prima, stesso trucco ObjectId usato altrove in questo file.
     related.sort(key=lambda i: str(i.id), reverse=True)
 
@@ -635,35 +635,35 @@ async def list_ricerca_invites(ricerca_id: str, current_user: User = Depends(get
 
 @router.delete("/ricerche/{ricerca_id}")
 async def delete_ricerca(ricerca_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
-    if linked_id(project.owner) != str(current_user.id):
+    if linked_id(research.owner) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Solo il proprietario può eliminare questa ricerca")
 
-    all_researches = await Research.find_all().to_list()
-    related_researches = [r for r in all_researches if linked_id(r.project) == str(project.id)]
+    all_participations = await Participation.find_all().to_list()
+    related_participations = [r for r in all_participations if linked_id(r.research) == str(research.id)]
 
-    if related_researches:
-        related_ids = {str(r.id) for r in related_researches}
+    if related_participations:
+        related_ids = {str(r.id) for r in related_participations}
         all_added = await AddedArticle.find_all().to_list()
         for added in all_added:
-            if linked_id(added.research) in related_ids:
+            if linked_id(added.participation) in related_ids:
                 await added.delete()
-        for research in related_researches:
-            await research.delete()
+        for participation in related_participations:
+            await participation.delete()
 
     all_queries = await Query.find_all().to_list()
     for query in all_queries:
-        if linked_id(query.project) == str(project.id):
+        if linked_id(query.research) == str(research.id):
             await query.delete()
 
     all_invites = await Invite.find_all().to_list()
     for invite in all_invites:
-        if linked_id(invite.project) == str(project.id):
+        if linked_id(invite.research) == str(research.id):
             await invite.delete()
 
-    await project.delete()
+    await research.delete()
     return {"message": "Ricerca eliminata"}
 
 
@@ -675,20 +675,20 @@ class AddArticleIn(BaseModel):
 async def add_article_to_ricerca(
     ricerca_id: str, data: AddArticleIn, current_user: User = Depends(get_current_user)
 ):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    all_researches = await Research.find_all().to_list()
-    my_research = next(
+    all_participations = await Participation.find_all().to_list()
+    my_participation = next(
         (
             r
-            for r in all_researches
-            if linked_id(r.project) == str(project.id) and linked_id(r.user) == str(current_user.id)
+            for r in all_participations
+            if linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id)
         ),
         None,
     )
-    if my_research is None:
+    if my_participation is None:
         raise HTTPException(status_code=403, detail="Non partecipi a questa ricerca")
 
     article = await Article.get(data.article.get("id"))
@@ -698,15 +698,15 @@ async def add_article_to_ricerca(
 
     all_added = await AddedArticle.find_all().to_list()
     already_added = any(
-        linked_id(a.research) == str(my_research.id) and linked_id(a.article) == str(article.id)
+        linked_id(a.participation) == str(my_participation.id) and linked_id(a.article) == str(article.id)
         for a in all_added
     )
     if already_added:
         return {"message": "Articolo aggiunto alla ricerca"}
 
-    cross_match = await find_cross_session_duplicate(str(project.id), [article], exclude_ids={article.id})
+    cross_match = await find_cross_session_duplicate(str(research.id), [article], exclude_ids={article.id})
     if cross_match is None:
-        await AddedArticle(research=my_research, article=article).insert()
+        await AddedArticle(participation=my_participation, article=article).insert()
         return {"message": "Articolo aggiunto alla ricerca"}
 
     # Un articolo equivalente (sorgente diversa, stesso articolo) risulta già
@@ -714,7 +714,7 @@ async def add_article_to_ricerca(
     # "primaria" tra i salvati, ma un'alternativa nel suo DuplicateGroup —
     # stessa scelta già fatta per i duplicati trovati dentro un'unica ricerca.
     duplicate_of, duplicate_added = cross_match
-    await attach_as_duplicate_alternatives(project, duplicate_added, duplicate_of.id, [article.id])
+    await attach_as_duplicate_alternatives(research, duplicate_added, duplicate_of.id, [article.id])
 
     return {
         "message": "Un articolo equivalente era già salvato in questa Ricerca: aggiunto come alternativa nella tab Deduplicazione",
@@ -727,14 +727,14 @@ async def add_article_to_ricerca(
 # spezzata su più segmenti di path (stesso motivo di remove_article_from_ricerca).
 @router.post("/ricerche/{ricerca_id}/articoli/{article_id:path}/enrich")
 async def enrich_article(ricerca_id: str, article_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
     # Non distruttiva (riempie solo campi vuoti, non sovrascrive nulla):
     # aperta a chiunque partecipi, non solo al proprietario — stessa apertura
     # di add_article_to_ricerca.
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     article = await Article.get(article_id)
     if article is None:
@@ -777,16 +777,16 @@ async def enrich_all_articles(
     identificativo, dato non trovato...) non deve bloccare gli altri, stessa
     filosofia resiliente di search_all_sources — l'errore viene raccolto e
     restituito, non propagato."""
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
-    all_researches = await Research.find_all().to_list()
-    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == str(research.id)}
     all_added = await AddedArticle.find_all().to_list()
-    my_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+    my_added = [a for a in all_added if linked_id(a.participation) in related_participation_ids]
 
     my_added = only_selected(my_added, selection)
 
@@ -835,11 +835,11 @@ async def check_article_version(ricerca_id: str, article_id: str, current_user: 
     un duplicato qualunque; una revisione della stessa fonte viene invece
     applicata sul posto (stessa politica non distruttiva di apply_enrichment:
     riempie solo i campi vuoti, non sovrascrive mai)."""
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     article = await Article.get(article_id)
     if article is None:
@@ -878,19 +878,19 @@ async def check_article_version(ricerca_id: str, article_id: str, current_user: 
     else:
         candidate = existing_candidate
 
-    all_researches = await Research.find_all().to_list()
-    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == str(research.id)}
     all_added = await AddedArticle.find_all().to_list()
     anchor_added = next(
         (
             a
             for a in all_added
-            if linked_id(a.research) in related_research_ids and linked_id(a.article) == article.id
+            if linked_id(a.participation) in related_participation_ids and linked_id(a.article) == article.id
         ),
         None,
     )
     if anchor_added is not None:
-        await attach_as_duplicate_alternatives(project, anchor_added, article.id, [candidate.id])
+        await attach_as_duplicate_alternatives(research, anchor_added, article.id, [candidate.id])
 
     return {
         "found": True,
@@ -907,21 +907,21 @@ async def check_all_articles_version(
     current_user: User = Depends(get_current_user),
 ):
     """Come check_article_version, ma per tutti gli articoli salvati della
-    Ricerca in un colpo solo — stessa query project-wide già usata da
+    Ricerca in un colpo solo — stessa query research-wide già usata da
     enrich_all_articles ed export_ricerca_articles. Un articolo che non trova
     nulla, o per cui la fonte non è raggiungibile, non blocca gli altri,
     stessa filosofia resiliente di search_all_sources/enrich_all_articles:
     l'errore viene raccolto e restituito, non propagato."""
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
-    all_researches = await Research.find_all().to_list()
-    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == str(research.id)}
     all_added = await AddedArticle.find_all().to_list()
-    my_added = [a for a in all_added if linked_id(a.research) in related_research_ids]
+    my_added = [a for a in all_added if linked_id(a.participation) in related_participation_ids]
 
     my_added = only_selected(my_added, selection)
 
@@ -972,7 +972,7 @@ async def check_all_articles_version(
         else:
             candidate = existing_candidate
 
-        await attach_as_duplicate_alternatives(project, added, article.id, [candidate.id])
+        await attach_as_duplicate_alternatives(research, added, article.id, [candidate.id])
         new_sources.append(
             {
                 "article_id": article.id,
@@ -1004,12 +1004,12 @@ async def add_article_group_to_ricerca(
     if not data.articles:
         raise HTTPException(status_code=400, detail="Nessun articolo nel gruppo")
 
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    my_research = await find_my_research(str(project.id), str(current_user.id))
-    if my_research is None:
+    my_participation = await find_my_participation(str(research.id), str(current_user.id))
+    if my_participation is None:
         raise HTTPException(status_code=403, detail="Non partecipi a questa ricerca")
 
     # Upsert di ogni articolo del gruppo nella cache globale (stesso pattern
@@ -1032,16 +1032,16 @@ async def add_article_group_to_ricerca(
     # ricerca corrente). In quel caso l'intero gruppo diventa alternativa
     # dell'articolo già salvato, invece di creare una seconda voce
     # "primaria" per lo stesso articolo tra i salvati.
-    cross_match = await find_cross_session_duplicate(str(project.id), articles, exclude_ids=group_ids)
+    cross_match = await find_cross_session_duplicate(str(research.id), articles, exclude_ids=group_ids)
     if cross_match is not None:
         anchor_article, anchor_added = cross_match
-        await attach_as_duplicate_alternatives(project, anchor_added, anchor_article.id, [a.id for a in articles])
+        await attach_as_duplicate_alternatives(research, anchor_added, anchor_article.id, [a.id for a in articles])
         return {
             "message": "Gruppo aggiunto come alternativa a un articolo già salvato in questa Ricerca",
             "chosen_article_id": anchor_article.id,
         }
 
-    chosen = pick_preferred(articles, project.source_priority)
+    chosen = pick_preferred(articles, research.source_priority)
     alternative_ids = [a.id for a in articles if a.id != chosen.id]
 
     all_added = await AddedArticle.find_all().to_list()
@@ -1049,12 +1049,12 @@ async def add_article_group_to_ricerca(
         (
             a
             for a in all_added
-            if linked_id(a.research) == str(my_research.id) and linked_id(a.article) == str(chosen.id)
+            if linked_id(a.participation) == str(my_participation.id) and linked_id(a.article) == str(chosen.id)
         ),
         None,
     )
     if added is None:
-        added = AddedArticle(research=my_research, article=chosen)
+        added = AddedArticle(participation=my_participation, article=chosen)
         await added.insert()
 
     # Se questo stesso articolo scelto ha già un gruppo in questa Ricerca
@@ -1062,21 +1062,21 @@ async def add_article_group_to_ricerca(
     # condividono la preferenza), estende le alternative invece di crearne
     # uno nuovo — niente doppioni nella tab Deduplicazione.
     if alternative_ids:
-        await attach_as_duplicate_alternatives(project, added, chosen.id, alternative_ids)
+        await attach_as_duplicate_alternatives(research, added, chosen.id, alternative_ids)
 
     return {"message": "Gruppo aggiunto alla ricerca", "chosen_article_id": chosen.id}
 
 
 @router.get("/ricerche/{ricerca_id}/duplicate-groups")
 async def list_duplicate_groups(ricerca_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     all_groups = await DuplicateGroup.find_all().to_list()
-    my_groups = [g for g in all_groups if linked_id(g.project) == str(project.id)]
+    my_groups = [g for g in all_groups if linked_id(g.research) == str(research.id)]
 
     groups = []
     for g in my_groups:
@@ -1116,18 +1116,18 @@ class ChooseDuplicateIn(BaseModel):
 async def choose_duplicate(
     ricerca_id: str, group_id: str, data: ChooseDuplicateIn, current_user: User = Depends(get_current_user)
 ):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
-    my_research = await find_my_research(str(project.id), str(current_user.id))
-    if my_research is None:
+    my_participation = await find_my_participation(str(research.id), str(current_user.id))
+    if my_participation is None:
         raise HTTPException(status_code=403, detail="Non partecipi a questa ricerca")
 
     group = await DuplicateGroup.get(group_id)
-    if group is None or linked_id(group.project) != str(project.id):
+    if group is None or linked_id(group.research) != str(research.id):
         raise HTTPException(status_code=404, detail="Gruppo non trovato")
 
     current_added = await AddedArticle.get(group.added_article.ref.id)
@@ -1149,7 +1149,7 @@ async def choose_duplicate(
     # originariamente aggiunto il gruppo: stessa logica di attribuzione già
     # in uso altrove (es. remove_team_member).
     await current_added.delete()
-    new_added = await AddedArticle(research=my_research, article=new_article).insert()
+    new_added = await AddedArticle(participation=my_participation, article=new_article).insert()
 
     group.added_article = new_added
     group.alternative_ids = [aid for aid in group.alternative_ids if aid != data.article_id] + [current_article_id]
@@ -1160,18 +1160,18 @@ async def choose_duplicate(
 
 @router.get("/ricerche/{ricerca_id}/source-priority")
 async def get_source_priority(ricerca_id: str, current_user: User = Depends(get_current_user)):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
-    await require_access(project, current_user)
+    await require_access(research, current_user)
 
     return {
-        "sources": project.source_priority or DEFAULT_SOURCE_PRIORITY,
+        "sources": research.source_priority or DEFAULT_SOURCE_PRIORITY,
         # Così il frontend sa distinguere "non ancora personalizzata" (mostra
         # comunque l'ordine di default, pronto per essere trascinato) da
         # "personalizzata esplicitamente", senza doverlo indovinare.
-        "is_custom": project.source_priority is not None,
+        "is_custom": research.source_priority is not None,
     }
 
 
@@ -1183,10 +1183,10 @@ class SourcePriorityIn(BaseModel):
 async def set_source_priority(
     ricerca_id: str, data: SourcePriorityIn, current_user: User = Depends(get_current_user)
 ):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
-    if linked_id(project.owner) != str(current_user.id):
+    if linked_id(research.owner) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Solo il proprietario può modificare la classifica delle sorgenti")
 
     if set(data.sources) != set(DEFAULT_SOURCE_PRIORITY) or len(data.sources) != len(DEFAULT_SOURCE_PRIORITY):
@@ -1194,10 +1194,10 @@ async def set_source_priority(
             status_code=422, detail=f"La classifica deve contenere esattamente: {DEFAULT_SOURCE_PRIORITY}"
         )
 
-    project.source_priority = data.sources
-    await project.save()
+    research.source_priority = data.sources
+    await research.save()
 
-    return {"sources": project.source_priority, "is_custom": True}
+    return {"sources": research.source_priority, "is_custom": True}
 
 
 # `:path` per accettare l'id articolo così com'è: per molte sorgenti è una URL
@@ -1207,14 +1207,14 @@ async def set_source_priority(
 async def remove_article_from_ricerca(
     ricerca_id: str, article_id: str, current_user: User = Depends(get_current_user)
 ):
-    project = await Project.get(ricerca_id)
-    if project is None:
+    research = await Research.get(ricerca_id)
+    if research is None:
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
-    if linked_id(project.owner) != str(current_user.id):
+    if linked_id(research.owner) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Solo il proprietario può rimuovere articoli salvati")
 
-    all_researches = await Research.find_all().to_list()
-    related_research_ids = {str(r.id) for r in all_researches if linked_id(r.project) == str(project.id)}
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == str(research.id)}
 
     all_added = await AddedArticle.find_all().to_list()
     # Rimuove tutte le istanze salvate di questo articolo nella Ricerca, anche
@@ -1224,7 +1224,7 @@ async def remove_article_from_ricerca(
     to_remove = [
         a
         for a in all_added
-        if linked_id(a.research) in related_research_ids and linked_id(a.article) == article_id
+        if linked_id(a.participation) in related_participation_ids and linked_id(a.article) == article_id
     ]
     if not to_remove:
         raise HTTPException(status_code=404, detail="Articolo non trovato tra quelli salvati")
@@ -1238,7 +1238,7 @@ async def remove_article_from_ricerca(
     # non c'è motivo di lasciarlo in giro indefinitamente nel database).
     all_groups = await DuplicateGroup.find_all().to_list()
     for g in all_groups:
-        if linked_id(g.project) == str(project.id) and linked_id(g.added_article) in removed_ids:
+        if linked_id(g.research) == str(research.id) and linked_id(g.added_article) in removed_ids:
             await g.delete()
 
     return {"message": "Articolo rimosso dalla ricerca"}
