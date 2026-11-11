@@ -1893,4 +1893,4 @@ Scelta dell'utente: rinominare anche le collezioni su MongoDB Atlas, invece di l
 
 **Verifica.** Suite offline: 105 test passati (esclusi i test `singles` dal vivo). Script provato su un database simulato (mongomock) con un documento per collezione: collezioni e DBRef corretti, seconda esecuzione senza modifiche, gestito il caso di una `participations` vuota creata dal nuovo codice prima della migrazione.
 
-**Stato.** Codice implementato. Migrazione su Atlas da eseguire con lo script.
+**Stato.** Implementato. Migrazione eseguita su Atlas l'11 novembre 2026: 19 Ricerche, 27 partecipazioni, 111 articoli aggiunti, 16 query, 3 inviti e 9 gruppi di duplicati; seconda anteprima senza nulla da migrare, backend avviato senza errori. Backup in `backend/scripts/backup_migrazione/`.
