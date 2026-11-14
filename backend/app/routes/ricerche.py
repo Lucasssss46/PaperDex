@@ -47,11 +47,15 @@ def linked_id(link) -> str:
 
 async def find_my_participation(research_id: str, user_id: str) -> Optional[Participation]:
     """Participation (partecipazione) dell'utente in un progetto, o None se non ne
-    fa parte. Fattorizzato perché usato da più endpoint del flusso di
-    deduplicazione, oltre che qui sotto."""
+    fa parte (o l'ha lasciata). Fattorizzato perché usato da più endpoint del
+    flusso di deduplicazione, oltre che qui sotto."""
     all_participations = await Participation.find_all().to_list()
     return next(
-        (r for r in all_participations if linked_id(r.research) == research_id and linked_id(r.user) == user_id),
+        (
+            r
+            for r in all_participations
+            if linked_id(r.research) == research_id and linked_id(r.user) == user_id and r.active
+        ),
         None,
     )
 
@@ -152,7 +156,7 @@ async def list_ricerche(current_user: User = Depends(get_current_user)):
     mine = [p for p in all_researches if linked_id(p.owner) == my_id]
 
     all_participations = await Participation.find_all().to_list()
-    my_research_ids = {linked_id(r.research) for r in all_participations if linked_id(r.user) == my_id}
+    my_research_ids = {linked_id(r.research) for r in all_participations if linked_id(r.user) == my_id and r.active}
     participating = [p for p in all_researches if str(p.id) in my_research_ids and linked_id(p.owner) != my_id]
 
     return {
@@ -166,7 +170,7 @@ async def require_access(research: Research, current_user: User) -> None:
         return
     all_participations = await Participation.find_all().to_list()
     participates = any(
-        linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id)
+        linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id) and r.active
         for r in all_participations
     )
     if not participates:
@@ -476,7 +480,7 @@ async def list_ricerca_team(ricerca_id: str, current_user: User = Depends(get_cu
 
     all_participations = await Participation.find_all().to_list()
     for r in all_participations:
-        if linked_id(r.research) != str(research.id):
+        if linked_id(r.research) != str(research.id) or not r.active:
             continue
         user_id = linked_id(r.user)
         if user_id in members:
@@ -505,18 +509,23 @@ async def remove_team_member(ricerca_id: str, user_id: str, current_user: User =
 
     all_participations = await Participation.find_all().to_list()
     to_remove = [
-        r for r in all_participations if linked_id(r.research) == str(research.id) and linked_id(r.user) == user_id
+        r
+        for r in all_participations
+        if linked_id(r.research) == str(research.id) and linked_id(r.user) == user_id and r.active
     ]
     if not to_remove:
         raise HTTPException(status_code=404, detail="Utente non nel team di questa ricerca")
 
     # Gli articoli già aggiunti da questo membro restano nella Ricerca (sono un
     # contributo condiviso, non suoi personalmente, coerente con "Query
-    # salvate"): si rimuove solo la sua partecipazione (Participation), non gli
-    # AddedArticle che vi fanno riferimento — la Cronologia mostra già
-    # "Utente rimosso" per un added_by che punta a una Participation sparita.
+    # salvate"). La partecipazione non si cancella ma si chiude con la data di
+    # uscita: gli AddedArticle continuano a puntare a una Participation
+    # esistente (niente riferimenti orfani) e la Cronologia sa ancora chi li
+    # ha aggiunti. Prima la si cancellava, e i suoi articoli sparivano dalla
+    # Ricerca perché nessuna partecipazione li collegava più (voce 126).
     for r in to_remove:
-        await r.delete()
+        r.left_on = date.today()
+        await r.save()
 
     return {"message": "Membro rimosso dal team"}
 
@@ -536,15 +545,17 @@ async def leave_ricerca(ricerca_id: str, current_user: User = Depends(get_curren
     my_participations = [
         r
         for r in all_participations
-        if linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id)
+        if linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id) and r.active
     ]
     if not my_participations:
         raise HTTPException(status_code=403, detail="Non partecipi a questa ricerca")
 
     # Stessa scelta di remove_team_member: gli articoli già aggiunti restano nella
-    # Ricerca come contributo condiviso, si rimuove solo la partecipazione.
+    # Ricerca come contributo condiviso, la partecipazione si chiude con la
+    # data di uscita invece di essere cancellata.
     for r in my_participations:
-        await r.delete()
+        r.left_on = date.today()
+        await r.save()
 
     return {"message": "Hai abbandonato la Ricerca"}
 
@@ -571,7 +582,7 @@ async def invite_to_ricerca(ricerca_id: str, data: InviteCreate, current_user: U
             raise HTTPException(status_code=400, detail="È già il proprietario di questa ricerca")
         all_participations = await Participation.find_all().to_list()
         already_participant = any(
-            linked_id(r.research) == str(research.id) and linked_id(r.user) == str(existing_user.id)
+            linked_id(r.research) == str(research.id) and linked_id(r.user) == str(existing_user.id) and r.active
             for r in all_participations
         )
         if already_participant:
@@ -663,6 +674,24 @@ async def delete_ricerca(ricerca_id: str, current_user: User = Depends(get_curre
         if linked_id(invite.research) == str(research.id):
             await invite.delete()
 
+    all_groups = await DuplicateGroup.find_all().to_list()
+    for group in all_groups:
+        if linked_id(group.research) == str(research.id):
+            await group.delete()
+
+    # Condivisioni delle chiavi API verso questa Ricerca (dizionario
+    # source_id -> lista di id di Research): senza questa pulizia resterebbero
+    # id di una Ricerca che non esiste più.
+    research_id = str(research.id)
+    all_users = await User.find_all().to_list()
+    for user in all_users:
+        if not any(research_id in ids for ids in user.api_key_shared_with.values()):
+            continue
+        user.api_key_shared_with = {
+            source: [i for i in ids if i != research_id] for source, ids in user.api_key_shared_with.items()
+        }
+        await user.save()
+
     await research.delete()
     return {"message": "Ricerca eliminata"}
 
@@ -684,7 +713,7 @@ async def add_article_to_ricerca(
         (
             r
             for r in all_participations
-            if linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id)
+            if linked_id(r.research) == str(research.id) and linked_id(r.user) == str(current_user.id) and r.active
         ),
         None,
     )

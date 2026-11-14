@@ -48,7 +48,7 @@ async def resolve_api_keys(current_user: Optional[User], ricerca_id: Optional[st
     teammate_ids = {str(research.owner.ref.id)}
     all_participations = await Participation.find_all().to_list()
     for r in all_participations:
-        if str(r.research.ref.id) == str(research.id):
+        if str(r.research.ref.id) == str(research.id) and r.active:
             teammate_ids.add(str(r.user.ref.id))
 
     if my_id not in teammate_ids:

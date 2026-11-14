@@ -1894,3 +1894,20 @@ Scelta dell'utente: rinominare anche le collezioni su MongoDB Atlas, invece di l
 **Verifica.** Suite offline: 105 test passati (esclusi i test `singles` dal vivo). Script provato su un database simulato (mongomock) con un documento per collezione: collezioni e DBRef corretti, seconda esecuzione senza modifiche, gestito il caso di una `participations` vuota creata dal nuovo codice prima della migrazione.
 
 **Stato.** Implementato. Migrazione eseguita su Atlas l'11 novembre 2026: 19 Ricerche, 27 partecipazioni, 111 articoli aggiunti, 16 query, 3 inviti e 9 gruppi di duplicati; seconda anteprima senza nulla da migrare, backend avviato senza errori. Backup in `backend/scripts/backup_migrazione/`.
+
+---
+
+## 126. Niente riferimenti orfani: partecipazioni disattivate e pulizia alla cancellazione di una Ricerca (2026-11-14)
+
+**Contesto.** Riferimenti tra documenti senza vincoli di integrità referenziale (DBRef di Beanie): l'utente non vuole che restino riferimenti orfani. Controllando i percorsi di cancellazione sono emersi tre casi:
+- rimozione di un membro e abbandono di una Ricerca cancellavano la `Participation`. Gli `AddedArticle` di quel membro restavano a puntare a una partecipazione inesistente e, poiché gli articoli di una Ricerca si raccolgono partendo dalle sue partecipazioni, **sparivano dalla Ricerca**: il commento nel codice diceva il contrario ("restano nella Ricerca"), e la Cronologia non mostrava nemmeno "Utente rimosso", perché non li trovava proprio;
+- `DELETE /ricerche/{id}` cancellava partecipazioni, articoli aggiunti, query e inviti, ma non i `DuplicateGroup` della Ricerca;
+- gli id della Ricerca cancellata restavano in `User.api_key_shared_with`.
+
+**Decisione.** Scelta dell'utente tra tre opzioni (partecipazione disattivata, articoli passati al proprietario, articoli cancellati): **partecipazione disattivata**. Nuovo campo `Participation.left_on: Optional[date]` (None = attiva) e proprietà `active`. Rimozione e abbandono impostano `left_on` invece di cancellare. Tutti i controlli di appartenenza considerano solo le partecipazioni attive (`require_access`, `find_my_participation`, elenco delle Ricerche "a cui partecipi", team, invito di chi è già membro, aggiunta di articoli, chiavi API condivise dai compagni in `ricerca.py`); le letture degli articoli di una Ricerca considerano tutte le partecipazioni, così gli articoli restano e si sa chi li ha aggiunti. Chi viene reinvitato ritrova la stessa partecipazione, riattivata (`inviti.py`). `delete_ricerca` ora cancella anche i `DuplicateGroup` e toglie l'id della Ricerca da `api_key_shared_with`.
+
+Per i dati già nel database, `backend/scripts/pulizia_riferimenti_orfani.py` (anteprima di default, `--apply` con backup JSON) trova e rimuove: partecipazioni con utente o Ricerca inesistenti, articoli aggiunti senza partecipazione, query, inviti e gruppi di duplicati orfani, id inesistenti in `api_key_shared_with`. Gli articoli aggiunti rimasti senza partecipazione non si possono ricollegare: la partecipazione cancellata era l'unico legame con la Ricerca e con l'utente.
+
+**Verifica.** Suite offline: 105 test passati. Prova delle rotte con un database simulato (mongomock-motor): dopo la rimozione di un membro, accesso negato (403), il membro non è più nel team, il suo articolo resta nella Ricerca e la partecipazione esiste con `active` falso; la cancellazione della Ricerca lascia a zero partecipazioni, articoli aggiunti, gruppi di duplicati e inviti e svuota la condivisione della chiave. Script di pulizia provato su dati simulati con un orfano per tipo e rieseguito senza trovare altro. Non provata la riattivazione tramite invito.
+
+**Stato.** Implementato. Pulizia del database di Atlas da eseguire con lo script.

@@ -60,11 +60,19 @@ async def accept_invite(token: str):
         raise HTTPException(status_code=404, detail="Ricerca non trovata")
 
     all_participations = await Participation.find_all().to_list()
-    already_participant = any(
-        linked_id(r.research) == str(research.id) and linked_id(r.user) == str(user.id) for r in all_participations
+    existing = next(
+        (r for r in all_participations if linked_id(r.research) == str(research.id) and linked_id(r.user) == str(user.id)),
+        None,
     )
-    if not already_participant and linked_id(research.owner) != str(user.id):
-        await Participation(user=user, research=research, date=date.today()).insert()
+    if linked_id(research.owner) != str(user.id):
+        if existing is None:
+            await Participation(user=user, research=research, date=date.today()).insert()
+        elif not existing.active:
+            # Chi aveva lasciato la Ricerca (o ne era stato rimosso) e viene
+            # reinvitato ritrova la stessa partecipazione, con i suoi articoli.
+            existing.left_on = None
+            existing.date = date.today()
+            await existing.save()
 
     invite.state = "accepted"
     await invite.save()

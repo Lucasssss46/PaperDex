@@ -178,6 +178,15 @@ class Participation(Document):
     user: Link["User"]
     research: Link["Research"]
     date: date
+    # Data in cui l'utente ha lasciato la Ricerca (o ne è stato rimosso).
+    # La partecipazione non viene cancellata: gli AddedArticle che ha
+    # inserito continuano a puntarvi, così restano nella Ricerca e si sa
+    # ancora chi li ha aggiunti. None = partecipazione attiva.
+    left_on: Optional[date] = None
+
+    @property
+    def active(self) -> bool:
+        return self.left_on is None
 
     class Settings:
         name = "participations"
