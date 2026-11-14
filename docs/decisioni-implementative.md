@@ -1910,4 +1910,4 @@ Per i dati già nel database, `backend/scripts/pulizia_riferimenti_orfani.py` (a
 
 **Verifica.** Suite offline: 105 test passati. Prova delle rotte con un database simulato (mongomock-motor): dopo la rimozione di un membro, accesso negato (403), il membro non è più nel team, il suo articolo resta nella Ricerca e la partecipazione esiste con `active` falso; la cancellazione della Ricerca lascia a zero partecipazioni, articoli aggiunti, gruppi di duplicati e inviti e svuota la condivisione della chiave. Script di pulizia provato su dati simulati con un orfano per tipo e rieseguito senza trovare altro. Non provata la riattivazione tramite invito.
 
-**Stato.** Implementato. Pulizia del database di Atlas da eseguire con lo script.
+**Stato.** Implementato. Pulizia eseguita su Atlas il 14 novembre 2026: rimossi 5 partecipazioni, 3 articoli aggiunti, 4 query e 1 gruppo di duplicati orfani (nessun invito né chiave condivisa); seconda anteprima a zero. Backup in `backend/scripts/backup_migrazione/`.
