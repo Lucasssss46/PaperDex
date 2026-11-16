@@ -22,6 +22,10 @@ class CrossrefAdapter(BaseAdapter):
     # Documentato: "rows" massimo 1000 per richiesta
     # (https://github.com/CrossRef/rest-api-doc).
     MAX_PAGE_SIZE = 1000
+    # Nel pool "polite" (con mailto) le ricerche sono limitate a 3 al secondo
+    # e 3 contemporanee (https://community.crossref.org/t/refining-rest-api-limits-for-improved-stability-and-reliability/16137):
+    # un secondo tra le pagine lascia margine anche a più ricerche insieme.
+    MIN_REQUEST_INTERVAL = 1.0
 
     async def fetch(self, search_request: SearchRequest, offset: int = 0) -> list[Article]:
         url = self._build_query(search_request, offset)

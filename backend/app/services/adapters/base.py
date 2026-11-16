@@ -54,6 +54,12 @@ class BaseAdapter(ABC):
     #: services/utils/pagination.py). Ogni adapter lo sovrascrive col proprio valore.
     MAX_PAGE_SIZE: int = 100
 
+    #: Secondi di attesa prima di ogni richiesta alla sorgente (vedi
+    #: cached_raw_fetch in services/utils/search.py). Ogni adapter lo
+    #: sovrascrive in base al limite di frequenza della propria sorgente;
+    #: le sorgenti sono interrogate in parallelo, quindi le attese non si sommano.
+    MIN_REQUEST_INTERVAL: float = 3.0
+
     #: Identificativo con cui questa sorgente compare in User.api_keys (vedi
     #: API_KEY_SOURCES in routes/utenti.py, derivato da questo stesso
     #: attributo). None per le sorgenti che non supportano una chiave personale.

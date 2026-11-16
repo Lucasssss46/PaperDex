@@ -21,9 +21,8 @@ class ArXivAdapter(BaseAdapter):
     # (https://info.arxiv.org/help/api/user-manual.html).
     MAX_PAGE_SIZE = 2000
     # Le condizioni d'uso chiedono al massimo una richiesta ogni 3 secondi
-    # (https://info.arxiv.org/help/api/tou.html). true_coverage lo usa come
-    # attesa tra le ricerche per titolo: con 2 secondi arXiv rispondeva 429
-    # (report del 24 ottobre 2026).
+    # (https://info.arxiv.org/help/api/tou.html): con 2 secondi arXiv
+    # rispondeva 429 (report del 24 ottobre 2026).
     MIN_REQUEST_INTERVAL = 3.0
     # Tetto all'attesa chiesta dal server con Retry-After, come per DBLP.
     MAX_RETRY_AFTER_SECONDS = 60.0

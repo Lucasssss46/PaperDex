@@ -23,6 +23,10 @@ class OpenAlexAdapter(BaseAdapter):
     # Documentato: "per-page" tra 1 e 200
     # (https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/paging).
     MAX_PAGE_SIZE = 200
+    # Il limite è di 100 richieste al secondo (https://developers.openalex.org/api-reference/authentication);
+    # quello che conta davvero è il budget giornaliero della chiave, che non
+    # dipende dal ritmo. Mezzo secondo resta comunque prudente.
+    MIN_REQUEST_INTERVAL = 0.5
     API_KEY_SOURCE_ID = "openalex"
     # Da febbraio 2026 l'API richiede una chiave per ogni richiesta (senza,
     # solo poche chiamate dimostrative): si usa soltanto la chiave personale

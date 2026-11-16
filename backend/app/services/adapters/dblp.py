@@ -29,6 +29,10 @@ class DBLPAdapter(BaseAdapter):
     # h=1000 (@sent=100; f=100 dà i successivi). Con 1000 la profondità alta
     # chiedeva 150, riceveva 100 e la paginazione si fermava (voce 99).
     MAX_PAGE_SIZE = 100
+    # Nessun limite numerico pubblicato: la FAQ dice che aspettare uno o due
+    # secondi tra le richieste basta (https://dblp1.uni-trier.de/faq/1474706.html). Si
+    # prende il valore più alto, visto che DBLP è dietro una verifica anti-bot.
+    MIN_REQUEST_INTERVAL = 2.0
     # Tetto all'attesa chiesta dal server con Retry-After, per non bloccare a
     # lungo l'intera ricerca multi-sorgente su una sola sorgente.
     MAX_RETRY_AFTER_SECONDS = 60.0

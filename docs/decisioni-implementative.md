@@ -1925,3 +1925,22 @@ Per i dati già nel database, `backend/scripts/pulizia_riferimenti_orfani.py` (a
 **Verifica.** Suite offline: 105 test passati (aggiornati i test di normalizzazione di Crossref e Semantic Scholar). Crossref provato dal vivo: venue come "Electric Power Transformer Engineering" o "IEE Colloquium Transformer Life Management", vuota per i record senza rivista (es. figure). Semantic Scholar non provato dal vivo: dal cloud risponde sempre 429.
 
 **Stato.** Implementato.
+
+---
+
+## 128. Attesa tra le richieste diversa per ogni sorgente (2026-11-16)
+
+**Contesto.** `cached_raw_fetch` aspettava 3 secondi prima di ogni richiesta, per tutte le sorgenti. Il valore viene dalle condizioni d'uso di arXiv (una richiesta ogni 3 secondi) ed era rimasto il default comune del parametro `delay`, senza una scelta esplicita per le altre sorgenti, che accettano ritmi più alti: le ricerche profonde erano più lente del necessario.
+
+**Decisione.** Ogni adapter dichiara `MIN_REQUEST_INTERVAL`, in base al limite della propria sorgente; `cached_raw_fetch`, `safe_fetch_with_rate_limit` e `paginated_fetch` lo usano quando non ricevono un `delay` esplicito (i test passano 0). Il default di `BaseAdapter` resta 3 secondi, così un nuovo adapter senza valore è prudente.
+- arXiv: 3 secondi (condizioni d'uso; con 2 secondi rispondeva 429, voce 108).
+- DBLP: 2 secondi, il valore più alto tra "uno o due secondi" della FAQ, dato che è dietro una verifica anti-bot (voce 106).
+- Crossref: 1 secondo; nel pool "polite" le ricerche sono limitate a 3 al secondo e 3 contemporanee.
+- Semantic Scholar: 1 secondo, il limite con la chiave. Rallentare non riduce i 429 osservati (voce 104).
+- OpenAlex: 0,5 secondi; il limite è 100 richieste al secondo e il vincolo reale è il budget giornaliero, che non dipende dal ritmo.
+
+Le sorgenti restano interrogate in parallelo, quindi la durata di una ricerca dipende dalla sorgente più lenta tra quelle con più pagine. `true_coverage` usa ora lo stesso valore invece del suo default di 2 secondi.
+
+**Verifica.** Suite offline: 111 test passati, compreso un nuovo test che controlla, per ogni adapter, che senza `delay` si aspetti il suo intervallo.
+
+**Stato.** Implementato.

@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import List
+from typing import List, Optional
 
 from backend.app.schemas.models import Article
 from backend.app.schemas.search import SearchRequest
@@ -19,7 +19,7 @@ class PartialResultsError(Exception):
         self.cause = cause
 
 
-async def paginated_fetch(adapter: BaseAdapter, search_request: SearchRequest, delay: float = 3.0) -> List[Article]:
+async def paginated_fetch(adapter: BaseAdapter, search_request: SearchRequest, delay: Optional[float] = None) -> List[Article]:
     """Recupera risultati da un adapter paginando in modo adattivo: continua a
     chiedere pagine successive finché non si raggiunge il target di risultati
     filtrati previsto dal livello di profondità della richiesta (SearchRequest.depth),

@@ -19,6 +19,11 @@ class SemanticScholarAdapter(BaseAdapter):
     # Documentato per l'endpoint /paper/search (relevance search, non /bulk):
     # limit di default 100, con il vincolo limit+offset <= 1000 per ricerca.
     MAX_PAGE_SIZE = 100
+    # Con la chiave il limite è di una richiesta al secondo su tutti gli
+    # endpoint (https://www.semanticscholar.org/product/api). Rallentare non
+    # riduce i 429 osservati, che arrivano anche a 10 secondi di intervallo
+    # (voce 104).
+    MIN_REQUEST_INTERVAL = 1.0
     API_KEY_SOURCE_ID = "semantic_scholar"
     # "Can only return up to 1,000 relevance-ranked results"
     # (https://api.semanticscholar.org/graph/v1/swagger.json).

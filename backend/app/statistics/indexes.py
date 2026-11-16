@@ -33,10 +33,8 @@ async def true_coverage(results: set, adapter:BaseAdapter) -> dict:
         # punteggiatura (DBLP chiude i titoli con il punto, arXiv no) per
         # scartare l'articolo giusto. Il confronto vero è quello sul titolo
         # pulito qui sotto.
-        # Attesa minima della sorgente se ne dichiara una (arXiv: 3 secondi),
-        # altrimenti 2 secondi.
-        delay = getattr(adapter, "MIN_REQUEST_INTERVAL", 2.0)
-        results_for_title = await cached_raw_fetch(adapter, title_query, delay=delay)
+        # Senza delay si usa l'attesa minima della sorgente (arXiv: 3 secondi).
+        results_for_title = await cached_raw_fetch(adapter, title_query)
         results_for_title = results_for_title or []
 
         clean_title = article.pulisci_titolo()
