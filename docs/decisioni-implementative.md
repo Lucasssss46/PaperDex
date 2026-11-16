@@ -1911,3 +1911,17 @@ Per i dati già nel database, `backend/scripts/pulizia_riferimenti_orfani.py` (a
 **Verifica.** Suite offline: 105 test passati. Prova delle rotte con un database simulato (mongomock-motor): dopo la rimozione di un membro, accesso negato (403), il membro non è più nel team, il suo articolo resta nella Ricerca e la partecipazione esiste con `active` falso; la cancellazione della Ricerca lascia a zero partecipazioni, articoli aggiunti, gruppi di duplicati e inviti e svuota la condivisione della chiave. Script di pulizia provato su dati simulati con un orfano per tipo e rieseguito senza trovare altro. Non provata la riattivazione tramite invito.
 
 **Stato.** Implementato. Pulizia eseguita su Atlas il 14 novembre 2026: rimossi 5 partecipazioni, 3 articoli aggiunti, 4 query e 1 gruppo di duplicati orfani (nessun invito né chiave condivisa); seconda anteprima a zero. Backup in `backend/scripts/backup_migrazione/`.
+
+---
+
+## 127. Crossref: venue da `container-title`; Semantic Scholar: niente affiliazioni (2026-11-16)
+
+**Contesto.** Emersi rileggendo gli adapter per il riassunto delle API nella tesi.
+- Crossref salvava in `venue` il campo `publisher`, cioè l'editore (es. "Springer Science and Business Media LLC"), che non è una venue: il filtro per rivista o conferenza non trovava quasi mai i risultati Crossref, e per l'export ogni articolo Crossref risultava "con venue" (voce 88).
+- Semantic Scholar leggeva `authors[].affiliations`, ma l'endpoint `/paper/search` restituisce per ogni autore solo `authorId` e `name` (documentazione ufficiale, `swagger.json`): `institution_author` restava sempre vuoto. Il test passava solo perché la fixture conteneva le affiliazioni, prese da un endpoint diverso.
+
+**Decisione.** Crossref: si chiede `container-title` al posto di `publisher` e la venue è il suo primo valore, con le entità HTML decodificate (es. "J &amp; P Transformer Book"); se manca, la venue resta vuota (poi eventualmente riempita dall'arricchimento Zotero). Semantic Scholar: `institution_author = None`, dichiarato nel codice. Scartato per ora il recupero delle affiliazioni con `/author/batch`: una richiesta in più per pagina su una sorgente che già riceve molti 429 (voce 104).
+
+**Verifica.** Suite offline: 105 test passati (aggiornati i test di normalizzazione di Crossref e Semantic Scholar). Crossref provato dal vivo: venue come "Electric Power Transformer Engineering" o "IEE Colloquium Transformer Life Management", vuota per i record senza rivista (es. figure). Semantic Scholar non provato dal vivo: dal cloud risponde sempre 429.
+
+**Stato.** Implementato.

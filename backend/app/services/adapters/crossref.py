@@ -2,6 +2,7 @@ import asyncio
 from datetime import date, datetime
 import os
 from pathlib import Path
+import html
 import re
 from typing import Optional
 from dotenv import load_dotenv
@@ -80,7 +81,7 @@ class CrossrefAdapter(BaseAdapter):
             work = work.query(bibliographic=" ".join(all_terms))
 
         work = work.sort('relevance').select(
-            'URL', 'title', 'DOI', 'author', 'issued', 'created', 'publisher', 'abstract'
+            'URL', 'title', 'DOI', 'author', 'issued', 'created', 'container-title', 'abstract'
         )
 
         # La libreria crossref.restful non espone rows/offset nella catena:
@@ -147,7 +148,10 @@ class CrossrefAdapter(BaseAdapter):
                 authors = authors if authors else None,
                 publication_date = self._publication_date(entry),
                 source = "Crossref",
-                venue = entry.get('publisher'),
+                # `container-title` è la rivista o gli atti del convegno; prima
+                # si usava `publisher`, cioè l'editore (es. "Springer"), che non
+                # è una venue e faceva fallire il filtro per venue (voce 127).
+                venue = html.unescape(entry['container-title'][0]) if entry.get('container-title') else None,
                 institution_author = list(affiliations) if affiliations else None,
             ))
 

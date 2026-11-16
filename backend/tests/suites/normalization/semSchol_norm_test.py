@@ -37,5 +37,6 @@ async def test_semantic_scholar_normalization():
         assert article.authors == ["Oren Etzioni"]
         assert isinstance(article.abstract, str)
         assert article.doi == "10.18653/V1/2020.ACL-MAIN.447"
-        assert article.institution_author == ["Allen Institute for AI"]
+        # La ricerca di Semantic Scholar non restituisce le affiliazioni.
+        assert article.institution_author is None
         assert article.region == None

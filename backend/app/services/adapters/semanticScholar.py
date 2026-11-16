@@ -131,7 +131,10 @@ class SemanticScholarAdapter(BaseAdapter):
                 publication_date = datetime.fromisoformat(entry['publicationDate']).date() if entry['publicationDate'] else datetime.fromisoformat(f'{entry['year']}' + "-01-01").date() if entry['year'] else None,
                 abstract = entry.get('abstract'),
                 source = "Semantic Scholar",
-                institution_author = list(set([affiliation for author in entry.get('authors', []) for affiliation in author.get('affiliations', [])])) if 'authors' in entry else None,
+                # /paper/search restituisce per ogni autore solo authorId e name:
+                # le affiliazioni sono disponibili solo dagli endpoint degli
+                # autori, con una richiesta in più (voce 127).
+                institution_author = None,
                 region = None,
                 venue = entry['venue'] if 'venue' in entry else None,
             ))

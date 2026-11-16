@@ -36,7 +36,7 @@ async def test_crossref_adapter_with_file():
         # prima era `created`, la data di registrazione del DOI.
         assert article.publication_date == date(2015, 1, 1)
         assert article.authors == ["Saran Vardhanabhuti", "Heather J. Ribaudo", "Raphael J. Landovitz", "Ighovwerha Ofotokun", "Jeffrey L. Lennox", "Judith S. Currier", "Lana M. Olson", "David W. Haas"]
-        assert article.venue == "Oxford University Press (OUP)"
+        assert article.venue == "Open Forum Infectious Diseases"
         assert article.source == "Crossref"
         assert article.doi == "10.1093/ofid/ofv085"
         assert set(article.institution_author) == {"Statistical Data Analysis Center, Harvard School of Public Health, Boston, Massachusetts","UCLA Center for Clinical AIDS Research and Education, Los Angeles, California", "Emory University School of Medicine, Atlanta, Georgia","Vanderbilt University School of Medicine, Nashville, Tennessee"}
