@@ -58,7 +58,7 @@ class ArXivAdapter(BaseAdapter):
             "max_results": request.limit if request.limit else 100,
             "sortBy": "relevance",
             "sortOrder": "descending",
-            "mailto": os.getenv("USER_EMAIL")
+            "mailto": os.getenv("CONTACT_EMAIL")
         }
 
     def _normalize(self, raw_data: dict) -> list[Article]:

@@ -26,12 +26,13 @@ async def expand_keywords(payload: ExpandIn, current_user: User = Depends(get_cu
     # rotta deve dare un errore visibile, non ripiegare in silenzio sul
     # dizionario (altrimenti l'utente non si accorgerebbe che la chiave non
     # funziona più). Senza alcun provider configurato, si usa il dizionario.
-    if current_user.llm_provider and current_user.llm_api_key:
+    llm_api_key = current_user.get_llm_api_key() if current_user.llm_provider else None
+    if llm_api_key:
         provider_cls = LLM_PROVIDERS.get(current_user.llm_provider)
         if provider_cls is None:
             raise HTTPException(status_code=400, detail="Provider LLM non riconosciuto")
         try:
-            suggestions = await provider_cls().expand(terms, current_user.llm_api_key)
+            suggestions = await provider_cls().expand(terms, llm_api_key)
         except LLMProviderError as e:
             raise HTTPException(status_code=502, detail=str(e))
         return {"suggestions": suggestions, "source": "llm"}

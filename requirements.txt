@@ -7,6 +7,7 @@ asyncio==4.0.0
 atpublic==7.0.0
 attrs==26.1.0
 bcrypt==5.0.0
+cryptography==46.0.7
 beanie==2.0.0
 certifi==2026.6.17
 charset-normalizer==3.4.9

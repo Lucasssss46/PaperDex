@@ -68,7 +68,7 @@ class SemanticScholarAdapter(BaseAdapter):
 
     def _build_query(self, request: SearchRequest, offset: int = 0) -> str:
         load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
-        mailto = f"&mailto={os.getenv('USER_EMAIL')}" # Polite request
+        mailto = f"&mailto={os.getenv('CONTACT_EMAIL')}" # Polite request
         fields = f"&fields=title,authors,abstract,venue,year,publicationDate,externalIds,url"
 
         # Query minima: solo le keyword grezze del gruppo corrente, separate da

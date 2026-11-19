@@ -1963,3 +1963,24 @@ Costanti di classe nuove: `SOURCE_NAME` (log), `TIMEOUT` (20 secondi per OpenAle
 **Verifica.** Suite offline: 117 test passati. I 6 test nuovi (`fetch_template_test.py`: attese di Crossref, chiave mancante, rifiutata e credito esaurito di OpenAlex, ripiego senza chiave di Semantic Scholar) passano sia sul codice di prima sia su quello nuovo, quindi il comportamento non è cambiato.
 
 **Stato.** Implementato.
+
+---
+
+## 130. Chiavi API degli utenti cifrate nel database; `USER_EMAIL` diventa `CONTACT_EMAIL` (2026-11-19)
+
+**Contesto.** Le chiavi API personali degli utenti (`User.api_keys`, una per sorgente, e `User.llm_api_key`) erano salvate in chiaro nella collezione `users`: chi avesse accesso al database, o a un suo backup, le avrebbe lette direttamente. Le password invece sono già salvate come hash bcrypt. Inoltre la variabile `USER_EMAIL` del `.env` non è l'email di un utente ma l'indirizzo di contatto della piattaforma, mandato alle sorgenti per il pool "polite": il nome traeva in inganno.
+
+**Decisione.**
+- Nuovo modulo `services/utils/cifratura.py`: cifratura simmetrica con Fernet della libreria `cryptography` (AES-128 in modalità CBC con HMAC-SHA256, vettore casuale a ogni cifratura), con la chiave del server in `API_KEYS_ENCRYPTION_KEY` nel `backend/.env`. Non si può usare un hash come per le password, perché la chiave deve tornare in chiaro per interrogare la sorgente.
+- I valori cifrati iniziano con `fernet:`; quelli senza prefisso, salvati prima, vengono letti così come sono finché lo script di migrazione non li cifra.
+- Le chiavi si leggono e scrivono solo tramite i metodi di `User`: `set_api_key`, `decrypted_api_keys`, `set_llm_api_key`, `get_llm_api_key`. Le rotte (`utenti.py`, `ricerca.py`, `keywords.py`) li usano al posto dei campi.
+- Una chiave che non si riesce a decifrare (chiave del server cambiata) è trattata come assente, con un avviso nel log, invece di far fallire la ricerca: l'utente può reinserirla.
+- Script `backend/scripts/cifratura_chiavi_api.py`: `--genera-chiave` aggiunge la chiave al `.env` senza stamparla; senza opzioni mostra un'anteprima; `--apply` cifra le chiavi già salvate, verificando che ognuna si decifri uguale prima di scriverla. Niente backup JSON, a differenza delle altre migrazioni: sarebbe una copia in chiaro delle chiavi.
+- `USER_EMAIL` rinominata in `CONTACT_EMAIL` negli adapter e nel `.env`.
+- `cryptography` aggiunta a `requirements.txt` (era già installata come dipendenza indiretta, ma non dichiarata).
+
+Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: va conservata come le altre variabili del `.env` e impostata anche in produzione.
+
+**Verifica.** Suite offline: 124 test passati, 7 nuovi in `suites/cifratura/` (cifratura e decifratura, valore in chiaro precedente, chiave del server diversa, chiave mancante, metodi di `User`, chiave condivisa da un membro del team decifrata per la ricerca e salvata cifrata). Script di migrazione provato su un database simulato: anteprima, cifratura, seconda anteprima a zero.
+
+**Stato.** Implementato. Da eseguire sul database Atlas: `python -m backend.scripts.cifratura_chiavi_api --apply`.

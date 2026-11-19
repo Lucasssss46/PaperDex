@@ -97,7 +97,7 @@ class OpenAlexAdapter(BaseAdapter):
             "sort": "relevance_score:desc",
             "per-page": per_page,
             "page": page,
-            "mailto": os.getenv('USER_EMAIL')
+            "mailto": os.getenv('CONTACT_EMAIL')
         }
 
 

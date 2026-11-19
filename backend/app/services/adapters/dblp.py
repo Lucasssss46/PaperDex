@@ -150,7 +150,7 @@ class DBLPAdapter(BaseAdapter):
             "f": offset,
             "format": "json",
             "app": self.APP_ID,
-            "mailto": os.getenv("USER_EMAIL")
+            "mailto": os.getenv("CONTACT_EMAIL")
         }
             
 

@@ -7,6 +7,8 @@ from pydantic import BaseModel, EmailStr, Field
 from pymongo import IndexModel
 import bcrypt
 
+from backend.app.services.utils import cifratura
+
 
 class UserCreate(BaseModel):
     first_name: str
@@ -43,7 +45,8 @@ class User(Document):
     institution: str = ""
     # Chiavi API personali dell'utente, solo per le sorgenti che le supportano
     # (vedi API_KEY_SOURCES in routes/utenti.py). Chiave = identificativo
-    # della sorgente, valore = la chiave inserita dall'utente.
+    # della sorgente, valore = la chiave inserita dall'utente, cifrata:
+    # leggerle e scriverle solo con decrypted_api_keys e set_api_key (voce 130).
     api_keys: dict[str, str] = Field(default_factory=dict)
     # Ricerche (Research) a cui l'utente ha scelto di condividere
     # trasparentemente la propria chiave di una data sorgente con gli altri
@@ -59,6 +62,7 @@ class User(Document):
     # provider come per api_keys — evita di dover scegliere per lui quale
     # LLM usare. Se assente, l'espansione ripiega su un dizionario statico.
     llm_provider: Optional[str] = None
+    # Cifrata come api_keys: usare get_llm_api_key e set_llm_api_key.
     llm_api_key: Optional[str] = None
     # Email confermate tramite link (routes/utenti.py): sia l'email
     # principale che eventuali additional_emails vi finiscono solo dopo che
@@ -67,6 +71,28 @@ class User(Document):
     # principale) perché ogni email aggiuntiva richiede la propria prova di
     # possesso, indipendente da quella delle altre.
     confirmed_emails: list[EmailStr] = Field(default_factory=list)
+
+    def decrypted_api_keys(self) -> dict[str, str]:
+        """Chiavi API personali in chiaro; quelle non decifrabili sono omesse."""
+        keys = {}
+        for source_id, value in self.api_keys.items():
+            plain = cifratura.decrypt(value)
+            if plain is not None:
+                keys[source_id] = plain
+        return keys
+
+    def set_api_key(self, source_id: str, value: Optional[str]) -> None:
+        """Salva la chiave cifrata; None la rimuove."""
+        if value:
+            self.api_keys[source_id] = cifratura.encrypt(value)
+        else:
+            self.api_keys.pop(source_id, None)
+
+    def get_llm_api_key(self) -> Optional[str]:
+        return cifratura.decrypt(self.llm_api_key) if self.llm_api_key else None
+
+    def set_llm_api_key(self, value: Optional[str]) -> None:
+        self.llm_api_key = cifratura.encrypt(value) if value else None
 
     @classmethod
     def hash_password(cls, password: str) -> str:

@@ -36,7 +36,7 @@ async def resolve_api_keys(current_user: Optional[User], ricerca_id: Optional[st
     ApiKeysPage/set_api_key_sharing). Un ricerca_id mancante, inesistente o a
     cui l'utente non ha accesso non è un errore: si prosegue con le sole
     chiavi personali (la condivisione è un bonus, non un requisito)."""
-    resolved = dict(current_user.api_keys) if current_user else {}
+    resolved = current_user.decrypted_api_keys() if current_user else {}
     if not ricerca_id or current_user is None:
         return resolved
 
@@ -58,7 +58,7 @@ async def resolve_api_keys(current_user: Optional[User], ricerca_id: Optional[st
         teammate = await User.get(teammate_id)
         if teammate is None:
             continue
-        for source_id, key in teammate.api_keys.items():
+        for source_id, key in teammate.decrypted_api_keys().items():
             if source_id in resolved:
                 continue
             if str(research.id) in teammate.api_key_shared_with.get(source_id, []):

@@ -32,7 +32,7 @@ class CrossrefAdapter(BaseAdapter):
                 "PapèrDex",
                 "alpha",
                 "https://github.com/Lucasssss46/PaperDex",
-                os.getenv("USER_EMAIL")
+                os.getenv("CONTACT_EMAIL")
             )
 
         work = Works(etiquette=my_etiquette)

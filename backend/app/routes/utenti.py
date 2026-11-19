@@ -483,12 +483,9 @@ async def set_api_key(source_id: str, data: ApiKeySet, current_user: User = Depe
     if source_id not in API_KEY_SOURCES:
         raise HTTPException(status_code=404, detail="Sorgente non riconosciuta")
 
-    value = data.api_key.strip()
-    if value:
-        current_user.api_keys[source_id] = value
-    else:
-        # Stringa vuota rimuove la chiave invece di salvarne una vuota.
-        current_user.api_keys.pop(source_id, None)
+    # Stringa vuota rimuove la chiave invece di salvarne una vuota; la chiave
+    # viene salvata cifrata (voce 130).
+    current_user.set_api_key(source_id, data.api_key.strip() or None)
     await current_user.save()
 
     return {"is_set": source_id in current_user.api_keys}
@@ -538,12 +535,12 @@ async def set_llm_config(data: LlmConfigSet, current_user: User = Depends(get_cu
         # Stringa vuota rimuove la configurazione invece di salvare una
         # chiave vuota (stesso principio di /api-keys/{source_id}).
         current_user.llm_provider = None
-        current_user.llm_api_key = None
+        current_user.set_llm_api_key(None)
     else:
         if data.provider not in LLM_PROVIDER_NAMES:
             raise HTTPException(status_code=400, detail="Provider non riconosciuto")
         current_user.llm_provider = data.provider
-        current_user.llm_api_key = value
+        current_user.set_llm_api_key(value)
     await current_user.save()
 
     return {"provider": current_user.llm_provider, "is_set": bool(current_user.llm_api_key)}
