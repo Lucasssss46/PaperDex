@@ -28,6 +28,7 @@ class DBLPAdapter(BaseAdapter):
     # ottobre 2026 entrambi i mirror ne mandano al massimo 100 anche con
     # h=1000 (@sent=100; f=100 dà i successivi). Con 1000 la profondità alta
     # chiedeva 150, riceveva 100 e la paginazione si fermava (voce 99).
+    SOURCE_NAME = "DBLP"
     MAX_PAGE_SIZE = 100
     # Nessun limite numerico pubblicato: la FAQ dice che aspettare uno o due
     # secondi tra le richieste basta (https://dblp1.uni-trier.de/faq/1474706.html). Si
@@ -51,6 +52,9 @@ class DBLPAdapter(BaseAdapter):
         ]
 
     async def fetch(self, search_request: SearchRequest, offset: int = 0) -> List[Article]:
+        # Ridefinisce il fetch comune di BaseAdapter: a ogni tentativo prova
+        # entrambi i mirror e gestisce la verifica anti-bot, che le altre
+        # sorgenti non hanno.
 
         params = self._build_query(search_request, offset)
         timeout = httpx.Timeout(20.0, connect=10.0)
@@ -122,18 +126,6 @@ class DBLPAdapter(BaseAdapter):
             return True
         content_type = response.headers.get("Content-Type", "")
         return response.status_code == 200 and "html" in content_type
-
-    def _retry_after_seconds(self, response: httpx.Response) -> Optional[float]:
-        """Secondi indicati dall'header Retry-After, che DBLP manda con il 429
-        (https://dblp1.uni-trier.de/faq/1474706.html), limitati a MAX_RETRY_AFTER_SECONDS.
-        None se l'header manca o non è un numero di secondi."""
-        value = response.headers.get("Retry-After")
-        try:
-            seconds = float(value)
-        except (TypeError, ValueError):
-            return None
-        return min(max(seconds, 0.0), self.MAX_RETRY_AFTER_SECONDS)
-        
 
     @staticmethod
     def _first(value):

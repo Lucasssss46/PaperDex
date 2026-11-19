@@ -1,4 +1,3 @@
-import asyncio
 import os
 from pathlib import Path
 import re
@@ -10,7 +9,7 @@ from typing import List
 
 from backend.app.schemas.models import Article
 from backend.app.schemas.search import SearchRequest
-from backend.app.services.adapters.base import ArticlePage, BaseAdapter, SourceUnavailableError, http_error_message, missing_api_key_message
+from backend.app.services.adapters.base import ArticlePage, BaseAdapter, SourceUnavailableError, missing_api_key_message
 
 INVALID_KEY_MESSAGE = "La chiave API per OpenAlex non è valida: la sorgente è stata saltata."
 RATE_LIMITED_MESSAGE = (
@@ -22,7 +21,12 @@ RATE_LIMITED_MESSAGE = (
 class OpenAlexAdapter(BaseAdapter):
     # Documentato: "per-page" tra 1 e 200
     # (https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/paging).
+    SOURCE_NAME = "OpenAlex"
     MAX_PAGE_SIZE = 200
+    TIMEOUT = httpx.Timeout(20.0, connect=10.0)
+    # 429 anche dopo i tentativi: con la tariffazione a consumo è quasi
+    # sempre il credito giornaliero della chiave esaurito.
+    EXHAUSTED_MESSAGE = RATE_LIMITED_MESSAGE
     # Il limite è di 100 richieste al secondo (https://developers.openalex.org/api-reference/authentication);
     # quello che conta davvero è il budget giornaliero della chiave, che non
     # dipende dal ritmo. Mezzo secondo resta comunque prudente.
@@ -34,48 +38,24 @@ class OpenAlexAdapter(BaseAdapter):
     # (https://blog.openalex.org/openalex-api-new-features-and-usage-based-pricing/).
     REQUIRES_API_KEY = True
 
-    async def fetch(self, search_request: SearchRequest, offset: int = 0) -> List[Article]:
+    def _before_fetch(self, search_request: SearchRequest, offset: int):
         if not self.api_key:
             raise SourceUnavailableError(missing_api_key_message("OpenAlex"))
+        return None
 
+    async def _send(self, client, search_request: SearchRequest, offset: int) -> httpx.Response:
         params = self._build_query(search_request, offset)
-        timeout = httpx.Timeout(20.0, connect=10.0)    
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            for attempt in range(3):
+        return await client.get("https://api.openalex.org/works", params=params)
 
-                response = await client.get("https://api.openalex.org/works", params=params)
+    def _handle_status(self, response: httpx.Response, offset: int):
+        if response.status_code in (401, 403):
+            # Chiave (personale o condivisa) rifiutata: senza chiave
+            # OpenAlex non si può più interrogare, quindi niente
+            # ripiego, solo un avviso per questa sorgente.
+            print(f"Chiave API OpenAlex non valida ({response.status_code}).")
+            raise SourceUnavailableError(INVALID_KEY_MESSAGE)
+        return None
 
-                if response.status_code in (429, 503):
-                    if attempt == 2:
-                        # Dopo l'ultimo tentativo non si attende: l'attesa
-                        # allungava solo la ricerca prima dell'avviso (voce 103).
-                        break
-                    wait_time = 5.0 * (attempt + 1)  # 5s, poi 10s
-                    print(f"Server OpenAlex occupato o limitato ({response.status_code}). Tentativo {attempt+1}/3. Attendo {wait_time}s...")
-                    await asyncio.sleep(wait_time)
-                    continue
-
-                if response.status_code in (401, 403):
-                    # Chiave (personale o condivisa) rifiutata: senza chiave
-                    # OpenAlex non si può più interrogare, quindi niente
-                    # ripiego, solo un avviso per questa sorgente.
-                    print(f"Chiave API OpenAlex non valida ({response.status_code}).")
-                    raise SourceUnavailableError(INVALID_KEY_MESSAGE)
-
-                if response.status_code != 200:
-                    print(f"Errore API: {response.status_code} - {response.text}")
-                    raise SourceUnavailableError(http_error_message(response.status_code))
-                    
-                if not response.text:
-                    return []
-                
-                return self._normalize(response.json())
-            # 429 anche dopo i tentativi: con la tariffazione a consumo è quasi
-            # sempre il credito giornaliero della chiave esaurito. Un'eccezione
-            # invece di [] evita di salvare in cache una pagina vuota.
-            print("Errore persistente dopo 3 tentativi. Nessun risultato ottenuto.")
-            raise SourceUnavailableError(RATE_LIMITED_MESSAGE)
-        
     def _build_query(self, request: SearchRequest, offset: int = 0) -> dict:
         load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
 

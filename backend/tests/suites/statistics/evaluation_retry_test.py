@@ -6,7 +6,7 @@ from httpx import Response
 
 from backend.app.schemas.models import Article
 from backend.app.schemas.search import SearchRequest
-from backend.app.services.adapters import arXiv
+from backend.app.services.adapters import base
 from backend.app.services.adapters.arXiv import ArXivAdapter
 from backend.app.services.adapters.base import TOO_MANY_REQUESTS_MESSAGE, SourceUnavailableError
 from backend.app.statistics import indexes, saving
@@ -96,7 +96,7 @@ async def test_arxiv_waits_as_long_as_retry_after(monkeypatch):
     async def fake_sleep(seconds):
         waits.append(seconds)
 
-    monkeypatch.setattr(arXiv.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(base.asyncio, "sleep", fake_sleep)
     with respx.mock(base_url="https://export.arxiv.org") as respx_mock:
         respx_mock.get(path="/api/query").mock(side_effect=[
             Response(429, headers={"Retry-After": "20"}),

@@ -1,4 +1,3 @@
-import asyncio
 from datetime import date, datetime
 import os
 from pathlib import Path
@@ -7,13 +6,7 @@ import re
 from typing import Optional
 from dotenv import load_dotenv
 import httpx
-from backend.app.services.adapters.base import (
-    TOO_MANY_REQUESTS_MESSAGE,
-    ArticlePage,
-    BaseAdapter,
-    SourceUnavailableError,
-    http_error_message,
-)
+from backend.app.services.adapters.base import ArticlePage, BaseAdapter
 from backend.app.schemas.models import Article
 from backend.app.schemas.search import SearchRequest
 from crossref.restful import Works, Etiquette
@@ -21,45 +14,18 @@ from crossref.restful import Works, Etiquette
 class CrossrefAdapter(BaseAdapter):
     # Documentato: "rows" massimo 1000 per richiesta
     # (https://github.com/CrossRef/rest-api-doc).
+    SOURCE_NAME = "Crossref"
     MAX_PAGE_SIZE = 1000
     # Nel pool "polite" (con mailto) le ricerche sono limitate a 3 al secondo
     # e 3 contemporanee (https://community.crossref.org/t/refining-rest-api-limits-for-improved-stability-and-reliability/16137):
     # un secondo tra le pagine lascia margine anche a più ricerche insieme.
     MIN_REQUEST_INTERVAL = 1.0
 
-    async def fetch(self, search_request: SearchRequest, offset: int = 0) -> list[Article]:
+    async def _send(self, client, search_request: SearchRequest, offset: int) -> httpx.Response:
         url = self._build_query(search_request, offset)
         print(f"Crossref URL: {url}")
-        timeout = httpx.Timeout(60.0, connect=15.0)
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            for attempt in range(3):
-                response = await client.get(url)
+        return await client.get(url)
 
-                if response.status_code in (429, 503):
-                    if attempt == 2:
-                        # Dopo l'ultimo tentativo non si attende: l'attesa
-                        # allungava solo la ricerca prima dell'avviso (voce 103).
-                        break
-                    wait_time = 5.0 * (attempt + 1)  # 5s, poi 10s
-                    print(f"Server Crossref occupato o limitato ({response.status_code}). Tentativo {attempt+1}/3. Attendo {wait_time}s...")
-                    await asyncio.sleep(wait_time)
-                    continue
-
-                if response.status_code != 200:
-                    # Un'eccezione invece di []: la lista vuota finirebbe in
-                    # cache e l'utente non saprebbe che la sorgente è mancata.
-                    print(f"Errore API: {response.status_code} - {response.text}")
-                    raise SourceUnavailableError(http_error_message(response.status_code))
-                    
-                if not response.text:
-                    return []
-                
-                data = response.json()
-                return self._normalize(data)
-
-            print("Errore persistente dopo 3 tentativi. Nessun risultato ottenuto.")
-            raise SourceUnavailableError(TOO_MANY_REQUESTS_MESSAGE)
-        
     def _build_query(self, request: SearchRequest, offset: int = 0) -> str:
         load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
         my_etiquette = Etiquette(

@@ -119,14 +119,14 @@ async def test_semantic_scholar_without_results_returns_empty_list():
 async def test_no_wait_after_last_rate_limited_attempt(monkeypatch):
     # Voce 103: dopo il terzo 429 la sorgente viene saltata subito, senza
     # l'attesa di 15 secondi che allungava solo la ricerca.
-    import backend.app.services.adapters.arXiv as arxiv_module
+    import backend.app.services.adapters.base as base_module
 
     waits = []
 
     async def fake_sleep(seconds):
         waits.append(seconds)
 
-    monkeypatch.setattr(arxiv_module.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(base_module.asyncio, "sleep", fake_sleep)
 
     with respx.mock(base_url="https://export.arxiv.org") as respx_mock:
         route = respx_mock.get(path="/api/query").mock(return_value=Response(429))

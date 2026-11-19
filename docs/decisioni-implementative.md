@@ -1944,3 +1944,22 @@ Le sorgenti restano interrogate in parallelo, quindi la durata di una ricerca di
 **Verifica.** Suite offline: 111 test passati, compreso un nuovo test che controlla, per ogni adapter, che senza `delay` si aspetti il suo intervallo.
 
 **Stato.** Implementato.
+
+---
+
+## 129. Un solo `fetch` in `BaseAdapter` (pattern Template Method) (2026-11-19)
+
+**Contesto.** Quattro adapter su cinque (arXiv, Crossref, OpenAlex, Semantic Scholar) avevano un `fetch` quasi identico: tre tentativi, attesa di 5 e 10 secondi su 429/503, nessuna attesa dopo l'ultimo tentativo (voce 103), eccezione invece di lista vuota sugli errori HTTP. Cambiavano solo la richiesta, la lettura della risposta e pochi casi particolari; `_retry_after_seconds` era copiato identico in arXiv e DBLP.
+
+**Decisione.** Il ciclo comune è ora un unico `fetch` concreto in `BaseAdapter`, che chiama metodi gancio ridefiniti dagli adapter solo dove serve (pattern Template Method):
+- `_send`: URL, parametri e header della richiesta (tutti);
+- `_parse`: lettura della risposta, JSON di default, XML per arXiv;
+- `_before_fetch`: controlli prima della richiesta (chiave obbligatoria di OpenAlex, limite dei 1000 risultati di Semantic Scholar);
+- `_handle_status`: stati propri di una sorgente (chiave rifiutata di OpenAlex e Semantic Scholar, 400 di fine risultati di Semantic Scholar), che può chiedere un nuovo tentativo con `RETRY`;
+- `_retry_wait` e `_retry_after_seconds`: attesa crescente, o quella di `Retry-After` per le sorgenti che impostano `MAX_RETRY_AFTER_SECONDS` (arXiv, DBLP).
+
+Costanti di classe nuove: `SOURCE_NAME` (log), `TIMEOUT` (20 secondi per OpenAlex, 60 per le altre), `MAX_ATTEMPTS`, `EXHAUSTED_MESSAGE` (OpenAlex segnala il credito giornaliero esaurito). DBLP mantiene un proprio `fetch`, che ridefinisce quello comune, perché alterna due mirror a ogni tentativo e gestisce la verifica anti-bot; usa però `_retry_after_seconds` della classe base.
+
+**Verifica.** Suite offline: 117 test passati. I 6 test nuovi (`fetch_template_test.py`: attese di Crossref, chiave mancante, rifiutata e credito esaurito di OpenAlex, ripiego senza chiave di Semantic Scholar) passano sia sul codice di prima sia su quello nuovo, quindi il comportamento non è cambiato.
+
+**Stato.** Implementato.
