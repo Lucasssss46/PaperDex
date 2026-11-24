@@ -9,7 +9,10 @@ from dotenv import load_dotenv
 # Vedi database.py: ancorato alla posizione del file per lo stesso motivo.
 load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+# Senza la "/" finale: i link si costruiscono come FRONTEND_URL + "/percorso",
+# e con "https://sito/" diventerebbero "https://sito//percorso", un percorso
+# che il router del frontend non riconosce (rimanda alla pagina predefinita).
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").strip().rstrip("/")
 
 
 class EmailSendError(Exception):
