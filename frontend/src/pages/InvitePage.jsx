@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { login, register } from '../api/auth'
+import { getCurrentUser, login, register } from '../api/auth'
 import { TOKEN_KEY } from '../api/client'
 import { acceptInvite, declineInvite, getInvite } from '../api/inviti'
 import Field, { inputClass } from '../components/Field'
@@ -24,6 +24,27 @@ export default function InvitePage() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [password, setPassword] = useState('')
+
+  // Email dell'account già collegato in questo browser, se c'è: la pagina è
+  // pubblica, ma chi apre il link potrebbe essere entrato con un altro account.
+  const [loggedInEmails, setLoggedInEmails] = useState(null)
+
+  useEffect(() => {
+    if (!localStorage.getItem(TOKEN_KEY)) return
+    getCurrentUser()
+      .then((user) =>
+        setLoggedInEmails(
+          [user.email, ...(user.additional_emails ?? [])].filter(Boolean).map((e) => e.toLowerCase()),
+        ),
+      )
+      .catch(() => {})
+  }, [])
+
+  function handleLogoutHere() {
+    // Reload completo: App.jsx legge il token da localStorage solo all'avvio.
+    localStorage.removeItem(TOKEN_KEY)
+    window.location.reload()
+  }
 
   useEffect(() => {
     if (!token) return
@@ -123,6 +144,18 @@ export default function InvitePage() {
                   </p>
                 )}
               </div>
+
+              {loggedInEmails && !loggedInEmails.includes(invite.receiver_email.toLowerCase()) && (
+                <div className="notice-warn mt-4">
+                  <p>
+                    In questo browser sei collegato con un altro account, ma l'invito è per{' '}
+                    <strong>{invite.receiver_email}</strong>. Esci per accettarlo con l'account giusto.
+                  </p>
+                  <button type="button" onClick={handleLogoutHere} className="action-link mt-2">
+                    Esci dall'account
+                  </button>
+                </div>
+              )}
 
               {actionError && (
                 <p className="notice-err mt-4">{actionError}</p>
