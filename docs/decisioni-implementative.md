@@ -1994,6 +1994,7 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 **Decisione.**
 - `main.py`: le origini CORS si leggono da `CORS_ORIGINS` (separate da virgole, senza `/` finale). Senza la variabile restano `localhost:5173` e `127.0.0.1:5173`, quindi lo sviluppo in locale non cambia.
 - Nuovo `Dockerfile` alla radice (contesto di build: tutto il repository, perché il codice si importa come `backend.app`): `python:3.14-slim`, dipendenze da `requirements.txt`, avvio con uvicorn sulla porta `PORT` assegnata dalla piattaforma. `--proxy-headers` fa leggere a uvicorn `X-Forwarded-Proto` dal proxy: senza, `request.base_url` sarebbe `http://` e l'URL assoluto delle immagini profilo verrebbe bloccato dal browser come contenuto misto su una pagina `https`.
+- `database.py`: il nome del database si legge da `MONGODB_DB`, `PaperDex` se la variabile manca. Prima era scritto nel codice (`client.PaperDex`), quindi l'unico modo per avere un database di prova sarebbe stato un altro cluster. Gli script di manutenzione in `backend/scripts/` usano ancora `PaperDex` fisso: vanno lanciati solo sul database vero.
 - Nuovo `.dockerignore`: esclude `.env` e ogni altro file di variabili (i segreti si impostano nel pannello della piattaforma), `.venv`, cache, frontend, test, documentazione, immagini caricate, cache delle ricerche, report di valutazione e backup delle migrazioni.
 
 **Controllati e lasciati invariati.**
@@ -2001,8 +2002,8 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 - Indirizzi scritti a mano: oltre a CORS restano solo valori predefiniti per lo sviluppo, già sovrascrivibili da variabile (`VITE_API_BASE_URL` nel frontend, `FRONTEND_URL` per i link delle email, `ZOTERO_TRANSLATION_SERVER_URL`), più `host="127.0.0.1"` nell'avvio diretto di `main.py`, che il container non usa.
 - Disco temporaneo: la cache delle ricerche (`evaluation_cache.json`) si ricrea vuota se manca e si riempie di nuovo, quindi un riavvio rende solo più lente le ricerche ripetute. Le immagini profilo invece si salvano in `backend/app/static/avatars` e **si perdono a ogni riavvio o nuovo deploy**: il campo `profile_img` dell'utente resta e punta a un file che non c'è più. Accettato per le prove; per un deploy vero servirà uno spazio di archiviazione persistente.
 
-**Variabili da impostare sul backend.** Quelle del `backend/.env` (connessione al database di prova, `API_KEYS_ENCRYPTION_KEY`, `CONTACT_EMAIL`, chiave OpenAlex, SMTP), più `CORS_ORIGINS` e `FRONTEND_URL` con l'indirizzo del frontend. Sul frontend, `VITE_API_BASE_URL` con l'indirizzo del backend seguito da `/api`, impostata al momento della build.
+**Variabili da impostare sul backend.** Quelle del `backend/.env` (`MONGODB_URL`, più `MONGODB_DB` con il nome del database di prova, `API_KEYS_ENCRYPTION_KEY`, `CONTACT_EMAIL`, chiave OpenAlex, SMTP), più `CORS_ORIGINS` e `FRONTEND_URL` con l'indirizzo del frontend. Sul frontend, `VITE_API_BASE_URL` con l'indirizzo del backend seguito da `/api`, impostata al momento della build.
 
-**Verifica.** Suite offline: 124 test passati. `CORS_ORIGINS` provata all'import di `main.py`, con e senza la variabile (barra finale e spazi tolti). Build dell'immagine Docker non eseguita: Docker Desktop non era avviato.
+**Verifica.** Suite offline: 124 test passati. `CORS_ORIGINS` provata all'import di `main.py`, con e senza la variabile (barra finale e spazi tolti). Immagine costruita e avviata in locale il 2026-11-24 con le variabili del `.env` e `PORT=8080`: connessione al database riuscita, `/docs` e `/openapi.json` rispondono 200, la richiesta preflight CORS dall'origine di sviluppo risponde 200; nessun `.env` dentro l'immagine.
 
 **Stato.** Implementato sul branch `Deploy_di_prova`; deploy da fare.

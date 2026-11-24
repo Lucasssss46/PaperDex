@@ -12,6 +12,9 @@ from backend.app.schemas.models import AddedArticle, DuplicateGroup, User, Resea
 # `backend/.env` — la connessione ripiega silenziosamente su localhost:27017.
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 MONGODB_URL = os.getenv("MONGODB_URL")
+# Nome del database nel cluster: un deploy di prova ne usa uno separato nello
+# stesso cluster, senza toccare i dati veri (voce 131).
+MONGODB_DB = os.getenv("MONGODB_DB", "PaperDex")
 
 async def init_db():
     # Inizializza il client
@@ -24,7 +27,7 @@ async def init_db():
 
         # Inizializza Beanie
         await init_beanie(
-            database=client.PaperDex,
+            database=client[MONGODB_DB],
             document_models=[User, Research, Article, Query, Invite, Participation, AddedArticle, DuplicateGroup]
         )
 
