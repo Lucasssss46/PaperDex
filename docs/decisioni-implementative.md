@@ -2008,4 +2008,22 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 
 **Verifica.** Suite offline: 124 test passati. `CORS_ORIGINS` provata all'import di `main.py`, con e senza la variabile (barra finale e spazi tolti). Immagine costruita e avviata in locale il 2026-11-24 con le variabili del `.env` e `PORT=8080`: connessione al database riuscita, `/docs` e `/openapi.json` rispondono 200, la richiesta preflight CORS dall'origine di sviluppo risponde 200; nessun `.env` dentro l'immagine.
 
-**Stato.** Implementato sul branch `Deploy_di_prova`; deploy da fare.
+**Stato.** Implementato sul branch `Deploy_di_prova`. Deploy di prova online dal 2026-11-24: backend su Render (al posto di Koyeb, che ha chiuso il piano gratuito ai nuovi utenti dopo l'acquisizione da parte di Mistral AI) con le email inviate tramite Brevo, frontend su Cloudflare Pages.
+
+---
+
+## 132. Risultati di ricerca: il pallino seleziona, l'aggiunta avviene passando alla deduplicazione (2026-11-24)
+
+**Contesto.** Provando il deploy di prova, Luca ha notato che nella pagina di ricerca dentro una Ricerca un articolo spuntato non si poteva più togliere: il pallino non era una selezione ma "Aggiungi alla ricerca", che salvava subito l'articolo nella Ricerca (articoli salvati, Cronologia, deduplicazione), e i clic successivi venivano ignorati. Scelta di Luca: il pallino diventa una selezione temporanea, e il salvataggio avviene nel passaggio alla deduplicazione, in modo evidente.
+
+**Decisione.**
+- `SearchResults.jsx`: il pallino (e il pulsante nella card espansa) seleziona e deseleziona, senza chiamate al backend; "Seleziona tutti" / "Deseleziona tutti" sopra i risultati, con un testo che spiega quando avviene il salvataggio. Gli articoli già salvati in questa visita mostrano "Già aggiunto alla ricerca ✓" e non si possono più selezionare. Il componente espone `addSelected()` alla pagina (prop `ref`), che salva i selezionati uno alla volta con le stesse chiamate di prima (singolo o gruppo di duplicati), così Cronologia, deduplicazione tra sessioni e salvataggio automatico della query restano invariati.
+- `SearchArticlesPage.jsx`: la barra di sessione compare anche solo con articoli selezionati, con "N articoli selezionati: verranno aggiunti alla Ricerca quando passi alla deduplicazione" e il pulsante "Aggiungi N articoli e vai alla deduplicazione →". Se un'aggiunta fallisce, l'articolo resta selezionato, la barra lo segnala e non si cambia pagina. Chiudere o ricaricare la scheda con articoli selezionati fa chiedere conferma al browser.
+- `SessionDuplicatesPage.jsx`: messaggio di conferma "N articoli aggiunti alla Ricerca".
+- Nella ricerca rapida (fuori da una Ricerca) il pallino resta un indicatore non cliccabile, come prima.
+
+**Limite noto.** Lasciare la pagina con un collegamento interno (per esempio "Torna a Overview") perde la selezione senza avviso: il router dell'app (`BrowserRouter`) non permette di bloccare la navigazione interna. "Già aggiunto" vale solo per gli articoli salvati in questa visita; un articolo salvato in passato si può selezionare di nuovo, e il backend lo aggancia come alternativa al gruppo di quello già salvato (voce 80), senza doppioni.
+
+**Verifica.** eslint e build del frontend senza errori; suite offline 124 test passati. Provato a schermo con Playwright su un server di sviluppo locale e API simulata: due articoli selezionati, uno deselezionato, poi "Aggiungi 1 articolo e vai alla deduplicazione": una sola chiamata di aggiunta, per l'articolo rimasto selezionato, arrivo sulla pagina dei duplicati della sessione con "1 articolo aggiunto alla Ricerca". Non provato sul sito di prova con dati veri.
+
+**Stato.** Implementato sul branch `Deploy_di_prova`.

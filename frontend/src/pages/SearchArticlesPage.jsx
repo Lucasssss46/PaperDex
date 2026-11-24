@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { createRicercaQuery, listRicercaQueries } from '../api/ricerche'
 import { getKeyStatus, searchArticles } from '../api/search'
 import KeywordsPanel from '../components/KeywordsPanel'
@@ -31,6 +31,36 @@ function buildAutoQueryName({ keyword_include, author, journal }) {
 
 export default function SearchArticlesPage({ research, sessionArticles = [], onSessionAdd }) {
   const incomingQuery = useIncomingQuery()
+  const navigate = useNavigate()
+
+  // Articoli selezionati nei risultati, non ancora salvati: si salvano
+  // passando alla deduplicazione (resultsRef.current.addSelected).
+  const resultsRef = useRef(null)
+  const [selectedCount, setSelectedCount] = useState(0)
+  const [continuing, setContinuing] = useState(false)
+  const [continueError, setContinueError] = useState('')
+
+  // Chiudere o ricaricare la scheda perderebbe la selezione: il browser chiede conferma.
+  useEffect(() => {
+    if (selectedCount === 0) return
+    const warn = (e) => e.preventDefault()
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [selectedCount])
+
+  async function handleContinue() {
+    setContinuing(true)
+    setContinueError('')
+    const { added, failed } = (await resultsRef.current?.addSelected()) ?? { added: 0, failed: 0 }
+    setContinuing(false)
+    if (failed > 0) {
+      setContinueError(
+        `${failed} articol${failed === 1 ? 'o non è stato aggiunto' : 'i non sono stati aggiunti'}: riprova.`,
+      )
+      return
+    }
+    navigate(`/ricerche/${research.id}/sessione/duplicati`, { state: { addedNow: added } })
+  }
 
   // Query salvate della Ricerca, mostrate qui (non solo nella loro pagina
   // dedicata) per averle a portata di mano mentre si cerca — l'utente ha
@@ -312,28 +342,45 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           searched={searched}
           research={research}
           onArticleAdded={handleArticleAdded}
+          onSelectionChange={setSelectedCount}
+          ref={resultsRef}
         />
       </div>
 
       {/* Barra di sessione, in fondo come nelle altre pagine della sessione:
-          compare solo dopo il primo articolo aggiunto in questa visita (vedi
-          "Inizia una nuova sessione" in ResearchLayout). Un solo passo avanti
+          compare appena c'è un articolo selezionato o già aggiunto in questa
+          visita (vedi "Inizia una nuova sessione" in ResearchLayout). Passare
+          alla deduplicazione salva prima nella Ricerca gli articoli
+          selezionati: il pulsante lo dice esplicitamente. Un solo passo avanti
           possibile (Duplicati, mai direttamente Zotero): percorso lineare
-          forzato, richiesto esplicitamente dall'utente — da qui in poi non si
-          torna all'Overview senza passare anche da Deduplicazione e
-          Arricchisci con Zotero. */}
-      {research && sessionArticles.length > 0 && (
+          forzato, richiesto esplicitamente dall'utente. */}
+      {research && (sessionArticles.length > 0 || selectedCount > 0) && (
         <div
           className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3"
           style={{ border: '1px solid rgba(212,255,36,.25)', background: 'rgba(212,255,36,.08)' }}
         >
-          <span className="text-sm font-medium" style={{ color: '#D4FF24' }}>
-            {sessionArticles.length} articol{sessionArticles.length === 1 ? 'o' : 'i'} aggiunt
-            {sessionArticles.length === 1 ? 'o' : 'i'} in questa sessione
-          </span>
-          <Link to={`/ricerche/${research.id}/sessione/duplicati`} className="pill-btn" style={{ textDecoration: 'none' }}>
-            Continua: rivedi duplicati →
-          </Link>
+          <div className="text-sm" style={{ color: '#D4FF24' }}>
+            {selectedCount > 0 && (
+              <div className="font-medium">
+                {selectedCount} articol{selectedCount === 1 ? 'o selezionato' : 'i selezionati'}: verr
+                {selectedCount === 1 ? 'à aggiunto' : 'anno aggiunti'} alla Ricerca quando passi alla deduplicazione.
+              </div>
+            )}
+            {sessionArticles.length > 0 && (
+              <div style={{ color: selectedCount > 0 ? '#C9D98A' : undefined }}>
+                {sessionArticles.length} articol{sessionArticles.length === 1 ? 'o' : 'i'} già aggiunt
+                {sessionArticles.length === 1 ? 'o' : 'i'} in questa sessione.
+              </div>
+            )}
+            {continueError && <div style={{ color: '#FCA5A5' }}>{continueError}</div>}
+          </div>
+          <button type="button" className="pill-btn" disabled={continuing} onClick={handleContinue}>
+            {continuing
+              ? 'Aggiunta in corso…'
+              : selectedCount > 0
+                ? `Aggiungi ${selectedCount} articol${selectedCount === 1 ? 'o' : 'i'} e vai alla deduplicazione →`
+                : 'Continua: rivedi duplicati →'}
+          </button>
         </div>
       )}
     </>

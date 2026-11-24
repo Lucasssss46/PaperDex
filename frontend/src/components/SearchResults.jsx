@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useImperativeHandle, useState } from 'react'
 import { addArticleGroupToRicerca, addArticleToRicerca } from '../api/ricerche'
 import { SOURCE_COLORS } from '../constants'
 import ArticleDial from './ArticleDial'
@@ -9,20 +9,6 @@ import SourceIcon from './SourceIcon'
 
 // Larghezze (%) variate dei titoli finti, così lo scheletro non sembra una griglia.
 const SKELETON_ITEMS = [78, 62, 85, 55, 72, 66].map((w, i) => ({ id: i, w, caught: false }))
-
-const ADD_LABELS = {
-  idle: '+ Aggiungi alla ricerca',
-  adding: 'Aggiunta…',
-  added: 'Aggiunto ✓',
-  error: 'Riprova',
-}
-
-const GROUP_ADD_LABELS = {
-  idle: '+ Aggiungi tutto il gruppo',
-  adding: 'Aggiunta…',
-  added: 'Aggiunto ✓',
-  error: 'Riprova',
-}
 
 // Placeholder: stesso ordine (arbitrario) usato lato server per scegliere
 // automaticamente un articolo da un gruppo — vedi services/utils/dedup.py.
@@ -84,11 +70,76 @@ function GroupVersions({ members, preferred }) {
   )
 }
 
-export default function SearchResults({ results, count, loading, error, searched, research, onArticleAdded }) {
+// `ref` espone addSelected(): la pagina lo chiama quando si passa alla
+// deduplicazione, che è il momento in cui la selezione viene salvata.
+// `onSelectionChange(n)` comunica quanti articoli sono selezionati.
+export default function SearchResults({ results, count, loading, error, searched, research, onArticleAdded, onSelectionChange, ref }) {
   // Stato di aggiunta per gruppo (chiave = group_key): 'idle' | 'adding' | 'added' | 'error'.
   const [addStates, setAddStates] = useState({})
+  // Selezione temporanea (pallino): non salva nulla e si toglie con lo stesso
+  // clic. Gli articoli selezionati si salvano nella Ricerca passando alla
+  // deduplicazione (barra di sessione in SearchArticlesPage).
+  const [selectedKeys, setSelectedKeys] = useState(() => new Set())
   const [openKey, setOpenKey] = useState(null)
   const morph = useArticleMorph()
+
+  const groups = groupResults(results)
+  const items = groups.map((g, i) => ({
+    id: g.key,
+    members: g.members,
+    article: pickPreferred(g.members),
+    caught: addStates[g.key] === 'added' || selectedKeys.has(g.key),
+    num: String(i + 1).padStart(2, '0'),
+  }))
+  const isLocked = (key) => addStates[key] === 'adding' || addStates[key] === 'added'
+  // Solo le chiavi dei risultati attuali: la selezione di una ricerca precedente non conta.
+  const selectable = items.filter((it) => !isLocked(it.id))
+  const selectedItems = selectable.filter((it) => selectedKeys.has(it.id))
+  const allSelected = selectable.length > 0 && selectedItems.length === selectable.length
+
+  // Salva nella Ricerca un articolo singolo, o l'intero gruppo di duplicati
+  // (ne verrà salvato uno per preferenza — vedi Deduplicazione).
+  async function addItem(item) {
+    setAddStates((s) => ({ ...s, [item.id]: 'adding' }))
+    try {
+      if (item.members.length > 1) await addArticleGroupToRicerca(research.id, item.members)
+      else await addArticleToRicerca(research.id, item.article)
+      setAddStates((s) => ({ ...s, [item.id]: 'added' }))
+      setSelectedKeys((current) => {
+        const next = new Set(current)
+        next.delete(item.id)
+        return next
+      })
+      onArticleAdded?.(item.members)
+      return true
+    } catch {
+      // Resta selezionato: ripassando alla deduplicazione si riprova.
+      setAddStates((s) => ({ ...s, [item.id]: 'error' }))
+      return false
+    }
+  }
+
+  // Uno alla volta: ogni aggiunta confronta l'articolo con quelli già salvati
+  // (deduplicazione tra sessioni), quindi l'ordine conta. Restituisce quanti
+  // articoli sono stati salvati e quanti no.
+  async function addSelected() {
+    let added = 0
+    let failed = 0
+    if (research) {
+      for (const item of selectedItems) {
+        if (await addItem(item)) added += 1
+        else failed += 1
+      }
+    }
+    return { added, failed }
+  }
+
+  useImperativeHandle(ref, () => ({ addSelected }))
+
+  const selectedCount = selectedItems.length
+  useEffect(() => {
+    onSelectionChange?.(selectedCount)
+  }, [selectedCount, onSelectionChange])
 
   if (loading) {
     // Stessa ruota e stesse righe dei risultati veri, con barre al posto del testo.
@@ -133,31 +184,16 @@ export default function SearchResults({ results, count, loading, error, searched
     )
   }
 
-  const groups = groupResults(results)
-  const items = groups.map((g, i) => ({
-    id: g.key,
-    members: g.members,
-    article: pickPreferred(g.members),
-    caught: addStates[g.key] === 'added',
-    num: String(i + 1).padStart(2, '0'),
-  }))
   const openItem = items.find((it) => it.id === openKey) ?? null
 
-  // Il pallino aggiunge alla Ricerca: un articolo singolo, o l'intero gruppo
-  // di duplicati (ne verrà salvato uno per preferenza — vedi Deduplicazione).
-  async function addItem(key) {
-    const item = items.find((it) => it.id === key)
-    const state = addStates[key]
-    if (!research || !item || state === 'adding' || state === 'added') return
-    setAddStates((s) => ({ ...s, [key]: 'adding' }))
-    try {
-      if (item.members.length > 1) await addArticleGroupToRicerca(research.id, item.members)
-      else await addArticleToRicerca(research.id, item.article)
-      setAddStates((s) => ({ ...s, [key]: 'added' }))
-      onArticleAdded?.(item.members)
-    } catch {
-      setAddStates((s) => ({ ...s, [key]: 'error' }))
-    }
+  function toggleSelected(key) {
+    if (isLocked(key)) return
+    setSelectedKeys((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
   }
 
   function selectItem(key, rowEl) {
@@ -167,17 +203,35 @@ export default function SearchResults({ results, count, loading, error, searched
 
   return (
     <div>
-      <p className="mb-4 text-sm" style={{ color: '#8B93A5' }}>
-        {count} risultat{count === 1 ? 'o' : 'i'}
-      </p>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <p className="text-sm" style={{ color: '#8B93A5' }}>
+          {count} risultat{count === 1 ? 'o' : 'i'}
+        </p>
+        {research && (
+          <button
+            type="button"
+            className="action-link ml-auto"
+            disabled={selectable.length === 0}
+            onClick={() => setSelectedKeys(allSelected ? new Set() : new Set(selectable.map((it) => it.id)))}
+          >
+            {allSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+          </button>
+        )}
+      </div>
+      {research && (
+        <p className="mb-4 text-xs" style={{ color: '#8B93A5' }}>
+          Clicca il pallino per selezionare o deselezionare un articolo. I selezionati vengono aggiunti alla Ricerca
+          quando passi alla deduplicazione.
+        </p>
+      )}
 
       <ArticleDial
         items={items}
         selectedId={openKey}
         onSelect={selectItem}
         // Fuori da una Ricerca specifica non ha senso poter salvare gli articoli: pallino solo indicatore.
-        onToggle={research ? addItem : undefined}
-        dotLabel="Aggiungi alla ricerca"
+        onToggle={research ? toggleSelected : undefined}
+        dotLabel="Seleziona l'articolo"
         renderItem={(item) => {
           const state = addStates[item.id]
           const colors = SOURCE_COLORS[item.article.source]
@@ -191,9 +245,21 @@ export default function SearchResults({ results, count, loading, error, searched
                 >
                   {item.article.title}
                 </div>
-                {state === 'error' || state === 'adding' ? (
-                  <div style={{ fontSize: 12, color: state === 'error' ? '#FCA5A5' : '#8B93A5', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {state === 'error' ? 'Aggiunta non riuscita — clicca il pallino per riprovare' : 'Aggiunta…'}
+                {state === 'error' || state === 'adding' || state === 'added' ? (
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: state === 'error' ? '#FCA5A5' : state === 'added' ? '#D4FF24' : '#8B93A5',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {state === 'error'
+                      ? 'Aggiunta non riuscita: resta selezionato, verrà ritentata'
+                      : state === 'added'
+                        ? 'Già aggiunto alla ricerca ✓'
+                        : 'Aggiunta…'}
                   </div>
                 ) : (
                   <AuthorsYear authors={item.article.authors} date={item.article.publication_date} />
@@ -214,7 +280,7 @@ export default function SearchResults({ results, count, loading, error, searched
 
       <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: '#55606E' }}>
         ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per aprirlo
-        {research ? ' · il pallino lo aggiunge alla ricerca' : ''}
+        {research ? ' · il pallino lo seleziona o lo deseleziona' : ''}
       </div>
 
       <ExpandedArticleCard
@@ -225,12 +291,18 @@ export default function SearchResults({ results, count, loading, error, searched
         {research && openItem && (
           <button
             type="button"
-            onClick={() => addItem(openItem.id)}
-            disabled={addStates[openItem.id] === 'adding' || addStates[openItem.id] === 'added'}
+            onClick={() => toggleSelected(openItem.id)}
+            disabled={isLocked(openItem.id)}
             className="ghost-btn"
             style={{ fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600 }}
           >
-            {(openItem.members.length > 1 ? GROUP_ADD_LABELS : ADD_LABELS)[addStates[openItem.id] ?? 'idle']}
+            {addStates[openItem.id] === 'added'
+              ? 'Già aggiunto alla ricerca ✓'
+              : selectedKeys.has(openItem.id)
+                ? 'Deseleziona'
+                : openItem.members.length > 1
+                  ? 'Seleziona il gruppo'
+                  : 'Seleziona'}
           </button>
         )}
       </ExpandedArticleCard>

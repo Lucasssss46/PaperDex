@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useOutletContext } from 'react-router-dom'
+import { Link, useLocation, useOutletContext } from 'react-router-dom'
 import { listDuplicateGroups } from '../api/ricerche'
 import DuplicateGroupReview from '../components/DuplicateGroupReview'
 
@@ -10,6 +10,8 @@ import DuplicateGroupReview from '../components/DuplicateGroupReview'
 // si è appena aggiunto.
 export default function SessionDuplicatesPage() {
   const { researchId, sessionArticles } = useOutletContext()
+  // Quanti articoli sono stati salvati passando qui da Cerca (SearchArticlesPage).
+  const addedNow = useLocation().state?.addedNow ?? 0
   const [groups, setGroups] = useState(null)
   const [error, setError] = useState('')
 
@@ -36,6 +38,11 @@ export default function SessionDuplicatesPage() {
 
   return (
     <div className="space-y-6">
+      {addedNow > 0 && (
+        <p className="notice-ok">
+          {addedNow} articol{addedNow === 1 ? 'o aggiunto' : 'i aggiunti'} alla Ricerca.
+        </p>
+      )}
       {sessionArticles.length === 0 ? (
         <p className="text-sm" style={{ color: '#8B93A5' }}>
           Nessun articolo aggiunto in questa sessione{' '}
