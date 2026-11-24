@@ -95,6 +95,28 @@ async def find_cross_session_duplicate(
     return None
 
 
+async def find_saved_in_research(research_id: str, article_ids: set[str]) -> Optional[AddedArticle]:
+    """L'AddedArticle con cui uno di questi articoli (stesso id) è già salvato
+    nella Ricerca, da qualunque membro. find_cross_session_duplicate esclude
+    di proposito gli stessi id, e il controllo per partecipazione vede solo le
+    aggiunte di chi sta aggiungendo: senza questo, due membri che aggiungono
+    lo stesso articolo creavano due voci (doppione nell'Overview e nell'export)."""
+    all_participations = await Participation.find_all().to_list()
+    related_participation_ids = {str(r.id) for r in all_participations if linked_id(r.research) == research_id}
+    all_added = await AddedArticle.find_all().to_list()
+    return next(
+        (
+            a
+            for a in all_added
+            if linked_id(a.participation) in related_participation_ids and linked_id(a.article) in article_ids
+        ),
+        None,
+    )
+
+
+ALREADY_PRESENT_MESSAGE = "Articolo già presente nella Ricerca"
+
+
 async def attach_as_duplicate_alternatives(
     research: Research, anchor_added: AddedArticle, anchor_article_id: str, new_alternative_ids: List[str]
 ) -> None:
@@ -260,9 +282,11 @@ async def export_ricerca_articles(
     all_added = await AddedArticle.find_all().to_list()
     my_added = [a for a in all_added if linked_id(a.participation) in related_participation_ids]
 
+    # Un articolo per id anche se salvato da più membri (dati salvati prima del
+    # controllo in find_saved_in_research), altrimenti esce due volte nel file.
     articles = []
-    for added in my_added:
-        article = await Article.get(added.article.ref.id)
+    for article_id in dict.fromkeys(added.article.ref.id for added in my_added):
+        article = await Article.get(article_id)
         if article is not None:
             articles.append(article)
 
@@ -725,13 +749,8 @@ async def add_article_to_ricerca(
         article = Article(**data.article)
         await article.insert()
 
-    all_added = await AddedArticle.find_all().to_list()
-    already_added = any(
-        linked_id(a.participation) == str(my_participation.id) and linked_id(a.article) == str(article.id)
-        for a in all_added
-    )
-    if already_added:
-        return {"message": "Articolo aggiunto alla ricerca"}
+    if await find_saved_in_research(str(research.id), {article.id}) is not None:
+        return {"message": ALREADY_PRESENT_MESSAGE, "already_present": True}
 
     cross_match = await find_cross_session_duplicate(str(research.id), [article], exclude_ids={article.id})
     if cross_match is None:
@@ -1055,6 +1074,17 @@ async def add_article_group_to_ricerca(
 
     group_ids = {a.id for a in articles}
 
+    # Uno degli articoli del gruppo è già salvato così com'è (stesso id), da
+    # qualunque membro: il gruppo diventa alternativa di quella voce, senza
+    # crearne una seconda.
+    saved = await find_saved_in_research(str(research.id), group_ids)
+    if saved is not None:
+        saved_id = linked_id(saved.article)
+        others = [a.id for a in articles if a.id != saved_id]
+        if others:
+            await attach_as_duplicate_alternatives(research, saved, saved_id, others)
+        return {"message": ALREADY_PRESENT_MESSAGE, "already_present": True, "chosen_article_id": saved_id}
+
     # Duplicato incrociato: uno di questi articoli corrisponde a un articolo
     # già salvato da una ricerca/sessione precedente (mai confrontato con
     # questo gruppo, dato che il dedup normale gira solo sui risultati della
@@ -1073,18 +1103,8 @@ async def add_article_group_to_ricerca(
     chosen = pick_preferred(articles, research.source_priority)
     alternative_ids = [a.id for a in articles if a.id != chosen.id]
 
-    all_added = await AddedArticle.find_all().to_list()
-    added = next(
-        (
-            a
-            for a in all_added
-            if linked_id(a.participation) == str(my_participation.id) and linked_id(a.article) == str(chosen.id)
-        ),
-        None,
-    )
-    if added is None:
-        added = AddedArticle(participation=my_participation, article=chosen)
-        await added.insert()
+    added = AddedArticle(participation=my_participation, article=chosen)
+    await added.insert()
 
     # Se questo stesso articolo scelto ha già un gruppo in questa Ricerca
     # (es. lo stesso gruppo aggiunto due volte, o due gruppi diversi che

@@ -51,7 +51,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
   async function handleContinue() {
     setContinuing(true)
     setContinueError('')
-    const { added, failed } = (await resultsRef.current?.addSelected()) ?? { added: 0, failed: 0 }
+    const { added, present, failed } = (await resultsRef.current?.addSelected()) ?? { added: 0, present: 0, failed: 0 }
     setContinuing(false)
     if (failed > 0) {
       setContinueError(
@@ -59,7 +59,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
       )
       return
     }
-    navigate(`/ricerche/${research.id}/sessione/duplicati`, { state: { addedNow: added } })
+    navigate(`/ricerche/${research.id}/sessione/duplicati`, { state: { addedNow: added, alreadyPresent: present } })
   }
 
   // Query salvate della Ricerca, mostrate qui (non solo nella loro pagina

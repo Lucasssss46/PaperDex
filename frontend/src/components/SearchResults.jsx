@@ -88,10 +88,10 @@ export default function SearchResults({ results, count, loading, error, searched
     id: g.key,
     members: g.members,
     article: pickPreferred(g.members),
-    caught: addStates[g.key] === 'added' || selectedKeys.has(g.key),
+    caught: addStates[g.key] === 'added' || addStates[g.key] === 'present' || selectedKeys.has(g.key),
     num: String(i + 1).padStart(2, '0'),
   }))
-  const isLocked = (key) => addStates[key] === 'adding' || addStates[key] === 'added'
+  const isLocked = (key) => ['adding', 'added', 'present'].includes(addStates[key])
   // Solo le chiavi dei risultati attuali: la selezione di una ricerca precedente non conta.
   const selectable = items.filter((it) => !isLocked(it.id))
   const selectedItems = selectable.filter((it) => selectedKeys.has(it.id))
@@ -102,36 +102,39 @@ export default function SearchResults({ results, count, loading, error, searched
   async function addItem(item) {
     setAddStates((s) => ({ ...s, [item.id]: 'adding' }))
     try {
-      if (item.members.length > 1) await addArticleGroupToRicerca(research.id, item.members)
-      else await addArticleToRicerca(research.id, item.article)
-      setAddStates((s) => ({ ...s, [item.id]: 'added' }))
+      const data =
+        item.members.length > 1
+          ? await addArticleGroupToRicerca(research.id, item.members)
+          : await addArticleToRicerca(research.id, item.article)
+      // Già salvato nella Ricerca (da chiunque): non è un errore, ma non conta come nuovo.
+      const outcome = data?.already_present ? 'present' : 'added'
+      setAddStates((s) => ({ ...s, [item.id]: outcome }))
       setSelectedKeys((current) => {
         const next = new Set(current)
         next.delete(item.id)
         return next
       })
-      onArticleAdded?.(item.members)
-      return true
+      if (outcome === 'added') onArticleAdded?.(item.members)
+      return outcome
     } catch {
       // Resta selezionato: ripassando alla deduplicazione si riprova.
       setAddStates((s) => ({ ...s, [item.id]: 'error' }))
-      return false
+      return 'error'
     }
   }
 
   // Uno alla volta: ogni aggiunta confronta l'articolo con quelli già salvati
   // (deduplicazione tra sessioni), quindi l'ordine conta. Restituisce quanti
-  // articoli sono stati salvati e quanti no.
+  // articoli sono stati salvati, quanti erano già presenti e quanti sono falliti.
   async function addSelected() {
-    let added = 0
-    let failed = 0
+    const counts = { added: 0, present: 0, failed: 0 }
     if (research) {
       for (const item of selectedItems) {
-        if (await addItem(item)) added += 1
-        else failed += 1
+        const outcome = await addItem(item)
+        counts[outcome === 'error' ? 'failed' : outcome] += 1
       }
     }
-    return { added, failed }
+    return counts
   }
 
   useImperativeHandle(ref, () => ({ addSelected }))
@@ -245,11 +248,11 @@ export default function SearchResults({ results, count, loading, error, searched
                 >
                   {item.article.title}
                 </div>
-                {state === 'error' || state === 'adding' || state === 'added' ? (
+                {state === 'error' || state === 'adding' || state === 'added' || state === 'present' ? (
                   <div
                     style={{
                       fontSize: 12,
-                      color: state === 'error' ? '#FCA5A5' : state === 'added' ? '#D4FF24' : '#8B93A5',
+                      color: state === 'error' ? '#FCA5A5' : state === 'adding' ? '#8B93A5' : '#D4FF24',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -258,8 +261,10 @@ export default function SearchResults({ results, count, loading, error, searched
                     {state === 'error'
                       ? 'Aggiunta non riuscita: resta selezionato, verrà ritentata'
                       : state === 'added'
-                        ? 'Già aggiunto alla ricerca ✓'
-                        : 'Aggiunta…'}
+                        ? 'Aggiunto alla Ricerca ✓'
+                        : state === 'present'
+                          ? 'Già nella Ricerca ✓'
+                          : 'Aggiunta…'}
                   </div>
                 ) : (
                   <AuthorsYear authors={item.article.authors} date={item.article.publication_date} />
@@ -297,7 +302,9 @@ export default function SearchResults({ results, count, loading, error, searched
             style={{ fontFamily: 'inherit', fontSize: 12.5, fontWeight: 600 }}
           >
             {addStates[openItem.id] === 'added'
-              ? 'Già aggiunto alla ricerca ✓'
+              ? 'Aggiunto alla Ricerca ✓'
+              : addStates[openItem.id] === 'present'
+              ? 'Già nella Ricerca ✓'
               : selectedKeys.has(openItem.id)
                 ? 'Deseleziona'
                 : openItem.members.length > 1

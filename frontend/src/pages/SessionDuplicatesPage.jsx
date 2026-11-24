@@ -11,7 +11,9 @@ import DuplicateGroupReview from '../components/DuplicateGroupReview'
 export default function SessionDuplicatesPage() {
   const { researchId, sessionArticles } = useOutletContext()
   // Quanti articoli sono stati salvati passando qui da Cerca (SearchArticlesPage).
-  const addedNow = useLocation().state?.addedNow ?? 0
+  const navState = useLocation().state
+  const addedNow = navState?.addedNow ?? 0
+  const alreadyPresent = navState?.alreadyPresent ?? 0
   const [groups, setGroups] = useState(null)
   const [error, setError] = useState('')
 
@@ -38,9 +40,11 @@ export default function SessionDuplicatesPage() {
 
   return (
     <div className="space-y-6">
-      {addedNow > 0 && (
+      {(addedNow > 0 || alreadyPresent > 0) && (
         <p className="notice-ok">
           {addedNow} articol{addedNow === 1 ? 'o aggiunto' : 'i aggiunti'} alla Ricerca.
+          {alreadyPresent > 0 &&
+            ` ${alreadyPresent} ${alreadyPresent === 1 ? 'era già presente e non è stato aggiunto' : 'erano già presenti e non sono stati aggiunti'} di nuovo.`}
         </p>
       )}
       {sessionArticles.length === 0 ? (
