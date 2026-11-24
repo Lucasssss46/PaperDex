@@ -101,6 +101,10 @@ export default function InvitePage() {
     }
   }
 
+  const wrongAccount = Boolean(
+    invite && loggedInEmails && !loggedInEmails.includes(invite.receiver_email.toLowerCase()),
+  )
+
   return (
     <div className="auth-page">
       <div className="card w-full max-w-sm" style={{ padding: '34px 32px 30px' }}>
@@ -145,15 +149,20 @@ export default function InvitePage() {
                 )}
               </div>
 
-              {loggedInEmails && !loggedInEmails.includes(invite.receiver_email.toLowerCase()) && (
+              {wrongAccount && (
                 <div className="notice-warn mt-4">
                   <p>
                     In questo browser sei collegato con un altro account, ma l'invito è per{' '}
-                    <strong>{invite.receiver_email}</strong>. Esci per accettarlo con l'account giusto.
+                    <strong>{invite.receiver_email}</strong>.
                   </p>
-                  <button type="button" onClick={handleLogoutHere} className="action-link mt-2">
-                    Esci dall'account
-                  </button>
+                  <div className="mt-3 flex flex-col gap-2">
+                    <button type="button" onClick={handleLogoutHere} className="pill-btn w-full" style={{ padding: '10px 0' }}>
+                      Cambia account
+                    </button>
+                    <Link to="/ricerche" className="action-link" style={{ textAlign: 'center' }}>
+                      Resta con il tuo account
+                    </Link>
+                  </div>
                 </div>
               )}
 
@@ -161,7 +170,9 @@ export default function InvitePage() {
                 <p className="notice-err mt-4">{actionError}</p>
               )}
 
-              {invite.user_exists ? (
+              {/* Con un altro account collegato si sceglie prima cosa fare:
+                  accettare da qui finirebbe nella sessione sbagliata. */}
+              {wrongAccount ? null : invite.user_exists ? (
                 <div className="mt-4 flex gap-2.5">
                   <button type="button" onClick={handleAccept} disabled={actionLoading} className="pill-btn flex-1" style={{ padding: '10px 0' }}>
                     Accetta
