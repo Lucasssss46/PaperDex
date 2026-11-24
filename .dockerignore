@@ -1,0 +1,26 @@
+# Segreti: le variabili si impostano nel pannello della piattaforma, mai nell'immagine.
+.env
+**/.env
+**/.env.*
+
+# Ambienti e cache locali
+.venv/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+.git/
+.vscode/
+.impeccable/
+*.log
+
+# Frontend: deploy separato come sito statico
+frontend/
+
+# Dati generati o personali, non codice
+backend/app/static/
+backend/app/services/utils/evaluation_cache.json
+backend/app/services/utils/evaluation_cache.json.*.tmp
+backend/app/statistics/evaluation_report*.json
+backend/scripts/backup_migrazione/
+backend/tests/
+docs/

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -25,11 +26,20 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Origine del server di sviluppo Vite: senza CORS il browser blocca le
-# chiamate del frontend all'API (origini diverse: 5173 vs 8000).
+# Origini del frontend ammesse: senza CORS il browser blocca le chiamate del
+# frontend all'API (origini diverse: 5173 vs 8000 in sviluppo). In un deploy
+# si impostano con CORS_ORIGINS, separate da virgole; senza la variabile
+# restano quelle del server di sviluppo Vite. database.py ha già caricato il
+# .env all'import.
+CORS_ORIGINS = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

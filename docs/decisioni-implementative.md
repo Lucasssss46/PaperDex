@@ -1984,3 +1984,25 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 **Verifica.** Suite offline: 124 test passati, 7 nuovi in `suites/cifratura/` (cifratura e decifratura, valore in chiaro precedente, chiave del server diversa, chiave mancante, metodi di `User`, chiave condivisa da un membro del team decifrata per la ricerca e salvata cifrata). Script di migrazione provato su un database simulato: anteprima, cifratura, seconda anteprima a zero.
 
 **Stato.** Implementato. Da eseguire sul database Atlas: `python -m backend.scripts.cifratura_chiavi_api --apply`.
+
+---
+
+## 131. Deploy di prova: CORS da variabile d'ambiente e immagine Docker del backend (2026-11-23)
+
+**Contesto.** Su consiglio della correlatrice, alcuni utenti proveranno PapérDex e compileranno un questionario sull'esperienza d'uso. Serve quindi un ambiente raggiungibile da internet, separato da quello di sviluppo, senza passare dal PC di Luca: scartato il tunnel verso il PC (andrebbe tenuto acceso per tutta la durata delle prove). Scelto un deploy di prova su servizi gratuiti: backend su Koyeb (istanza gratuita a Francoforte, 512 MB di RAM, si spegne dopo un'ora senza traffico), frontend come sito statico su Cloudflare Pages, database separato su MongoDB Atlas. Limiti dei piani gratuiti verificati il 2026-11-23 sulle pagine ufficiali; Koyeb chiede comunque una carta di credito all'iscrizione, con una pre-autorizzazione annullata subito. Il translation-server di Zotero resta fuori dalle prove: l'export ripiega sul formattatore interno (voce 88).
+
+**Decisione.**
+- `main.py`: le origini CORS si leggono da `CORS_ORIGINS` (separate da virgole, senza `/` finale). Senza la variabile restano `localhost:5173` e `127.0.0.1:5173`, quindi lo sviluppo in locale non cambia.
+- Nuovo `Dockerfile` alla radice (contesto di build: tutto il repository, perché il codice si importa come `backend.app`): `python:3.14-slim`, dipendenze da `requirements.txt`, avvio con uvicorn sulla porta `PORT` assegnata dalla piattaforma. `--proxy-headers` fa leggere a uvicorn `X-Forwarded-Proto` dal proxy: senza, `request.base_url` sarebbe `http://` e l'URL assoluto delle immagini profilo verrebbe bloccato dal browser come contenuto misto su una pagina `https`.
+- Nuovo `.dockerignore`: esclude `.env` e ogni altro file di variabili (i segreti si impostano nel pannello della piattaforma), `.venv`, cache, frontend, test, documentazione, immagini caricate, cache delle ricerche, report di valutazione e backup delle migrazioni.
+
+**Controllati e lasciati invariati.**
+- Email: `send_email` usa `smtplib.SMTP` con STARTTLS sulla porta `SMTP_PORT`, 587 se la variabile manca. Già configurabile; la porta 465 (SSL implicito) non è supportata, e non serve.
+- Indirizzi scritti a mano: oltre a CORS restano solo valori predefiniti per lo sviluppo, già sovrascrivibili da variabile (`VITE_API_BASE_URL` nel frontend, `FRONTEND_URL` per i link delle email, `ZOTERO_TRANSLATION_SERVER_URL`), più `host="127.0.0.1"` nell'avvio diretto di `main.py`, che il container non usa.
+- Disco temporaneo: la cache delle ricerche (`evaluation_cache.json`) si ricrea vuota se manca e si riempie di nuovo, quindi un riavvio rende solo più lente le ricerche ripetute. Le immagini profilo invece si salvano in `backend/app/static/avatars` e **si perdono a ogni riavvio o nuovo deploy**: il campo `profile_img` dell'utente resta e punta a un file che non c'è più. Accettato per le prove; per un deploy vero servirà uno spazio di archiviazione persistente.
+
+**Variabili da impostare sul backend.** Quelle del `backend/.env` (connessione al database di prova, `API_KEYS_ENCRYPTION_KEY`, `CONTACT_EMAIL`, chiave OpenAlex, SMTP), più `CORS_ORIGINS` e `FRONTEND_URL` con l'indirizzo del frontend. Sul frontend, `VITE_API_BASE_URL` con l'indirizzo del backend seguito da `/api`, impostata al momento della build.
+
+**Verifica.** Suite offline: 124 test passati. `CORS_ORIGINS` provata all'import di `main.py`, con e senza la variabile (barra finale e spazi tolti). Build dell'immagine Docker non eseguita: Docker Desktop non era avviato.
+
+**Stato.** Implementato sul branch `Deploy_di_prova`; deploy da fare.
