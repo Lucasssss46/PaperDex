@@ -11,7 +11,15 @@ from backend.app.schemas.models import Article
 
 load_dotenv(Path(__file__).resolve().parent.parent.parent.parent / ".env")
 
-TRANSLATION_SERVER_URL = os.getenv("ZOTERO_TRANSLATION_SERVER_URL", "http://127.0.0.1:1969")
+# Senza la "/" finale, come FRONTEND_URL: i percorsi si aggiungono come "/search".
+TRANSLATION_SERVER_URL = os.getenv("ZOTERO_TRANSLATION_SERVER_URL", "http://127.0.0.1:1969").strip().rstrip("/")
+
+# Lettura lunga: su un hosting gratuito che addormenta il servizio (Render) il
+# proxy accetta subito la connessione e tiene la richiesta finché il server non
+# si è risvegliato, circa un minuto; con 30 secondi la prima chiamata dopo una
+# pausa falliva (export in ripiego silenzioso, arricchimento "non raggiungibile").
+# La connessione resta breve: un server davvero spento si scopre in fretta.
+TRANSLATION_SERVER_TIMEOUT = httpx.Timeout(30.0, connect=15.0, read=90.0)
 
 
 class EnrichmentError(Exception):
@@ -59,7 +67,7 @@ def _venue(item: dict) -> Optional[str]:
 async def _call_translation_server(path: str, body: str) -> List[dict]:
     url = f"{TRANSLATION_SERVER_URL}{path}"
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=TRANSLATION_SERVER_TIMEOUT) as client:
             response = await client.post(url, content=body, headers={"Content-Type": "text/plain"})
     except httpx.RequestError as e:
         raise EnrichmentError(
@@ -76,7 +84,7 @@ async def _call_translation_server(path: str, body: str) -> List[dict]:
             raise EnrichmentError("Nessun dato trovato per questo articolo")
         first_key = next(iter(options))
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=TRANSLATION_SERVER_TIMEOUT) as client:
                 response = await client.post(
                     url,
                     json={"url": body, "items": {first_key: options[first_key]}} if path == "/web" else body,
@@ -168,7 +176,7 @@ async def export_via_translation_server(articles: List[Article], export_format: 
     items = [_zotero_item(a) for a in articles]
     url = f"{TRANSLATION_SERVER_URL}/export?format={export_format}"
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=TRANSLATION_SERVER_TIMEOUT) as client:
             response = await client.post(url, json=items, headers={"Content-Type": "application/json"})
     except httpx.RequestError:
         return None
