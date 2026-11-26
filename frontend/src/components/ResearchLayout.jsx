@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-
 import { getRicerca, listRicercaArticles, listRicercaTeam } from '../api/ricerche'
 import BackLink from './BackLink'
 import SessionStepper from './SessionStepper'
+import { LoadError } from './LoadState'
 
 const AVATAR_COLORS = ['#2B7CFF', '#9D174D', '#0E7490']
 
@@ -90,10 +91,18 @@ export default function ResearchLayout() {
     navigate(`/ricerche/${id}/cerca`)
   }
 
-  useEffect(() => {
-    getRicerca(id)
-      .then((data) => setName(data.name))
+  function fetchName() {
+    return getRicerca(id)
+      .then((data) => {
+        setName(data.name)
+        setError('')
+      })
       .catch((err) => setError(err.message))
+  }
+
+  useEffect(() => {
+    fetchName()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- si ricarica solo cambiando Ricerca
   }, [id])
 
   // Solo sull'Overview (nessun `pageName`): le altre sotto-pagine non
@@ -111,14 +120,15 @@ export default function ResearchLayout() {
       .catch(() => {})
     listRicercaArticles(id, { page: 1, pageSize: 1 })
       .then((result) => setArticlesCount(result.count))
-      .catch(() => {})
+      // Numero sconosciuto, non zero: "SALVATI 0" farebbe credere che non ci sia nulla.
+      .catch(() => setArticlesCount(null))
   }, [id, location.pathname])
 
   if (error) {
     return (
-      <p className="mx-auto max-w-3xl px-4 py-8 text-sm" style={{ color: '#FCA5A5' }}>
-        {error}
-      </p>
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <LoadError what="questa Ricerca" message={error} onRetry={fetchName} />
+      </div>
     )
   }
 
@@ -164,7 +174,7 @@ export default function ResearchLayout() {
               }}
             >
               <span>
-                SALVATI <strong style={{ color: '#D4FF24', fontSize: 13 }}>{articlesCount}</strong>
+                SALVATI <strong style={{ color: '#D4FF24', fontSize: 13 }}>{articlesCount ?? '—'}</strong>
               </span>
             </div>
           )}

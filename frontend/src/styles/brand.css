@@ -71,6 +71,11 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+/* azione irreversibile (components/ConfirmDialog.jsx) */
+.pill-btn-danger {
+  background: #dc2626;
+  border-color: #3b0a0a;
+}
 .ghost-btn {
   font-family: var(--font-display);
   font-weight: 700;

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { createRicerca, deleteRicerca, listRicerche } from '../api/ricerche'
+import { useConfirm } from '../components/useConfirm'
+import { LoadError, LoadingNote } from '../components/LoadState'
 import { inputClass } from '../components/Field'
 
 function ResearchItem({ research, onDelete }) {
@@ -17,7 +19,7 @@ function ResearchItem({ research, onDelete }) {
         )}
       </Link>
       {onDelete && (
-        <button type="button" onClick={() => onDelete(research.id)} className="action-link danger shrink-0">
+        <button type="button" onClick={() => onDelete(research)} className="action-link danger shrink-0">
           Elimina
         </button>
       )}
@@ -47,6 +49,7 @@ function ResearchColumn({ title, items, emptyText, onDelete, muted }) {
 }
 
 export default function ResearchesPage() {
+  const [confirm, confirmDialog] = useConfirm()
   const [mine, setMine] = useState([])
   const [participating, setParticipating] = useState([])
   const [loading, setLoading] = useState(true)
@@ -60,8 +63,6 @@ export default function ResearchesPage() {
   // Un errore di caricamento non deve sembrare "nessuna Ricerca": senza dati
   // validi si mostra l'errore con "Riprova", mai le colonne vuote.
   const [loadFailed, setLoadFailed] = useState(false)
-  // Il backend gratuito si addormenta: la prima richiesta può durare un minuto.
-  const [slow, setSlow] = useState(false)
 
   function fetchRicerche() {
     return listRicerche()
@@ -79,7 +80,6 @@ export default function ResearchesPage() {
   // Ricaricamento (Riprova, dopo creazione o cancellazione).
   function load() {
     setLoading(true)
-    setSlow(false)
     setLoadFailed(false)
     setError('')
     return fetchRicerche()
@@ -88,12 +88,6 @@ export default function ResearchesPage() {
   useEffect(() => {
     fetchRicerche()
   }, [])
-
-  useEffect(() => {
-    if (!loading) return
-    const timer = setTimeout(() => setSlow(true), 4000)
-    return () => clearTimeout(timer)
-  }, [loading])
 
   async function handleCreate(event) {
     event.preventDefault()
@@ -116,9 +110,18 @@ export default function ResearchesPage() {
     }
   }
 
-  async function handleDelete(id) {
+  async function handleDelete(research) {
+    // Irreversibile: cancella anche articoli, query, team, inviti e duplicati (voce 126).
+    const ok = await confirm({
+      title: `Eliminare la Ricerca "${research.name}"?`,
+      message:
+        'Verranno cancellati, per tutto il team, gli articoli salvati, le query, la cronologia, gli inviti e i gruppi di duplicati.\n\nNon si può annullare.',
+      confirmLabel: 'Elimina definitivamente',
+      requireText: research.name,
+    })
+    if (!ok) return
     try {
-      await deleteRicerca(id)
+      await deleteRicerca(research.id)
       await load()
     } catch (err) {
       setError(err.message)
@@ -127,6 +130,7 @@ export default function ResearchesPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
+      {confirmDialog}
       <h2 className="head text-xl font-semibold" style={{ color: '#F3F4F6' }}>
         Ricerche
       </h2>
@@ -160,22 +164,9 @@ export default function ResearchesPage() {
       )}
 
       {loading ? (
-        <p className="mt-6 text-sm" style={{ color: '#8B93A5' }}>
-          Caricamento…
-          {slow && ' Il server si sta avviando: la prima apertura dopo una pausa può richiedere fino a un minuto.'}
-        </p>
+        <LoadingNote className="mt-6 text-sm" />
       ) : loadFailed ? (
-        <div className="notice-err mt-6">
-          <p>
-            Non riesco a caricare le tue Ricerche. Il server potrebbe essere in avvio: riprova tra qualche secondo.
-          </p>
-          <p className="mt-1 text-xs" style={{ opacity: 0.8 }}>
-            Dettaglio: {error}
-          </p>
-          <button type="button" className="pill-btn mt-3" onClick={load}>
-            Riprova
-          </button>
-        </div>
+        <LoadError what="le tue Ricerche" message={error} onRetry={load} className="mt-6" />
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <ResearchColumn title="Create da te" items={mine} emptyText="Non hai ancora creato nessuna ricerca." onDelete={handleDelete} />

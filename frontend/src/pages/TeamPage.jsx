@@ -3,6 +3,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom'
 import { inviteToRicerca, leaveRicerca, listRicercaInvites, listRicercaTeam, removeRicercaTeamMember } from '../api/ricerche'
 import { inputClass } from '../components/Field'
 import TeamMemberItem from '../components/TeamMemberItem'
+import { useConfirm } from '../components/useConfirm'
 
 function InviteForm({ researchId, onInvited }) {
   const [email, setEmail] = useState('')
@@ -57,10 +58,17 @@ function InviteForm({ researchId, onInvited }) {
 }
 
 function LeaveSection({ researchId, onLeft }) {
+  const [confirm, confirmDialog] = useConfirm()
   const [leaving, setLeaving] = useState(false)
   const [error, setError] = useState('')
 
   async function handleLeave() {
+    const ok = await confirm({
+      title: 'Abbandonare questa Ricerca?',
+      message: 'Gli articoli che hai aggiunto restano al team. Per rientrare servirà un nuovo invito.',
+      confirmLabel: 'Abbandona',
+    })
+    if (!ok) return
     setLeaving(true)
     setError('')
     try {
@@ -74,6 +82,7 @@ function LeaveSection({ researchId, onLeft }) {
 
   return (
     <div className="mb-6 rounded-2xl p-5" style={{ border: '1px solid rgba(248,113,113,.3)', background: 'rgba(248,113,113,.06)' }}>
+      {confirmDialog}
       <h3 className="text-sm font-semibold" style={{ color: '#FCA5A5' }}>
         Abbandona la Ricerca
       </h3>
@@ -151,6 +160,7 @@ function SentInvites({ researchId, refreshKey }) {
 }
 
 export default function TeamPage() {
+  const [confirm, confirmDialog] = useConfirm()
   const { researchId } = useOutletContext()
   const navigate = useNavigate()
   const [members, setMembers] = useState([])
@@ -186,6 +196,14 @@ export default function TeamPage() {
   }
 
   async function handleRemoveMember(userId) {
+    const member = members.find((m) => m.id === userId)
+    const who = member?.name || member?.email || 'questo membro'
+    const ok = await confirm({
+      title: `Rimuovere ${who} dal team?`,
+      message: 'Gli articoli che ha aggiunto restano nella Ricerca. Per rientrare servirà un nuovo invito.',
+      confirmLabel: 'Rimuovi',
+    })
+    if (!ok) return
     try {
       await removeRicercaTeamMember(researchId, userId)
       setMembers((current) => current.filter((m) => m.id !== userId))
@@ -196,6 +214,7 @@ export default function TeamPage() {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      {confirmDialog}
       <div className="min-w-0">
         {isOwner ? (
           <InviteForm researchId={researchId} onInvited={() => setInvitesRefreshKey((k) => k + 1)} />

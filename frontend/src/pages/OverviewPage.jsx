@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import { useConfirm } from '../components/useConfirm'
+import { LoadError, LoadingNote } from '../components/LoadState'
 import {
   checkAllArticlesVersion,
   checkArticleVersion,
@@ -59,6 +61,7 @@ async function fetchAllArticles(researchId) {
 }
 
 export default function OverviewPage() {
+  const [confirm, confirmDialog] = useConfirm()
   const { researchId, startNewSession, isOwner } = useOutletContext()
   const navigate = useNavigate()
 
@@ -110,14 +113,25 @@ export default function OverviewPage() {
     })
   }
 
-  useEffect(() => {
-    fetchAllArticles(researchId)
+  function fetchArticles() {
+    return fetchAllArticles(researchId)
       .then((all) => {
         setArticles(all)
         setError('')
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
+  }
+
+  function retryArticles() {
+    setLoading(true)
+    setError('')
+    fetchArticles()
+  }
+
+  useEffect(() => {
+    fetchArticles()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- si ricarica solo cambiando Ricerca
   }, [researchId])
 
   useEffect(() => {
@@ -199,6 +213,12 @@ export default function OverviewPage() {
 
   async function handleRemoveSelected() {
     if (!selectedArticle || !isOwner) return
+    const ok = await confirm({
+      title: "Rimuovere l'articolo dalla Ricerca?",
+      message: `"${selectedArticle.title}" sparirà dagli articoli salvati per tutto il team.`,
+      confirmLabel: 'Rimuovi',
+    })
+    if (!ok) return
     try {
       await removeRicercaArticle(researchId, selectedArticle.id)
       setArticles((current) => current.filter((a) => a.id !== selectedArticle.id))
@@ -280,6 +300,7 @@ export default function OverviewPage() {
 
   return (
     <div style={{ paddingBottom: 40 }}>
+      {confirmDialog}
       {/* Niente titolo "{nome Ricerca}" (né "Salvati"/team) qui: li mostra
           già ResearchLayout, accanto al nome della Ricerca — ripeterli qui
           duplicherebbe lo stesso contenuto. Questa riga ha solo le azioni:
@@ -397,13 +418,9 @@ export default function OverviewPage() {
 
         <div style={{ padding: '18px 30px 22px 22px' }}>
           {loading ? (
-            <p className="text-sm" style={{ color: '#8B93A5' }}>
-              Caricamento…
-            </p>
+            <LoadingNote />
           ) : error ? (
-            <p className="text-sm" style={{ color: '#FCA5A5' }}>
-              {error}
-            </p>
+            <LoadError what="gli articoli salvati" message={error} onRetry={retryArticles} />
           ) : articles.length === 0 ? (
             <p className="text-sm" style={{ color: '#8B93A5' }}>
               Nessun articolo aggiunto per ora.

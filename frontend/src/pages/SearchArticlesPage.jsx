@@ -66,11 +66,13 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
   // dedicata) per averle a portata di mano mentre si cerca — l'utente ha
   // chiesto esplicitamente "un accesso facile" da questa stessa pagina.
   const [savedQueries, setSavedQueries] = useState([])
+  // Senza questo, un errore lascerebbe "Nessuna query salvata", che non è vero.
+  const [savedQueriesFailed, setSavedQueriesFailed] = useState(false)
   useEffect(() => {
     if (!research) return
     listRicercaQueries(research.id)
       .then((data) => setSavedQueries(data.queries))
-      .catch(() => {})
+      .catch(() => setSavedQueriesFailed(true))
   }, [research])
 
   const [keywordGroups, setKeywordGroups] = useState(() =>
@@ -293,7 +295,11 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 0' }}>
             <div className="ribbon-flat">Query salvate</div>
             <div style={{ padding: '10px 12px', maxHeight: 280, overflowY: 'auto' }}>
-              {savedQueries.length === 0 ? (
+              {savedQueriesFailed ? (
+                <p className="text-xs" style={{ color: '#FCA5A5' }}>
+                  Query salvate non caricate: il server potrebbe essere in avvio. Ricarica la pagina tra poco.
+                </p>
+              ) : savedQueries.length === 0 ? (
                 <p className="text-xs" style={{ color: '#55606E' }}>
                   Nessuna query salvata per ora.
                 </p>
