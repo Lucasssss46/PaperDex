@@ -16,13 +16,27 @@ export default function DeduplicationPage() {
       .catch((err) => setError(err.message))
   }, [researchId])
 
-  useEffect(() => {
-    // Solo per sapere se mostrare la classifica delle sorgenti come
-    // modificabile: un fallimento qui non deve rompere il resto della
-    // pagina, resta semplicemente in sola lettura (isOwner di default false).
+  // Solo per sapere se mostrare la classifica delle sorgenti come
+  // modificabile: un fallimento qui non deve rompere il resto della pagina,
+  // che resta in sola lettura (isOwner di default false). Un secondo tentativo
+  // automatico (il backend può essere in avvio), poi un avviso con Riprova.
+  const [roleFailed, setRoleFailed] = useState(false)
+
+  function fetchRole(isRetry) {
     listRicercaTeam(researchId)
-      .then((data) => setIsOwner(data.is_owner))
-      .catch(() => {})
+      .then((data) => {
+        setIsOwner(data.is_owner)
+        setRoleFailed(false)
+      })
+      .catch(() => {
+        if (isRetry) setRoleFailed(true)
+        else setTimeout(() => fetchRole(true), 1500)
+      })
+  }
+
+  useEffect(() => {
+    fetchRole(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- si ricarica solo cambiando Ricerca
   }, [researchId])
 
   function handleUpdated(groupId, newChosenId) {
@@ -68,6 +82,21 @@ export default function DeduplicationPage() {
           impilano (classifica in fondo, `flex-col-reverse` sopra la mette
           comunque prima) e uno sticky non avrebbe senso. */}
       <aside className="w-full shrink-0 md:sticky md:top-8 md:w-72">
+        {roleFailed && (
+          <div className="notice-warn mb-3 text-xs">
+            <p>Non riesco a verificare il tuo ruolo: la classifica delle sorgenti resta in sola lettura.</p>
+            <button
+              type="button"
+              className="action-link mt-1.5"
+              onClick={() => {
+                setRoleFailed(false)
+                fetchRole(true)
+              }}
+            >
+              Riprova
+            </button>
+          </div>
+        )}
         <SourcePriorityEditor researchId={researchId} isOwner={isOwner} />
       </aside>
     </div>
