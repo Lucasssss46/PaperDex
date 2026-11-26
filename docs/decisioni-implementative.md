@@ -2033,3 +2033,21 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 **Verifica.** eslint e build del frontend senza errori; suite offline 129 test passati (5 nuovi). Provato a schermo con Playwright su un server di sviluppo locale e API simulata: due articoli selezionati, uno deselezionato, poi "Aggiungi 1 articolo e vai alla deduplicazione": una sola chiamata di aggiunta, per l'articolo rimasto selezionato, arrivo sulla pagina dei duplicati della sessione con "1 articolo aggiunto alla Ricerca". Non provato sul sito di prova con dati veri.
 
 **Stato.** Implementato sul branch `Deploy_di_prova`.
+
+---
+
+## 133. Token di accesso in localStorage: limite noto e passaggio a cookie HttpOnly (2026-11-26)
+
+**Contesto.** Il token di accesso è un JWT salvato in `localStorage` (chiave `paperdex_token`) e mandato dal frontend come `Authorization: Bearer` (`api/client.js`); dura 2 ore (`routes/utenti.py`, login). Il meccanismo esiste dall'inizio del progetto (voce 21); una risposta 401 riporta al login (voce 57) e, dalla voce 131, un token già scaduto viene tolto all'avvio leggendone il campo `exp` (`App.jsx`). Il limite: `localStorage` è leggibile da qualunque script della pagina, quindi in caso di vulnerabilità XSS il token può essere sottratto. La soluzione abituale è un cookie HttpOnly, che JavaScript non può leggere.
+
+**Perché non è stato cambiato ora.** Nel deploy di prova il frontend è su `paperdex.pages.dev` e il backend su `paperdex.onrender.com`: per il browser sono due siti diversi (entrambi domini pubblici condivisi). Il cookie del backend sarebbe quindi di terze parti, con `SameSite=None; Secure`, che Safari blocca per impostazione predefinita e altri browser stanno limitando: il login rischierebbe di non funzionare proprio durante le prove di usabilità. Su un ambiente di prova con dati non sensibili il guadagno non vale questo rischio.
+
+**Prerequisito.** Frontend e backend sullo stesso sito: un dominio proprio con sottodomini (per esempio `paperdex.it` e `api.paperdex.it`), oppure le chiamate all'API servite dallo stesso indirizzo del frontend tramite un proxy (per esempio le Pages Functions di Cloudflare). Un dominio proprio permetterebbe anche di autenticare il mittente delle email su Brevo, oggi un indirizzo Gmail non autenticabile.
+
+**Piano.**
+- Backend: al login, token in un cookie `HttpOnly; Secure; SameSite=Lax`; `get_current_user` legge il token dal cookie invece che dall'intestazione; nuovo endpoint di logout che cancella il cookie.
+- Protezione CSRF per le richieste che modificano dati: con i cookie il browser manda la credenziale da solo. `SameSite=Lax` copre gran parte dei casi; per le altre, un token anti-CSRF.
+- Frontend: tutte le chiamate con `credentials: 'include'`, niente più token in `localStorage`; il controllo della scadenza all'avvio diventa una chiamata a `/users/me`, perché il cookie non è leggibile da JavaScript.
+- Invariati: CORS (consente già le credenziali, con origini esplicite da `CORS_ORIGINS`), il ritorno al login sul 401, i link nelle email (inviti, conferma, reset), che usano token separati nell'indirizzo.
+
+**Stato.** Rimandato a dopo le prove di usabilità, insieme alla scelta di un dominio proprio.
