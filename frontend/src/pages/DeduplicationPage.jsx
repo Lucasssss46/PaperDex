@@ -64,8 +64,7 @@ export default function DeduplicationPage() {
           </p>
         ) : groups.length === 0 ? (
           <p className="text-sm" style={{ color: '#8B93A5' }}>
-            Nessun gruppo di duplicati per ora: comparirà qui dopo aver aggiunto un gruppo di articoli simili dalla
-            ricerca (bottone "Aggiungi tutto il gruppo" sui risultati evidenziati).
+            Nessun gruppo di duplicati per ora.
           </p>
         ) : (
           groups.map((group) => (
