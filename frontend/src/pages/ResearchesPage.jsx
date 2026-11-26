@@ -57,29 +57,43 @@ export default function ResearchesPage() {
   const [creating, setCreating] = useState(false)
   const [formError, setFormError] = useState('')
 
-  async function refresh() {
-    setLoading(true)
-    setError('')
-    try {
-      const data = await listRicerche()
-      setMine(data.mine)
-      setParticipating(data.participating)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Un errore di caricamento non deve sembrare "nessuna Ricerca": senza dati
+  // validi si mostra l'errore con "Riprova", mai le colonne vuote.
+  const [loadFailed, setLoadFailed] = useState(false)
+  // Il backend gratuito si addormenta: la prima richiesta può durare un minuto.
+  const [slow, setSlow] = useState(false)
 
-  useEffect(() => {
-    listRicerche()
+  function fetchRicerche() {
+    return listRicerche()
       .then((data) => {
         setMine(data.mine)
         setParticipating(data.participating)
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        setLoadFailed(true)
+        setError(err.message)
+      })
       .finally(() => setLoading(false))
+  }
+
+  // Ricaricamento (Riprova, dopo creazione o cancellazione).
+  function load() {
+    setLoading(true)
+    setSlow(false)
+    setLoadFailed(false)
+    setError('')
+    return fetchRicerche()
+  }
+
+  useEffect(() => {
+    fetchRicerche()
   }, [])
+
+  useEffect(() => {
+    if (!loading) return
+    const timer = setTimeout(() => setSlow(true), 4000)
+    return () => clearTimeout(timer)
+  }, [loading])
 
   async function handleCreate(event) {
     event.preventDefault()
@@ -94,7 +108,7 @@ export default function ResearchesPage() {
       await createRicerca(name.trim(), description.trim())
       setName('')
       setDescription('')
-      await refresh()
+      await load()
     } catch (err) {
       setFormError(err.message)
     } finally {
@@ -105,7 +119,7 @@ export default function ResearchesPage() {
   async function handleDelete(id) {
     try {
       await deleteRicerca(id)
-      await refresh()
+      await load()
     } catch (err) {
       setError(err.message)
     }
@@ -139,7 +153,7 @@ export default function ResearchesPage() {
           {formError}
         </p>
       )}
-      {error && (
+      {error && !loadFailed && (
         <p className="mt-4 text-sm" style={{ color: '#FCA5A5' }}>
           {error}
         </p>
@@ -148,7 +162,20 @@ export default function ResearchesPage() {
       {loading ? (
         <p className="mt-6 text-sm" style={{ color: '#8B93A5' }}>
           Caricamento…
+          {slow && ' Il server si sta avviando: la prima apertura dopo una pausa può richiedere fino a un minuto.'}
         </p>
+      ) : loadFailed ? (
+        <div className="notice-err mt-6">
+          <p>
+            Non riesco a caricare le tue Ricerche. Il server potrebbe essere in avvio: riprova tra qualche secondo.
+          </p>
+          <p className="mt-1 text-xs" style={{ opacity: 0.8 }}>
+            Dettaglio: {error}
+          </p>
+          <button type="button" className="pill-btn mt-3" onClick={load}>
+            Riprova
+          </button>
+        </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <ResearchColumn title="Create da te" items={mine} emptyText="Non hai ancora creato nessuna ricerca." onDelete={handleDelete} />

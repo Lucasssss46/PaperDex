@@ -25,10 +25,30 @@ import SessionEnrichPage from './pages/SessionEnrichPage'
 import TeamPage from './pages/TeamPage'
 import UpdateAllResultsPage from './pages/UpdateAllResultsPage'
 
+// Scadenza letta dal payload del JWT (senza verificarne la firma: la verifica
+// resta al backend). Serve solo a non mostrare l'app "collegata" con un token
+// già scaduto, che farebbe fallire ogni chiamata.
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now()
+  } catch {
+    return false
+  }
+}
+
+// Letto una volta all'avvio: un token scaduto viene tolto subito, e si parte
+// dal login con il messaggio di sessione scaduta (stesso esito della voce 57).
+const initialToken = localStorage.getItem(TOKEN_KEY)
+const startedExpired = Boolean(initialToken) && isTokenExpired(initialToken)
+if (startedExpired) localStorage.removeItem(TOKEN_KEY)
+
 function App() {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
-  const [showAuth, setShowAuth] = useState(false)
-  const [sessionExpiredNotice, setSessionExpiredNotice] = useState('')
+  const [token, setToken] = useState(() => (startedExpired ? null : localStorage.getItem(TOKEN_KEY)))
+  const [showAuth, setShowAuth] = useState(startedExpired)
+  const [sessionExpiredNotice, setSessionExpiredNotice] = useState(
+    startedExpired ? 'Sessione scaduta: accedi di nuovo.' : '',
+  )
 
   useEffect(() => {
     setSessionExpiredHandler(() => {
