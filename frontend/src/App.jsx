@@ -95,7 +95,7 @@ function App() {
             {/* Indirizzo precedente, per i collegamenti già salvati. */}
             <Route path="ricerca/paper" element={<Navigate to="/ricerca/articoli" replace />} />
             <Route
-              path="*"
+              index
               element={
                 showAuth ? (
                   <AuthForm onAuthenticated={handleAuthenticated} initialNotice={sessionExpiredNotice} />
@@ -104,6 +104,10 @@ function App() {
                 )
               }
             />
+            {/* Ogni altro indirizzo porta a "/": la Home (o l'accesso) si vede
+                sempre all'indirizzo giusto, anche dopo "Esci" o con la sessione
+                scaduta, invece di restare per esempio su /ricerche. */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </>
         ) : (
           <Route element={<AppLayout onLogout={handleLogout} />}>
