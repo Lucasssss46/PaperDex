@@ -72,11 +72,15 @@ export default function ProfileMenu({ onLogout }) {
   const previousPathname = useRef(location.pathname)
   const menuRef = useRef(null)
 
+  // Se la richiesta fallisce (per esempio il backend si sta ancora avviando)
+  // resta il ripiego "Profilo" con l'icona generica, e si riprova al primo
+  // cambio di pagina, invece di restare senza nome fino a un ricaricamento.
   useEffect(() => {
+    if (user) return
     getCurrentUser()
       .then(setUser)
       .catch(() => {})
-  }, [])
+  }, [location.pathname, user])
 
   // Chiude la tendina quando si cambia pagina (es. cliccando "Profilo" o
   // "API keys" al suo interno), ma non al primo render: altrimenti si
