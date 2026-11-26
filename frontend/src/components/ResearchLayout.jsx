@@ -105,6 +105,24 @@ export default function ResearchLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- si ricarica solo cambiando Ricerca
   }, [id])
 
+  // Senza il team non si sa se l'utente è il proprietario, e le sue azioni
+  // (per esempio "Rimuovi" in Overview) sparirebbero in silenzio: un secondo
+  // tentativo automatico (il backend può essere in avvio), poi un avviso.
+  const [teamFailed, setTeamFailed] = useState(false)
+
+  function fetchTeam(isRetry) {
+    listRicercaTeam(id)
+      .then((result) => {
+        setTeam(result.members)
+        setIsOwner(result.is_owner)
+        setTeamFailed(false)
+      })
+      .catch(() => {
+        if (isRetry) setTeamFailed(true)
+        else setTimeout(() => fetchTeam(true), 1500)
+      })
+  }
+
   // Solo sull'Overview (nessun `pageName`): le altre sotto-pagine non
   // mostrano questa riga, non serve richiamarla ad ogni cambio pagina.
   // Conteggio con `pageSize:1` (non l'elenco intero, già a carico della
@@ -112,16 +130,12 @@ export default function ResearchLayout() {
   useEffect(() => {
     const segment = location.pathname.split('/').pop()
     if (PAGE_NAMES[segment]) return
-    listRicercaTeam(id)
-      .then((result) => {
-        setTeam(result.members)
-        setIsOwner(result.is_owner)
-      })
-      .catch(() => {})
+    fetchTeam(false)
     listRicercaArticles(id, { page: 1, pageSize: 1 })
       .then((result) => setArticlesCount(result.count))
       // Numero sconosciuto, non zero: "SALVATI 0" farebbe credere che non ci sia nulla.
       .catch(() => setArticlesCount(null))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchTeam cambia a ogni render, conta solo la pagina
   }, [id, location.pathname])
 
   if (error) {
@@ -216,6 +230,22 @@ export default function ResearchLayout() {
       </div>
 
       {name !== null && <SessionStepper researchId={id} currentSegment={currentSegment} />}
+
+      {teamFailed && !pageName && (
+        <div className="notice-warn mb-6 flex flex-wrap items-center justify-between gap-3">
+          <span>Non riesco a caricare il team: alcune azioni del proprietario potrebbero non comparire.</span>
+          <button
+            type="button"
+            className="action-link"
+            onClick={() => {
+              setTeamFailed(false)
+              fetchTeam(true)
+            }}
+          >
+            Riprova
+          </button>
+        </div>
+      )}
 
       {name !== null && (
         <Outlet
