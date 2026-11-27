@@ -15,13 +15,17 @@ const DEG_PER_STEP = 42
 //
 // `items`: array di oggetti con almeno `id` e `caught` (bool — pieno/vuoto
 // il pallino, che fa da checkbox: il click chiama `onToggle(id)`; senza
-// `onToggle` il pallino è solo un indicatore, non cliccabile). `dotLabel`
+// `onToggle` il pallino è solo un indicatore, non cliccabile). `label` (di
+// solito il titolo) completa l'etichetta accessibile, `locked` rende la riga
+// non selezionabile. Se l'elemento ha
+// `num`, il numero della riga lo disegna la ruota: con `onToggle` fa parte
+// della zona di selezione insieme al pallino. `dotLabel`
 // è l'etichetta accessibile del pallino (cosa fa nel contesto). `renderItem(item, index)` restituisce il contenuto della
 // riga (numero, titolo, pillola sorgente...): il pallino caught/seen e il
 // posizionamento/la curvatura sono già gestiti qui. `selectedId`/`onSelect`
 // pilotano la riga aperta (card espansa, gestita dal chiamante): `onSelect`
 // riceve anche l'elemento della riga, punto di partenza dell'animazione.
-export default function ArticleDial({ items, renderItem, selectedId, onSelect, onToggle, dotLabel = 'Seleziona articolo' }) {
+export default function ArticleDial({ items, renderItem, selectedId, onSelect, onToggle, dotLabel = 'Seleziona' }) {
   const [scrollPos, setScrollPos] = useState(0)
   const scrollRef = useRef(null)
   const maxOffset = Math.max(items.length - VISIBLE, 0)
@@ -74,23 +78,29 @@ export default function ArticleDial({ items, renderItem, selectedId, onSelect, o
                 }}
               >
                 {onToggle ? (
+                  // Zona di selezione larga: dal bordo sinistro della riga fino al
+                  // numero compreso (il margine negativo annulla il padding della riga).
                   <button
                     type="button"
                     role="checkbox"
                     aria-checked={item.caught}
-                    aria-label={dotLabel}
-                    className={item.caught ? 'dot-caught' : 'dot-seen'}
-                    style={{ padding: 0, cursor: 'pointer' }}
+                    aria-label={item.label ? `${dotLabel}: ${item.label}` : dotLabel}
+                    disabled={item.locked}
+                    className="row-select"
                     onClick={() => onToggle(item.id)}
-                  />
+                  >
+                    <span className={item.caught ? 'dot-caught' : 'dot-seen'} />
+                    {item.num !== undefined && <span className="num-badge">{item.num}</span>}
+                  </button>
                 ) : (
                   <div className={item.caught ? 'dot-caught' : 'dot-seen'} />
                 )}
-                {/* Dal numero in poi: apre la card espansa (il pallino è solo la spunta). */}
+                {/* Il resto della riga apre la card espansa. */}
                 <div
                   style={{ display: 'flex', alignItems: 'center', gap: 11, flex: 1, minWidth: 0, alignSelf: 'stretch' }}
                   onClick={(e) => onSelect?.(selected ? null : item.id, e.currentTarget.parentElement)}
                 >
+                  {!onToggle && item.num !== undefined && <div className="num-badge">{item.num}</div>}
                   {renderItem(item, i)}
                 </div>
               </div>

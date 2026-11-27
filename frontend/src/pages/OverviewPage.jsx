@@ -293,6 +293,7 @@ export default function OverviewPage() {
 
   const dialItems = articles.map((article, i) => ({
     id: article.id,
+    label: article.title,
     caught: checkedIds.has(article.id),
     article,
     num: String(i + 1).padStart(2, '0'),
@@ -441,7 +442,6 @@ export default function OverviewPage() {
                 }
                 renderItem={(item) => (
                   <>
-                    <div className="num-badge">{item.num}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         title={item.article.title}

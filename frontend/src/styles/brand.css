@@ -371,6 +371,35 @@
   padding: 1px 16px;
   cursor: pointer;
 }
+/* zona di selezione della riga (ArticleDial): dal bordo sinistro fino al
+   numero compreso, tutta l'altezza della riga; i margini negativi annullano
+   il padding della riga. Almeno 44 px di larghezza per il tocco, anche
+   quando sotto i 620 px il numero è nascosto. */
+.row-select {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  align-self: stretch;
+  min-width: 44px;
+  margin: -1px 0 -1px -16px;
+  padding: 0 0 0 16px;
+  background: none;
+  border: none;
+  border-radius: 999px 0 0 999px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.row-select:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+}
+.row-select:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -2px;
+}
+.row-select:disabled {
+  cursor: default;
+}
 
 /* card espansa di un articolo (components/ExpandedArticleCard.jsx): un
    <dialog> nativo senza i suoi stili di default, la card dentro fa da superficie. */

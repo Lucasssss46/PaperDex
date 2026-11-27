@@ -2038,6 +2038,8 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 
 ---
 
+**Aggiornamento (2026-11-27) — zona di selezione più ampia.** Nella ruota (risultati di ricerca e Overview) il pulsante di selezione non è più solo il pallino: va dal bordo sinistro della riga fino al numero compreso, per tutta l'altezza della riga, con almeno 44 px di larghezza per il tocco (sotto i 620 px il numero è nascosto). È un solo `<button role="checkbox">` con etichetta "Seleziona: <titolo>", raggiungibile da tastiera, con un leggero sfondo al passaggio del mouse (`.row-select` in `brand.css`); il resto della riga apre la scheda. Le righe già salvate ("Aggiunto", "Già nella Ricerca") hanno il pulsante disabilitato. Nella ricerca pubblica, senza selezione, il numero continua ad aprire la scheda. Verificato con Playwright e API simulata a 1280 e 390 px (clic sul numero, sul margine sinistro e sul bordo alto, clic sul titolo, Tab/Invio/Spazio).
+
 ## 133. Token di accesso in localStorage: limite noto e passaggio a cookie HttpOnly (2026-11-26)
 
 **Contesto.** Il token di accesso è un JWT salvato in `localStorage` (chiave `paperdex_token`) e mandato dal frontend come `Authorization: Bearer` (`api/client.js`); dura 2 ore (`routes/utenti.py`, login). Il meccanismo esiste dall'inizio del progetto (voce 21); una risposta 401 riporta al login (voce 57) e, dalla voce 131, un token già scaduto viene tolto all'avvio leggendone il campo `exp` (`App.jsx`). Il limite: `localStorage` è leggibile da qualunque script della pagina, quindi in caso di vulnerabilità XSS il token può essere sottratto. La soluzione abituale è un cookie HttpOnly, che JavaScript non può leggere.

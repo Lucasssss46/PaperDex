@@ -83,6 +83,7 @@ export default function SearchResults({ results, count, loading, error, searched
   const [openKey, setOpenKey] = useState(null)
   const morph = useArticleMorph()
 
+  const isLocked = (key) => ['adding', 'added', 'present'].includes(addStates[key])
   const groups = groupResults(results)
   const items = groups.map((g, i) => ({
     id: g.key,
@@ -90,8 +91,9 @@ export default function SearchResults({ results, count, loading, error, searched
     article: pickPreferred(g.members),
     caught: addStates[g.key] === 'added' || addStates[g.key] === 'present' || selectedKeys.has(g.key),
     num: String(i + 1).padStart(2, '0'),
+    label: pickPreferred(g.members).title,
+    locked: isLocked(g.key),
   }))
-  const isLocked = (key) => ['adding', 'added', 'present'].includes(addStates[key])
   // Solo le chiavi dei risultati attuali: la selezione di una ricerca precedente non conta.
   const selectable = items.filter((it) => !isLocked(it.id))
   const selectedItems = selectable.filter((it) => selectedKeys.has(it.id))
@@ -223,7 +225,7 @@ export default function SearchResults({ results, count, loading, error, searched
       </div>
       {research && (
         <p className="mb-4 text-xs" style={{ color: '#8B93A5' }}>
-          Clicca il pallino per selezionare o deselezionare un articolo. I selezionati vengono aggiunti alla Ricerca
+          Clicca il pallino o il numero per selezionare o deselezionare un articolo. I selezionati vengono aggiunti alla Ricerca
           quando passi alla deduplicazione.
         </p>
       )}
@@ -234,13 +236,12 @@ export default function SearchResults({ results, count, loading, error, searched
         onSelect={selectItem}
         // Fuori da una Ricerca specifica non ha senso poter salvare gli articoli: pallino solo indicatore.
         onToggle={research ? toggleSelected : undefined}
-        dotLabel="Seleziona l'articolo"
+        dotLabel="Seleziona"
         renderItem={(item) => {
           const state = addStates[item.id]
           const colors = SOURCE_COLORS[item.article.source]
           return (
             <>
-              <div className="num-badge">{item.num}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
                   title={item.article.title}
@@ -285,7 +286,7 @@ export default function SearchResults({ results, count, loading, error, searched
 
       <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: 'var(--color-ink-5)' }}>
         ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per aprirlo
-        {research ? ' · il pallino lo seleziona o lo deseleziona' : ''}
+        {research ? ' · il pallino o il numero lo seleziona o lo deseleziona' : ''}
       </div>
 
       <ExpandedArticleCard
