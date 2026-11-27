@@ -24,7 +24,7 @@ function DepthSlider({ value, onChange }) {
         className="w-full"
         style={{ accentColor: '#2B7CFF' }}
       />
-      <div className="mt-1 flex justify-between text-xs" style={{ color: '#55606E' }}>
+      <div className="mt-1 flex justify-between text-xs" style={{ color: 'var(--color-ink-5)' }}>
         {DEPTH_STEPS.map((step) => (
           <span key={step} style={step === value ? { fontWeight: 600, color: '#9CC2FF' } : undefined}>
             {DEPTH_LABELS[step].title}
@@ -126,7 +126,7 @@ export default function SearchForm({
                 type="button"
                 aria-label="Informazioni sulla profondità di ricerca"
                 className="flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-semibold leading-none"
-                style={{ border: '1px solid #55606E', color: '#8B93A5' }}
+                style={{ border: '1px solid var(--color-ink-5)', color: '#8B93A5' }}
               >
                 i
               </button>

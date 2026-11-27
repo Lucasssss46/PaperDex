@@ -48,7 +48,7 @@ export default function TagInput({ value, onChange, placeholder }) {
         onKeyDown={handleKeyDown}
         onBlur={commitDraft}
         placeholder={value.length === 0 ? placeholder : ''}
-        className="min-w-24 flex-1 border-none bg-transparent py-1 text-sm outline-none placeholder:text-[#55606E] @max-[140px]:placeholder:text-transparent"
+        className="min-w-24 flex-1 border-none bg-transparent py-1 text-sm outline-none placeholder:text-ink-5 @max-[140px]:placeholder:text-transparent"
         style={{ color: '#F3F4F6' }}
       />
     </div>

@@ -35,7 +35,7 @@ export default function PasswordInput({ className = inputClass, ...props }) {
         onClick={() => setVisible((v) => !v)}
         tabIndex={-1}
         aria-label={visible ? 'Nascondi password' : 'Mostra password'}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#55606E] transition-colors hover:text-[#C3C9D4]"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-ink-5 transition-colors hover:text-[#C3C9D4]"
       >
         {visible ? <EyeOffIcon /> : <EyeIcon />}
       </button>

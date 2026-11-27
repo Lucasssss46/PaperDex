@@ -175,7 +175,7 @@ export default function OverviewPage() {
       const { article: updated, filled_fields } = await enrichArticle(researchId, selectedArticle.id)
       setArticles((current) => current.map((a) => (a.id === updated.id ? updated : a)))
       setActionMsg(filled_fields.length > 0 ? `+ ${filled_fields.join(', ')}` : 'Nessun nuovo dato trovato')
-      setActionColor(filled_fields.length > 0 ? '#6EE7B7' : '#55606E')
+      setActionColor(filled_fields.length > 0 ? '#6EE7B7' : 'var(--color-ink-5)')
     } catch (err) {
       setActionMsg(err.message)
       setActionColor('#FCA5A5')
@@ -192,7 +192,7 @@ export default function OverviewPage() {
       const result = await checkArticleVersion(researchId, selectedArticle.id)
       if (!result.found) {
         setActionMsg('Nessuna novità')
-        setActionColor('#55606E')
+        setActionColor('var(--color-ink-5)')
       } else if (result.kind === 'revision') {
         setActionMsg(result.message)
         setActionColor('#D4FF24')
@@ -275,7 +275,7 @@ export default function OverviewPage() {
       if (result.revised.length > 0) parts.push({ text: `${result.revised.length} revisioni applicate`, color: '#D4FF24' })
       if (result.new_sources.length > 0) parts.push({ text: `${result.new_sources.length} in Deduplicazione`, color: '#FCD34D' })
       if (result.errors.length > 0) parts.push({ text: `${result.errors.length} non raggiungibili`, color: '#FCA5A5' })
-      if (parts.length === 0) parts.push({ text: 'Nessuna novità', color: '#55606E' })
+      if (parts.length === 0) parts.push({ text: 'Nessuna novità', color: 'var(--color-ink-5)' })
       const detailRows = [
         ...result.revised.map((r) => ({ title: r.article.title, msg: r.message, color: '#D4FF24' })),
         ...result.new_sources.map((n) => ({ title: n.title, msg: n.message, color: '#FCD34D' })),
@@ -355,7 +355,7 @@ export default function OverviewPage() {
       )}
 
       <div style={{ marginTop: 14, padding: 0, overflow: 'visible' }}>
-        <div className="ribbon-flat" style={{ fontSize: 18, paddingTop: 14, paddingBottom: 14, borderBottomLeftRadius: 17, background: 'linear-gradient(to right, var(--color-blue) 35%, transparent)' }}>
+        <div className="ribbon-flat" style={{ fontSize: 18, paddingTop: 14, paddingBottom: 14, borderBottomLeftRadius: 17, background: 'linear-gradient(to right, var(--color-blue-btn) 35%, transparent)' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
             Articoli salvati
             {/* "Seleziona tutti": tutto il testo è cliccabile, non solo il pallino. Pieno = tutti,
@@ -410,7 +410,7 @@ export default function OverviewPage() {
                 Vedi dettagli →
               </button>
             )}
-            <span style={{ color: '#55606E', cursor: 'pointer', flex: '0 0 auto' }} onClick={() => setToast(null)}>
+            <span style={{ color: 'var(--color-ink-5)', cursor: 'pointer', flex: '0 0 auto' }} onClick={() => setToast(null)}>
               ✕
             </span>
           </div>
@@ -490,7 +490,7 @@ export default function OverviewPage() {
                 </div>
               </ExpandedArticleCard>
 
-              <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: '#55606E' }}>
+              <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: 'var(--color-ink-5)' }}>
                 ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per aprirlo
               </div>
             </>
@@ -569,7 +569,7 @@ export default function OverviewPage() {
                   ))}
                 </ul>
                 {duplicateGroups.length > DEDUP_PREVIEW_COUNT && (
-                  <div style={{ fontSize: 11.5, color: '#55606E', marginTop: 6 }}>
+                  <div style={{ fontSize: 11.5, color: 'var(--color-ink-5)', marginTop: 6 }}>
                     e altri {duplicateGroups.length - DEDUP_PREVIEW_COUNT}…
                   </div>
                 )}
@@ -588,7 +588,7 @@ export default function OverviewPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
             <div style={{ padding: '12px 16px', borderRight: '1px solid #1B2130', minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 12.5, color: '#55606E', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+                <span style={{ fontSize: 12.5, color: 'var(--color-ink-5)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
                   Query salvate
                 </span>
                 <button
@@ -609,7 +609,7 @@ export default function OverviewPage() {
                   {queriesError}
                 </p>
               ) : queries.length === 0 ? (
-                <p className="text-xs" style={{ color: '#55606E' }}>
+                <p className="text-xs" style={{ color: 'var(--color-ink-5)' }}>
                   Nessuna query salvata per ora.
                 </p>
               ) : (
@@ -622,7 +622,7 @@ export default function OverviewPage() {
             </div>
             <div style={{ padding: '12px 16px', minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 12.5, color: '#55606E', textTransform: 'uppercase', letterSpacing: '.04em' }}>
+                <span style={{ fontSize: 12.5, color: 'var(--color-ink-5)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
                   Cronologia
                 </span>
                 <button
@@ -643,7 +643,7 @@ export default function OverviewPage() {
                   {historyError}
                 </p>
               ) : history.length === 0 ? (
-                <p className="text-xs" style={{ color: '#55606E' }}>
+                <p className="text-xs" style={{ color: 'var(--color-ink-5)' }}>
                   Nessuna aggiunta registrata per ora.
                 </p>
               ) : (

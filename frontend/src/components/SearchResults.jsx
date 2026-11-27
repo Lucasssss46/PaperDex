@@ -283,7 +283,7 @@ export default function SearchResults({ results, count, loading, error, searched
         }}
       />
 
-      <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: '#55606E' }}>
+      <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11.5, color: 'var(--color-ink-5)' }}>
         ↑↓ oppure rotellina/trackpad per scorrere · clicca un articolo per aprirlo
         {research ? ' · il pallino lo seleziona o lo deseleziona' : ''}
       </div>

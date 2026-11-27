@@ -60,7 +60,7 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
                   type="button"
                   onClick={() => onRemoveGroup(index)}
                   className="mt-2 text-sm"
-                  style={{ color: '#55606E' }}
+                  style={{ color: 'var(--color-ink-5)' }}
                   aria-label="Rimuovi alternativa"
                 >
                   ×

@@ -14,7 +14,10 @@
   --color-ink-2: #c3c9d4;
   --color-ink-3: #9cc2ff;
   --color-ink-4: #8b93a5;
-  --color-ink-5: #55606e;
+  --color-ink-5: #737d8d;
+  /* blu un po' più scuro, solo sotto testo bianco (pulsanti pieni, nastri, tab
+     attiva): con #2b7cff il bianco arriva a 3,9:1, sotto la soglia AA di 4,5:1 */
+  --color-blue-btn: #2470f0;
 }
 
 /* App dark-only per scelta di design (nessuna variante chiara è mai stata

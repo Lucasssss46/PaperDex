@@ -5,7 +5,7 @@ import BackLink from './BackLink'
 import SessionStepper from './SessionStepper'
 import { LoadError } from './LoadState'
 
-const AVATAR_COLORS = ['#2B7CFF', '#9D174D', '#0E7490']
+const AVATAR_COLORS = ['#2470F0', '#9D174D', '#0E7490']
 
 function initials(name) {
   return (name ?? '')
@@ -167,7 +167,7 @@ export default function ResearchLayout() {
           <Link to={`/ricerche/${id}/overview`} className={`head ${pageName ? 'text-xl' : 'text-4xl ml-4'} font-semibold hover:underline`} style={{ color: '#F3F4F6' }}>
             {name ?? 'Caricamento…'}
           </Link>
-          {pageName && <span className="head text-xl font-semibold" style={{ color: '#55606E' }}>- {pageName}</span>}
+          {pageName && <span className="head text-xl font-semibold" style={{ color: 'var(--color-ink-5)' }}>- {pageName}</span>}
 
           {/* "Salvati" + team: solo sull'Overview (vedi l'effetto sopra),
               accanto al nome della Ricerca invece che su una riga propria

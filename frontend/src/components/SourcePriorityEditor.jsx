@@ -88,7 +88,7 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
                 ⠿
               </span>
             )}
-            <span className="w-4 text-xs font-semibold" style={{ color: '#55606E' }}>
+            <span className="w-4 text-xs font-semibold" style={{ color: 'var(--color-ink-5)' }}>
               {index + 1}
             </span>
             {/* transform, non width/height/zoom: ingrandisce solo a vista, senza cambiare
@@ -109,7 +109,7 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
         ))}
       </ol>
       {saving && (
-        <p className="mt-2 text-xs" style={{ color: '#55606E' }}>
+        <p className="mt-2 text-xs" style={{ color: 'var(--color-ink-5)' }}>
           Salvataggio…
         </p>
       )}

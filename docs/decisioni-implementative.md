@@ -2053,3 +2053,16 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 - Invariati: CORS (consente già le credenziali, con origini esplicite da `CORS_ORIGINS`), il ritorno al login sul 401, i link nelle email (inviti, conferma, reset), che usano token separati nell'indirizzo.
 
 **Stato.** Rimandato a dopo le prove di usabilità, insieme alla scelta di un dominio proprio.
+
+## 134. Contrasto dei colori e favicon col sigillo (2026-11-27)
+
+**Contesto.** Rapporti di contrasto calcolati con la formula WCAG 2.x sulla palette (sfondo #030407, superficie #0C1119): tutti i testi superano la soglia AA di 4,5:1 tranne due casi, il grigio dei testi spenti #55606E (3,2:1 e 3,0:1) e il testo bianco dei pulsanti pieni su #2B7CFF (3,9:1; testo in grassetto a 13 px, quindi non "testo grande"). La favicon era ancora quella viola del modello Vite.
+
+**Decisione.**
+- `--color-ink-5` da #55606E a **#737D8D**: 4,93:1 sullo sfondo e 4,55:1 sulla superficie, sempre più scuro di `--color-ink-4` (#8B93A5), quindi la gerarchia dei grigi resta. Le 30 occorrenze scritte a mano nei JSX ora usano il token (`text-ink-5`, `var(--color-ink-5)`).
+- Nuovo token **`--color-blue-btn` #2470F0**, il blu più vicino al brand con il bianco ad almeno 4,5:1 (4,52:1), usato solo dove c'è testo bianco su blu: `.pill-btn`, `.ribbon-flat`, `.tab.active`, il nastro "Articoli salvati" dell'Overview e il primo colore degli avatar. `--color-blue` (#2B7CFF) resta invariato per logo, bordi, stepper e tutto il resto. Nessuna regola hover/active da allineare (i pulsanti non ne hanno).
+- `public/favicon.svg`: il sigillo ottagonale di `Logo.jsx`, con colori fissi e contorno lime e anello blu più spessi, perché restino visibili a 16 px.
+
+**Verifica.** Screenshot prima/dopo a 1280 e 390 px di Cerca, Overview e Home, e la favicon rasterizzata a 16 e 32 px (fuori dal repository); eslint e build puliti. A vista: grigi spenti leggermente più chiari, blu dei pulsanti e dei nastri appena più profondo.
+
+**Stato.** Implementato.

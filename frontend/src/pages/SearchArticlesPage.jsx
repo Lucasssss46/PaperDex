@@ -300,7 +300,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
                   Query salvate non caricate: il server potrebbe essere in avvio. Ricarica la pagina tra poco.
                 </p>
               ) : savedQueries.length === 0 ? (
-                <p className="text-xs" style={{ color: '#55606E' }}>
+                <p className="text-xs" style={{ color: 'var(--color-ink-5)' }}>
                   Nessuna query salvata per ora.
                 </p>
               ) : (

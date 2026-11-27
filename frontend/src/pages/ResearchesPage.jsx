@@ -33,7 +33,7 @@ function ResearchColumn({ title, items, emptyText, onDelete, muted }) {
       <div className={`ribbon-flat ${muted ? 'muted' : ''}`}>{title}</div>
       <div style={{ padding: '4px 16px 10px' }}>
         {items.length === 0 ? (
-          <p className="py-3 text-sm" style={{ color: '#55606E' }}>
+          <p className="py-3 text-sm" style={{ color: 'var(--color-ink-5)' }}>
             {emptyText}
           </p>
         ) : (

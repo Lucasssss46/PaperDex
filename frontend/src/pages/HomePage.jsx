@@ -27,7 +27,7 @@ export default function HomePage({ onLoginClick }) {
           <button type="button" onClick={onLoginClick} className="pill-btn">
             Accedi
           </button>
-          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#55606E' }}>
+          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--color-ink-5)' }}>
             oppure
           </span>
           <Link to="/ricerca/articoli" className="ghost-btn-lg">

@@ -54,7 +54,7 @@ export default function ExpandedArticleCard({ article, onClose, children, extra 
           <span>{[article.authors?.join(', '), article.venue, year].filter(Boolean).join(' • ')}</span>
         </div>
 
-        <p className="mt-6 text-sm leading-relaxed" style={{ color: article.abstract ? '#C3C9D4' : '#55606E' }}>
+        <p className="mt-6 text-sm leading-relaxed" style={{ color: article.abstract ? '#C3C9D4' : 'var(--color-ink-5)' }}>
           {article.abstract || 'Abstract non disponibile.'}
         </p>
 

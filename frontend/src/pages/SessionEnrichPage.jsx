@@ -86,7 +86,7 @@ export default function SessionEnrichPage() {
               <button type="button" onClick={handleEnrich} disabled={running || selectedIds.length === 0} className="pill-btn">
                 {running ? 'Arricchimento…' : `Arricchisci ${selectedIds.length} selezionat${selectedIds.length === 1 ? 'o' : 'i'}`}
               </button>
-              <span className="text-xs" style={{ color: '#55606E' }}>
+              <span className="text-xs" style={{ color: 'var(--color-ink-5)' }}>
                 Arricchimento powered by <strong style={{ color: '#8B93A5' }}>Zotero</strong>
               </span>
             </div>

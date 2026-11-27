@@ -45,7 +45,7 @@
   font-weight: 700;
   font-size: 13px;
   padding: 11px 20px;
-  background: var(--color-blue);
+  background: var(--color-blue-btn);
   border-top-left-radius: 17px;
   border-top-right-radius: 17px;
 }
@@ -60,7 +60,7 @@
   font-weight: 700;
   font-size: 13px;
   color: #fff;
-  background: var(--color-blue);
+  background: var(--color-blue-btn);
   border: 2px solid #07142e;
   border-radius: 999px;
   padding: 8px 20px;
@@ -482,7 +482,7 @@
   border: none;
 }
 .tab.active {
-  background: var(--color-blue);
+  background: var(--color-blue-btn);
   color: #fff;
 }
 .ghost-btn-lg {

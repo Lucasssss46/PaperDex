@@ -28,9 +28,9 @@ export default function SessionStepper({ researchId, currentSegment }) {
           ? { width: 36, height: 36, marginTop: -3, background: '#D4FF24', color: '#030407', boxShadow: '0 0 0 5px rgba(212,255,36,.14)' }
           : isPast
             ? { background: '#2B7CFF', color: '#030818' }
-            : { background: '#0A0E16', border: '2px solid #1B2130', color: '#55606E' }
+            : { background: '#0A0E16', border: '2px solid #1B2130', color: 'var(--color-ink-5)' }
 
-        const labelColor = isCurrent ? '#F3F4F6' : isPast ? '#9CC2FF' : '#55606E'
+        const labelColor = isCurrent ? '#F3F4F6' : isPast ? '#9CC2FF' : 'var(--color-ink-5)'
 
         const dot = (
           <div
