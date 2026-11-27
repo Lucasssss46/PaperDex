@@ -6,7 +6,7 @@ export default function SourcesPanel({ sources, onToggle, error, missingKeys = [
   const selectedWithoutKey = missingKeys.filter((name) => sources.includes(name))
 
   return (
-    <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 0' }}>
+    <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 220px' }}>
       <div className="ribbon-flat">Sorgenti</div>
       <div className="flex flex-col gap-1.5" style={{ padding: '14px 16px' }}>
         {ALL_SOURCES.map((name) => (

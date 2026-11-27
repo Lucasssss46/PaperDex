@@ -70,7 +70,7 @@ export default function SearchForm({
   }
 
   return (
-    <form id="search-form" onSubmit={handleSubmit} className="card min-w-0" style={{ padding: 0, flex: '1 1 0' }}>
+    <form id="search-form" onSubmit={handleSubmit} className="card min-w-0" style={{ padding: 0, flex: '1 1 220px' }}>
       <div className="ribbon-flat">Autori e profondità</div>
       <div className="flex flex-col gap-4" style={{ padding: '14px 16px' }}>
         <Field label="Autori">

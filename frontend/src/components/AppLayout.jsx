@@ -42,7 +42,7 @@ export default function AppLayout({ onLogout }) {
   return (
     <div className="flex min-h-svh flex-col bg-[#030407]">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#1B2130] bg-[#0C1119] px-4 py-3 sm:px-6">
-        <div className="flex flex-wrap items-center gap-6">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6">
           {/* La Home vera e propria esiste solo prima del login: da autenticati
               il logo porta alla pagina principale dell'app. */}
           {/* A schermi stretti sparisce prima il wordmark testuale, poi (più
@@ -55,13 +55,14 @@ export default function AppLayout({ onLogout }) {
 
           {/* Da qui in poi, ogni nuova pagina di navigazione globale va indicizzata qui. */}
           <nav className="flex items-center gap-2">
-            <NavLink to="/ricerche" className={navLinkClass}>
+            {/* Su telefono restano le icone: le etichette mandavano a capo l'header. */}
+            <NavLink to="/ricerche" className={navLinkClass} aria-label="Ricerche">
               <FolderIcon />
-              <span>Ricerche</span>
+              <span className="hidden sm:inline">Ricerche</span>
             </NavLink>
-            <NavLink to="/ricerca/articoli" className={navLinkClass}>
+            <NavLink to="/ricerca/articoli" className={navLinkClass} aria-label="Ricerca rapida">
               <SearchIcon />
-              <span>Ricerca rapida</span>
+              <span className="hidden sm:inline">Ricerca rapida</span>
             </NavLink>
           </nav>
         </div>
@@ -69,7 +70,7 @@ export default function AppLayout({ onLogout }) {
         <ProfileMenu onLogout={onLogout} />
       </header>
 
-      <main className="min-w-0 flex-1 overflow-y-auto px-6 text-[#F3F4F6] sm:px-10 lg:px-20">
+      <main className="min-w-0 flex-1 overflow-y-auto px-4 text-[#F3F4F6] sm:px-10 lg:px-20">
         <Outlet />
       </main>
 

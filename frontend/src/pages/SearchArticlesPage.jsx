@@ -292,7 +292,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
           onSubmit={handleFormSubmit}
         />
         {research && (
-          <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 0' }}>
+          <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 220px' }}>
             <div className="ribbon-flat">Query salvate</div>
             <div style={{ padding: '10px 12px', maxHeight: 280, overflowY: 'auto' }}>
               {savedQueriesFailed ? (

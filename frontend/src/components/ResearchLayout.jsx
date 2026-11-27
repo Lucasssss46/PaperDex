@@ -161,7 +161,7 @@ export default function ResearchLayout() {
     (currentSegment === 'cerca' && sessionArticles.length > 0)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div className="mx-auto max-w-6xl py-8 sm:px-4">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3.5">
           <Link to={`/ricerche/${id}/overview`} className={`head ${pageName ? 'text-xl' : 'text-4xl ml-4'} font-semibold hover:underline`} style={{ color: '#F3F4F6' }}>

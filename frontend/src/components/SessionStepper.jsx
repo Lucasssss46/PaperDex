@@ -42,9 +42,9 @@ export default function SessionStepper({ researchId, currentSegment }) {
         )
 
         const content = (
-          <div className="flex flex-col items-center gap-2" style={{ width: 120 }}>
+          <div className="flex w-[84px] flex-col items-center gap-2 sm:w-[120px]">
             {dot}
-            <div className="text-sm" style={{ color: labelColor, fontWeight: isCurrent ? 800 : 600 }}>
+            <div className="text-xs sm:text-sm" style={{ color: labelColor, fontWeight: isCurrent ? 800 : 600 }}>
               {step.label}
             </div>
           </div>
@@ -55,7 +55,8 @@ export default function SessionStepper({ researchId, currentSegment }) {
             {isPast ? <Link to={step.path(researchId)}>{content}</Link> : content}
             {index < STEPS.length - 1 && (
               <div
-                style={{ width: 72, height: 3, marginTop: 17, borderRadius: 3, background: isPast ? '#2B7CFF' : '#1B2130' }}
+                className="w-5 sm:w-[72px]"
+                style={{ height: 3, marginTop: 17, borderRadius: 3, background: isPast ? '#2B7CFF' : '#1B2130' }}
               />
             )}
           </li>

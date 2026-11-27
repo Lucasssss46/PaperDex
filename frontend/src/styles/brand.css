@@ -311,13 +311,22 @@
   }
   .dial {
     grid-area: dial;
-    width: 216px;
-    height: 216px;
-    flex: 0 0 216px;
+    width: 150px;
+    height: 150px;
+    flex: 0 0 150px;
     justify-self: center;
   }
   .dial-fixed {
-    gap: 92px;
+    gap: 64px;
+  }
+  /* Su telefono il titolo ha bisogno di spazio più delle decorazioni della
+     riga: via il numero, pillole delle sorgenti più compatte. */
+  .row-pill .num-badge {
+    display: none;
+  }
+  .row-pill .src-pill {
+    font-size: 10.5px;
+    padding: 2px 7px;
   }
 }
 /* overflow:scroll con scrollbar nascosta — lo scroll nativo (rotellina,

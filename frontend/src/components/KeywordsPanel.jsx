@@ -32,7 +32,7 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
   }
 
   return (
-    <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 0' }}>
+    <aside className="card min-w-0" style={{ padding: 0, flex: '1 1 220px' }}>
       <div className="ribbon-flat">Keyword</div>
       <div className="flex flex-col gap-4" style={{ padding: '14px 16px' }}>
         {groups.map((group, index) => (
