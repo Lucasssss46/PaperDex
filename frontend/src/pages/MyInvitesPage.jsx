@@ -17,10 +17,10 @@ export default function MyInvitesPage() {
     <div className="mx-auto max-w-3xl px-6 py-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="head text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+          <h2 className="head text-xl font-semibold" style={{ color: 'var(--color-ink-1)' }}>
             Inviti ricevuti
           </h2>
-          <p className="mt-2 text-sm" style={{ color: '#8B93A5' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Gli inviti a partecipare a una Ricerca che altri utenti ti hanno mandato.
           </p>
         </div>
@@ -28,17 +28,17 @@ export default function MyInvitesPage() {
       </div>
 
       {error && (
-        <p className="mt-4 text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}
 
       {!invites ? (
-        <p className="mt-4 text-sm" style={{ color: '#8B93A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Caricamento…
         </p>
       ) : invites.length === 0 ? (
-        <p className="mt-4 text-sm" style={{ color: '#8B93A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Nessun invito ricevuto per ora.
         </p>
       ) : (

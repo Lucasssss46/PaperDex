@@ -23,7 +23,7 @@ export default function SavedQueriesPage() {
 
   if (loading) {
     return (
-      <p className="text-sm" style={{ color: '#8B93A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
         Caricamento…
       </p>
     )
@@ -31,7 +31,7 @@ export default function SavedQueriesPage() {
 
   if (error) {
     return (
-      <p className="text-sm" style={{ color: '#FCA5A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-err)' }}>
         {error}
       </p>
     )
@@ -39,7 +39,7 @@ export default function SavedQueriesPage() {
 
   if (queries.length === 0) {
     return (
-      <p className="text-sm" style={{ color: '#8B93A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
         Nessuna query salvata per ora. Puoi salvarne una dalla pagina "Cerca" di questa ricerca.
       </p>
     )

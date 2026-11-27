@@ -9,11 +9,11 @@ function ResearchItem({ research, onDelete }) {
   return (
     <li className="row">
       <Link to={`/ricerche/${research.id}/overview`} className="min-w-0 flex-1" style={{ textDecoration: 'none' }}>
-        <p className="truncate text-sm font-medium" style={{ color: '#F3F4F6' }}>
+        <p className="truncate text-sm font-medium" style={{ color: 'var(--color-ink-1)' }}>
           {research.name}
         </p>
         {research.description && (
-          <p className="truncate text-xs" style={{ color: '#8B93A5' }}>
+          <p className="truncate text-xs" style={{ color: 'var(--color-ink-4)' }}>
             {research.description}
           </p>
         )}
@@ -131,19 +131,19 @@ export default function ResearchesPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       {confirmDialog}
-      <h2 className="head text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+      <h2 className="head text-xl font-semibold" style={{ color: 'var(--color-ink-1)' }}>
         Ricerche
       </h2>
 
-      <form onSubmit={handleCreate} className="mt-4 flex flex-wrap items-end gap-3 border-b pb-4" style={{ borderColor: '#1B2130' }}>
+      <form onSubmit={handleCreate} className="mt-4 flex flex-wrap items-end gap-3 border-b pb-4" style={{ borderColor: 'var(--color-border)' }}>
         <label className="min-w-[160px] flex-1">
-          <span className="mb-1 block text-sm font-medium" style={{ color: '#C3C9D4' }}>
+          <span className="mb-1 block text-sm font-medium" style={{ color: 'var(--color-ink-2)' }}>
             Nome
           </span>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="es. Revisione GNN 2026" className={inputClass} />
         </label>
         <label className="min-w-[220px] flex-[2]">
-          <span className="mb-1 block text-sm font-medium" style={{ color: '#C3C9D4' }}>
+          <span className="mb-1 block text-sm font-medium" style={{ color: 'var(--color-ink-2)' }}>
             Descrizione (opzionale)
           </span>
           <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="di cosa parla questa ricerca…" className={inputClass} />
@@ -153,12 +153,12 @@ export default function ResearchesPage() {
         </button>
       </form>
       {formError && (
-        <p className="mt-2 text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
           {formError}
         </p>
       )}
       {error && !loadFailed && (
-        <p className="mt-4 text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

@@ -48,7 +48,7 @@ export default function SessionDuplicatesPage() {
         </p>
       )}
       {sessionArticles.length === 0 ? (
-        <p className="text-sm" style={{ color: '#8B93A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Nessun articolo aggiunto in questa sessione{' '}
           <Link to={`/ricerche/${researchId}/cerca`} className="action-link">
             torna a Cerca
@@ -56,15 +56,15 @@ export default function SessionDuplicatesPage() {
           per aggiungerne.
         </p>
       ) : error ? (
-        <p className="text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       ) : !sessionGroups ? (
-        <p className="text-sm" style={{ color: '#8B93A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Caricamento…
         </p>
       ) : sessionGroups.length === 0 ? (
-        <p className="text-sm" style={{ color: '#8B93A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Nessun duplicato tra gli articoli aggiunti in questa sessione.
         </p>
       ) : (
@@ -78,7 +78,7 @@ export default function SessionDuplicatesPage() {
           verso Arricchisci con Zotero — mai direttamente all'Overview da
           qui. Cambiamenti già persistiti lato server (chooseDuplicate), non
           si perde nulla tornando indietro. */}
-      <div className="flex justify-between border-t pt-6" style={{ borderColor: '#1B2130' }}>
+      <div className="flex justify-between border-t pt-6" style={{ borderColor: 'var(--color-border)' }}>
         <Link to={`/ricerche/${researchId}/cerca`} className="ghost-btn" style={{ textDecoration: 'none' }}>
           ← Indietro
         </Link>

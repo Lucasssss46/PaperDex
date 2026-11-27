@@ -45,7 +45,7 @@ export default function ResetPasswordPage() {
         <div className="flex flex-col items-center gap-2.5">
           <Logo size={44} />
           <Wordmark size={21} />
-          <div className="text-sm" style={{ color: '#8B93A5' }}>
+          <div className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Reimposta la password
           </div>
         </div>

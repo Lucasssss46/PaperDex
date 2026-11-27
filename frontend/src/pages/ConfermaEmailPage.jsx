@@ -26,14 +26,14 @@ export default function ConfermaEmailPage() {
         <div className="flex flex-col items-center gap-2.5">
           <Logo size={44} />
           <Wordmark size={21} />
-          <div className="text-sm" style={{ color: '#8B93A5' }}>
+          <div className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Conferma email
           </div>
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-3.5 text-center">
           {status === 'loading' && (
-            <p className="text-sm" style={{ color: '#8B93A5' }}>
+            <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
               Conferma in corso…
             </p>
           )}

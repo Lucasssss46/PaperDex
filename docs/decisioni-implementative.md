@@ -2069,3 +2069,22 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 **Verifica.** Screenshot prima/dopo a 1280 e 390 px di Cerca, Overview e Home, e la favicon rasterizzata a 16 e 32 px (fuori dal repository); eslint e build puliti. A vista: grigi spenti leggermente più chiari, blu dei pulsanti e dei nastri appena più profondo.
 
 **Stato.** Implementato.
+
+## 135. Palette in un solo punto: tutti i colori leggono i token di `index.css` (2026-11-27)
+
+**Contesto.** Dopo il redesign (voce 118) i colori erano definiti come token in `index.css`, ma nel codice ne restavano molti scritti a mano: 287 esadecimali in 45 file JSX/JS, 17 in `brand.css` e 54 `rgba(...)` per le sfumature trasparenti. Cambiare un colore voleva dire cercarlo e sostituirlo ovunque, con il rischio di dimenticarne qualcuno.
+
+**Decisione.** Il blocco `@theme` di `frontend/src/index.css` è la **fonte unica della palette**:
+- nuovi token per tutto ciò che mancava: superfici secondarie (`field`, `raised`, `overlay`), bordi spenti (`ink-6`), stati (`ok`, `err`, `warn` con il rispettivo colore `-base` per gli sfondi, `danger`), sorgenti (`src-arxiv`, `src-openalex`, `src-crossref`, `src-s2`, `src-dblp` con le varianti `-bg`), avatar (`avatar-1..3`), più alcuni colori puntuali (`btn-edge`, `blue-soft`, `lime-soft`, `lime-edge`, `white`, `black`);
+- nei JSX le classi Tailwind generate dai token (`text-ink-4`, `bg-surface`, `border-border`…) o `var(--color-…)` negli stili in linea; in `brand.css` sempre `var(--color-…)`; `SOURCE_COLORS` in `constants.js` legge i token delle sorgenti;
+- le sfumature trasparenti sono `color-mix(in srgb, var(--color-…) N%, transparent)`, quindi seguono il colore base quando cambia.
+
+**Come cambiare la palette.** Si modifica solo il valore del token in `index.css`: tutte le pagine, le sfumature e le pillole che lo usano si aggiornano. Un grep su `frontend/src` non trova esadecimali né `rgba` fuori da `index.css`.
+
+**Unificati perché quasi identici** (differenza impercettibile): il testo scuro dei passi completati dello stepper (#030818 → `bg`, #030407) e il bordo interno del pallino pieno (#0B1016 → `surface`, #0C1119).
+
+**Eccezioni.** La favicon (`public/favicon.svg`: un file statico non vede le variabili CSS) e i loghi ufficiali delle sorgenti (`src/assets/logos/*.svg`: colori del marchio di terzi).
+
+**Verifica.** Screenshot prima/dopo, a 1280 e 390 px, di 12 pagine (Home, accesso, Ricerche, Overview con la scheda aperta, Cerca con risultati e avvisi, Duplicati della sessione, Arricchimento, Deduplicazione, Team, Profilo, Chiavi API, Invito), confrontati pixel per pixel con API simulata; due giri "prima" identici tra loro, quindi nessun rumore. Risultato: 16 immagini identiche; le altre differiscono solo per le due unificazioni volute (spunte dello stepper, scarto massimo 17 su 255; bordo del pallino pieno, scarto massimo 3) e per la sfumatura della filigrana in Home (scarto massimo 1, arrotondamento). eslint e build puliti.
+
+**Stato.** Implementato.

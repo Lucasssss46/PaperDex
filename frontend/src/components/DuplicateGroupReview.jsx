@@ -15,24 +15,24 @@ function GroupMember({ article, isChosen, onChoose, busy }) {
       className="rounded-lg p-3"
       style={
         isChosen
-          ? { border: '1px solid rgba(212,255,36,.35)', background: 'rgba(212,255,36,.06)' }
-          : { border: '1px solid #1B2130', background: '#0C1119' }
+          ? { border: '1px solid color-mix(in srgb, var(--color-lime) 35%, transparent)', background: 'color-mix(in srgb, var(--color-lime) 6%, transparent)' }
+          : { border: '1px solid var(--color-border)', background: 'var(--color-surface)' }
       }
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <SourceIcon name={article.source} className="h-4 shrink-0" />
-            <p className="truncate text-sm font-medium" style={{ color: '#F3F4F6' }}>
+            <p className="truncate text-sm font-medium" style={{ color: 'var(--color-ink-1)' }}>
               {article.title}
             </p>
           </div>
-          <p className="mt-1 truncate text-xs" style={{ color: '#8B93A5' }}>
+          <p className="mt-1 truncate text-xs" style={{ color: 'var(--color-ink-4)' }}>
             {[article.authors?.join(', '), article.venue, year].filter(Boolean).join(' • ')}
           </p>
         </div>
         {isChosen ? (
-          <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'rgba(212,255,36,.12)', color: '#D4FF24' }}>
+          <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--color-lime) 12%, transparent)', color: 'var(--color-lime)' }}>
             Salvato
           </span>
         ) : (
@@ -75,7 +75,7 @@ export default function DuplicateGroupReview({ researchId, group, onUpdated }) {
   return (
     <section className="card" style={{ padding: 20 }}>
       <div className="flex items-center justify-between gap-3">
-        <h3 className="min-w-0 truncate text-sm font-semibold" style={{ color: '#F3F4F6' }}>
+        <h3 className="min-w-0 truncate text-sm font-semibold" style={{ color: 'var(--color-ink-1)' }}>
           {group.chosen.title}
         </h3>
         {undoStack.length > 0 && (
@@ -101,7 +101,7 @@ export default function DuplicateGroupReview({ researchId, group, onUpdated }) {
         ))}
       </ul>
       {error && (
-        <p className="mt-2 text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

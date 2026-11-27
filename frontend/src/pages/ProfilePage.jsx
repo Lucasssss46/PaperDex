@@ -53,12 +53,12 @@ function InfoSection({ user, onUpdated }) {
         </button>
       </div>
       {error && (
-        <p className="text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}
       {saved && (
-        <p className="text-sm" style={{ color: '#6EE7B7' }}>
+        <p className="text-sm" style={{ color: 'var(--color-ok)' }}>
           Salvato.
         </p>
       )}
@@ -99,26 +99,26 @@ function AvatarUpload({ user, onUpdated }) {
   return (
     <div className="flex shrink-0 flex-col items-center gap-2">
       <div className="relative">
-        <img src={user.profile_img} alt="" className="h-28 w-28 rounded-full object-cover" style={{ border: '2px solid #2B7CFF', background: '#1B2130' }} />
+        <img src={user.profile_img} alt="" className="h-28 w-28 rounded-full object-cover" style={{ border: '2px solid var(--color-blue)', background: 'var(--color-border)' }} />
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           title="Cambia immagine profilo"
           className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full text-white disabled:cursor-not-allowed disabled:opacity-60"
-          style={{ border: '2px solid #0C1119', background: '#2B7CFF' }}
+          style={{ border: '2px solid var(--color-surface)', background: 'var(--color-blue)' }}
         >
           <PencilIcon />
         </button>
         <input ref={fileInputRef} type="file" accept="image/png,image/jpeg,image/gif,image/webp" onChange={handleFileChange} className="hidden" />
       </div>
       {uploading && (
-        <p className="text-xs" style={{ color: '#8B93A5' }}>
+        <p className="text-xs" style={{ color: 'var(--color-ink-4)' }}>
           Caricamento…
         </p>
       )}
       {error && (
-        <p className="max-w-[10rem] text-center text-xs" style={{ color: '#FCA5A5' }}>
+        <p className="max-w-[10rem] text-center text-xs" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}
@@ -177,11 +177,11 @@ function EmailSection({ user }) {
           <div className="flex items-center gap-2">
             <input value={user.email} disabled className={`${inputClass} cursor-not-allowed opacity-70`} />
             {mainConfirmed ? (
-              <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium" style={{ background: 'rgba(16,185,129,.15)', color: '#6EE7B7' }}>
+              <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--color-ok-base) 15%, transparent)', color: 'var(--color-ok)' }}>
                 Confermata
               </span>
             ) : (
-              <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium" style={{ background: 'rgba(217,119,6,.15)', color: '#FCD34D' }}>
+              <span className="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--color-warn-base) 15%, transparent)', color: 'var(--color-warn)' }}>
                 Da confermare
               </span>
             )}
@@ -193,12 +193,12 @@ function EmailSection({ user }) {
               {confirming ? 'Invio…' : 'Invia email di conferma'}
             </button>
             {confirmSent && (
-              <p className="mt-1 text-sm" style={{ color: '#6EE7B7' }}>
+              <p className="mt-1 text-sm" style={{ color: 'var(--color-ok)' }}>
                 Email inviata: controlla la posta in arrivo.
               </p>
             )}
             {confirmError && (
-              <p className="mt-1 text-sm" style={{ color: '#FCA5A5' }}>
+              <p className="mt-1 text-sm" style={{ color: 'var(--color-err)' }}>
                 {confirmError}
               </p>
             )}
@@ -207,12 +207,12 @@ function EmailSection({ user }) {
 
         {user.additional_emails?.length > 0 && (
           <div>
-            <p className="mb-1 text-sm font-medium" style={{ color: '#C3C9D4' }}>
+            <p className="mb-1 text-sm font-medium" style={{ color: 'var(--color-ink-2)' }}>
               Altre email
             </p>
             <ul className="space-y-1">
               {user.additional_emails.map((email) => (
-                <li key={email} className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid #1B2130', background: '#0A0E16', color: '#C3C9D4' }}>
+                <li key={email} className="rounded-lg px-3 py-2 text-sm" style={{ border: '1px solid var(--color-border)', background: 'var(--color-field)', color: 'var(--color-ink-2)' }}>
                   {email}
                 </li>
               ))}
@@ -231,12 +231,12 @@ function EmailSection({ user }) {
           </button>
         </form>
         {sentTo && (
-          <p className="text-sm" style={{ color: '#6EE7B7' }}>
+          <p className="text-sm" style={{ color: 'var(--color-ok)' }}>
             Email di conferma inviata a {sentTo}.
           </p>
         )}
         {error && (
-          <p className="text-sm" style={{ color: '#FCA5A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         )}
@@ -281,7 +281,7 @@ function PasswordSection() {
 
   return (
     <form onSubmit={handleSubmit} className="card" style={{ padding: 20 }}>
-      <h3 className="text-sm font-semibold" style={{ color: '#F3F4F6' }}>
+      <h3 className="text-sm font-semibold" style={{ color: 'var(--color-ink-1)' }}>
         Password
       </h3>
       <div className="mt-4 space-y-4">
@@ -295,12 +295,12 @@ function PasswordSection() {
           <PasswordInput value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} minLength={8} required />
         </Field>
         {error && (
-          <p className="text-sm" style={{ color: '#FCA5A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         )}
         {saved && (
-          <p className="text-sm" style={{ color: '#6EE7B7' }}>
+          <p className="text-sm" style={{ color: 'var(--color-ok)' }}>
             Password aggiornata.
           </p>
         )}
@@ -335,19 +335,19 @@ function PasswordResetSection({ email }) {
     <section className="card" style={{ padding: 0 }}>
       <div className="ribbon-flat muted">Password</div>
       <div style={{ padding: '18px 20px' }}>
-        <p className="text-sm" style={{ color: '#8B93A5' }}>
-          Ti mandiamo un'email a <strong style={{ color: '#C3C9D4' }}>{email}</strong> con un link per reimpostarla.
+        <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
+          Ti mandiamo un'email a <strong style={{ color: 'var(--color-ink-2)' }}>{email}</strong> con un link per reimpostarla.
         </p>
         <button type="button" onClick={handleClick} disabled={sending} className="pill-btn mt-4">
           {sending ? 'Invio…' : 'Invia email per reimpostare la password'}
         </button>
         {error && (
-          <p className="mt-2 text-sm" style={{ color: '#FCA5A5' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         )}
         {sent && (
-          <p className="mt-2 text-sm" style={{ color: '#6EE7B7' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-ok)' }}>
             Email inviata: controlla la posta in arrivo.
           </p>
         )}
@@ -372,18 +372,18 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-8">
-      <h2 className="head mb-6 text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+      <h2 className="head mb-6 text-xl font-semibold" style={{ color: 'var(--color-ink-1)' }}>
         Impostazioni profilo
       </h2>
 
       {error && (
-        <p className="text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}
 
       {!user ? (
-        <p className="text-sm" style={{ color: '#8B93A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Caricamento…
         </p>
       ) : (

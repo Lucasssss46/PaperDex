@@ -11,7 +11,7 @@ export function LoadingNote({ className = 'text-sm' }) {
   }, [])
 
   return (
-    <p className={className} style={{ color: '#8B93A5' }}>
+    <p className={className} style={{ color: 'var(--color-ink-4)' }}>
       Caricamento…
       {slow && ' Il server si sta avviando: la prima apertura dopo una pausa può richiedere fino a un minuto.'}
     </p>

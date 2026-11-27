@@ -29,7 +29,7 @@ export default function HistoryPage() {
 
   if (loading && !data) {
     return (
-      <p className="text-sm" style={{ color: '#8B93A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
         Caricamento…
       </p>
     )
@@ -37,7 +37,7 @@ export default function HistoryPage() {
 
   if (error) {
     return (
-      <p className="text-sm" style={{ color: '#FCA5A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-err)' }}>
         {error}
       </p>
     )
@@ -46,7 +46,7 @@ export default function HistoryPage() {
   return (
     <div className="max-w-3xl">
       {data.count === 0 ? (
-        <p className="text-sm" style={{ color: '#8B93A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Nessuna aggiunta registrata per ora.
         </p>
       ) : (
@@ -62,7 +62,7 @@ export default function HistoryPage() {
               <button type="button" onClick={() => goToPage(page - 1)} disabled={page <= 1} className="ghost-btn">
                 ← Precedente
               </button>
-              <span className="text-sm" style={{ color: '#8B93A5' }}>
+              <span className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
                 Pagina {data.page} di {data.total_pages}
               </span>
               <button type="button" onClick={() => goToPage(page + 1)} disabled={page >= data.total_pages} className="ghost-btn">

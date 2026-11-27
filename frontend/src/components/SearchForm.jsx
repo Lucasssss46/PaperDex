@@ -22,16 +22,16 @@ function DepthSlider({ value, onChange }) {
         value={index}
         onChange={(e) => onChange(DEPTH_STEPS[Number(e.target.value)])}
         className="w-full"
-        style={{ accentColor: '#2B7CFF' }}
+        style={{ accentColor: 'var(--color-blue)' }}
       />
       <div className="mt-1 flex justify-between text-xs" style={{ color: 'var(--color-ink-5)' }}>
         {DEPTH_STEPS.map((step) => (
-          <span key={step} style={step === value ? { fontWeight: 600, color: '#9CC2FF' } : undefined}>
+          <span key={step} style={step === value ? { fontWeight: 600, color: 'var(--color-ink-3)' } : undefined}>
             {DEPTH_LABELS[step].title}
           </span>
         ))}
       </div>
-      <p className="mt-1 text-center text-xs" style={{ color: '#8B93A5' }}>
+      <p className="mt-1 text-center text-xs" style={{ color: 'var(--color-ink-4)' }}>
         {DEPTH_LABELS[value].hint}
       </p>
     </div>
@@ -83,7 +83,7 @@ export default function SearchForm({
           </button>
 
           {showAdvanced && (
-            <div className="mt-4 flex flex-col gap-4 border-t pt-4" style={{ borderColor: '#1B2130' }}>
+            <div className="mt-4 flex flex-col gap-4 border-t pt-4" style={{ borderColor: 'var(--color-border)' }}>
               <Field label="Venue / Journal">
                 <TagInput value={journals} onChange={onJournalsChange} placeholder="es. NeurIPS, IEEE…" />
               </Field>
@@ -118,7 +118,7 @@ export default function SearchForm({
 
         <div>
           <div className="mb-1 flex items-center gap-1.5">
-            <span className="block text-sm font-medium" style={{ color: '#C3C9D4' }}>
+            <span className="block text-sm font-medium" style={{ color: 'var(--color-ink-2)' }}>
               Profondità di ricerca
             </span>
             <div className="group relative">
@@ -126,14 +126,14 @@ export default function SearchForm({
                 type="button"
                 aria-label="Informazioni sulla profondità di ricerca"
                 className="flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-semibold leading-none"
-                style={{ border: '1px solid var(--color-ink-5)', color: '#8B93A5' }}
+                style={{ border: '1px solid var(--color-ink-5)', color: 'var(--color-ink-4)' }}
               >
                 i
               </button>
 
               <div
                 className="card pointer-events-none absolute left-0 top-full z-20 mt-2 w-64 p-3 text-xs opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100"
-                style={{ color: '#8B93A5' }}
+                style={{ color: 'var(--color-ink-4)' }}
               >
                 <p className="mb-1.5">Per ogni sorgente, ciascun livello restituisce:</p>
                 <ul className="space-y-0.5">

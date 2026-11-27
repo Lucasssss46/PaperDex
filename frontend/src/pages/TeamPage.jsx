@@ -44,12 +44,12 @@ function InviteForm({ researchId, onInvited }) {
         {sending ? 'Invio…' : 'Invita'}
       </button>
       {error && (
-        <p className="text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}
       {sent && (
-        <p className="text-sm" style={{ color: '#6EE7B7' }}>
+        <p className="text-sm" style={{ color: 'var(--color-ok)' }}>
           Invito inviato.
         </p>
       )}
@@ -81,20 +81,20 @@ function LeaveSection({ researchId, onLeft }) {
   }
 
   return (
-    <div className="mb-6 rounded-2xl p-5" style={{ border: '1px solid rgba(248,113,113,.3)', background: 'rgba(248,113,113,.06)' }}>
+    <div className="mb-6 rounded-2xl p-5" style={{ border: '1px solid color-mix(in srgb, var(--color-err-base) 30%, transparent)', background: 'color-mix(in srgb, var(--color-err-base) 6%, transparent)' }}>
       {confirmDialog}
-      <h3 className="text-sm font-semibold" style={{ color: '#FCA5A5' }}>
+      <h3 className="text-sm font-semibold" style={{ color: 'var(--color-err)' }}>
         Abbandona la Ricerca
       </h3>
-      <p className="mt-1 text-xs" style={{ color: 'rgba(252,165,165,.8)' }}>
+      <p className="mt-1 text-xs" style={{ color: 'color-mix(in srgb, var(--color-err) 80%, transparent)' }}>
         Perderai l'accesso a questa Ricerca. Gli articoli e le query che hai contribuito a salvare restano condivisi con
         il resto del team.
       </p>
-      <button type="button" onClick={handleLeave} disabled={leaving} className="ghost-btn mt-3" style={{ color: '#FCA5A5', borderColor: 'rgba(248,113,113,.4)' }}>
+      <button type="button" onClick={handleLeave} disabled={leaving} className="ghost-btn mt-3" style={{ color: 'var(--color-err)', borderColor: 'color-mix(in srgb, var(--color-err-base) 40%, transparent)' }}>
         {leaving ? 'Uscita in corso…' : 'Lascia la Ricerca'}
       </button>
       {error && (
-        <p className="mt-2 text-xs" style={{ color: '#FCA5A5' }}>
+        <p className="mt-2 text-xs" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}
@@ -103,9 +103,9 @@ function LeaveSection({ researchId, onLeft }) {
 }
 
 function inviteStatusStyle(state) {
-  if (state === 'accepted') return { background: 'rgba(16,185,129,.15)', color: '#6EE7B7' }
-  if (state === 'declined') return { background: 'rgba(248,113,113,.15)', color: '#FCA5A5' }
-  return { background: 'rgba(217,119,6,.15)', color: '#FCD34D' }
+  if (state === 'accepted') return { background: 'color-mix(in srgb, var(--color-ok-base) 15%, transparent)', color: 'var(--color-ok)' }
+  if (state === 'declined') return { background: 'color-mix(in srgb, var(--color-err-base) 15%, transparent)', color: 'var(--color-err)' }
+  return { background: 'color-mix(in srgb, var(--color-warn-base) 15%, transparent)', color: 'var(--color-warn)' }
 }
 
 function inviteStatusLabel(state) {
@@ -131,21 +131,21 @@ function SentInvites({ researchId, refreshKey }) {
       <div className="ribbon-flat muted">Inviti mandati</div>
       <div style={{ padding: '10px 16px 14px' }}>
         {loading ? (
-          <p className="text-sm" style={{ color: '#8B93A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Caricamento…
           </p>
         ) : error ? (
-          <p className="text-sm" style={{ color: '#FCA5A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         ) : invites.length === 0 ? (
-          <p className="text-sm" style={{ color: '#8B93A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Nessun invito mandato per ora.
           </p>
         ) : (
           invites.map((invite) => (
             <div key={invite.id} className="row">
-              <span className="min-w-0 flex-1 truncate text-sm" style={{ color: '#C3C9D4' }}>
+              <span className="min-w-0 flex-1 truncate text-sm" style={{ color: 'var(--color-ink-2)' }}>
                 {invite.receiver_email}
               </span>
               <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium" style={inviteStatusStyle(invite.state)}>
@@ -181,7 +181,7 @@ export default function TeamPage() {
 
   if (loading) {
     return (
-      <p className="text-sm" style={{ color: '#8B93A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
         Caricamento…
       </p>
     )
@@ -189,7 +189,7 @@ export default function TeamPage() {
 
   if (error) {
     return (
-      <p className="text-sm" style={{ color: '#FCA5A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-err)' }}>
         {error}
       </p>
     )

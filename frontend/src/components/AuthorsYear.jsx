@@ -6,7 +6,7 @@ export default function AuthorsYear({ authors, date }) {
   const year = date ? String(date).slice(0, 4) : null
 
   return (
-    <div style={{ display: 'flex', fontSize: 12, color: '#8B93A5', whiteSpace: 'nowrap', minWidth: 0 }}>
+    <div style={{ display: 'flex', fontSize: 12, color: 'var(--color-ink-4)', whiteSpace: 'nowrap', minWidth: 0 }}>
       {names && (
         <span title={names} style={{ overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
           {names}
@@ -16,7 +16,7 @@ export default function AuthorsYear({ authors, date }) {
         <span style={{ flex: '0 0 auto' }}>
           {/* spazi non separabili: in un flex item gli spazi iniziali verrebbero eliminati */}
           {names ? ' • ' : ''}
-          <span style={{ color: '#D4FF24' }}>{year}</span>
+          <span style={{ color: 'var(--color-lime)' }}>{year}</span>
         </span>
       )}
     </div>

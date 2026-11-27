@@ -27,13 +27,13 @@ export default function TagInput({ value, onChange, placeholder }) {
   return (
     <div
       className="@container flex min-h-10 min-w-0 flex-wrap items-center gap-1.5 rounded-lg px-2 py-1.5"
-      style={{ background: '#0A0E16', border: '1.5px solid #1B2130' }}
+      style={{ background: 'var(--color-field)', border: '1.5px solid var(--color-border)' }}
     >
       {value.map((tag, index) => (
         <span
           key={tag + index}
           className="flex max-w-full items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
-          style={{ background: 'rgba(43,124,255,.2)', color: '#9CC2FF' }}
+          style={{ background: 'color-mix(in srgb, var(--color-blue) 20%, transparent)', color: 'var(--color-ink-3)' }}
         >
           <span className="min-w-0 break-words">{tag}</span>
           <button type="button" onClick={() => removeTag(index)} aria-label={`Rimuovi ${tag}`}>
@@ -49,7 +49,7 @@ export default function TagInput({ value, onChange, placeholder }) {
         onBlur={commitDraft}
         placeholder={value.length === 0 ? placeholder : ''}
         className="min-w-24 flex-1 border-none bg-transparent py-1 text-sm outline-none placeholder:text-ink-5 @max-[140px]:placeholder:text-transparent"
-        style={{ color: '#F3F4F6' }}
+        style={{ color: 'var(--color-ink-1)' }}
       />
     </div>
   )

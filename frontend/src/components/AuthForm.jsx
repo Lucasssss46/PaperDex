@@ -63,7 +63,7 @@ export default function AuthForm({ onAuthenticated, initialNotice }) {
         <div className="flex flex-col items-center gap-2.5">
           <Logo size={52} />
           <Wordmark size={24} />
-          <div className="text-sm" style={{ color: '#8B93A5' }}>
+          <div className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             {isForgot ? 'Reimposta la password' : isLogin ? 'Accedi al tuo account' : 'Crea un nuovo account'}
           </div>
         </div>

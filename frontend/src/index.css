@@ -18,6 +18,52 @@
   /* blu un po' più scuro, solo sotto testo bianco (pulsanti pieni, nastri, tab
      attiva): con #2b7cff il bianco arriva a 3,9:1, sotto la soglia AA di 4,5:1 */
   --color-blue-btn: #2470f0;
+
+  /* Fonte unica della palette: ogni colore dell'interfaccia (JSX, constants.js,
+     brand.css) legge questi token. Le varianti trasparenti si ottengono con
+     color-mix(in srgb, var(--color-...) N%, transparent), quindi cambiando un
+     valore qui cambiano anche tutte le sue sfumature. */
+
+  /* superfici e bordi secondari */
+  --color-field: #0a0e16; /* sfondo dei campi e delle tab */
+  --color-raised: #141a26; /* hover dei menu, badge dei numeri */
+  --color-overlay: #05080f; /* finestre di conferma e velo dietro le schede */
+  --color-ink-6: #3a4150; /* bordi spenti: pallino vuoto, maniglia di trascinamento */
+  --color-white: #ffffff; /* testo su blu */
+  --color-black: #000000; /* ombre */
+  --color-btn-edge: #07142e; /* bordo dei pulsanti pieni */
+  --color-blue-soft: #dceaff; /* testo secondario sui nastri blu */
+  --color-lime-soft: #c9d98a; /* testo della barra di selezione */
+  --color-lime-edge: #3a3410; /* bordo della card "Da rivedere" */
+
+  /* stati: testo chiaro + colore base per gli sfondi trasparenti */
+  --color-ok: #6ee7b7;
+  --color-ok-base: #10b981;
+  --color-err: #fca5a5;
+  --color-err-base: #f87171;
+  --color-warn: #fcd34d;
+  --color-warn-base: #d97706;
+  --color-danger: #dc2626; /* pulsante di un'azione irreversibile */
+  --color-danger-edge: #3b0a0a;
+  --color-pink: #f9a8d4;
+  --color-pink-base: #ec4899;
+
+  /* sorgenti (pillole) */
+  --color-src-arxiv: var(--color-ink-3);
+  --color-src-arxiv-bg: color-mix(in srgb, var(--color-blue) 20%, transparent);
+  --color-src-openalex: var(--color-ok);
+  --color-src-openalex-bg: color-mix(in srgb, var(--color-ok-base) 18%, transparent);
+  --color-src-crossref: var(--color-err);
+  --color-src-crossref-bg: color-mix(in srgb, var(--color-err-base) 18%, transparent);
+  --color-src-s2: var(--color-pink);
+  --color-src-s2-bg: color-mix(in srgb, var(--color-pink-base) 18%, transparent);
+  --color-src-dblp: var(--color-warn);
+  --color-src-dblp-bg: color-mix(in srgb, var(--color-warn-base) 20%, transparent);
+
+  /* avatar del team, a rotazione */
+  --color-avatar-1: var(--color-blue-btn);
+  --color-avatar-2: #9d174d;
+  --color-avatar-3: #0e7490;
 }
 
 /* App dark-only per scelta di design (nessuna variante chiara è mai stata

@@ -2,7 +2,7 @@ import { SOURCE_LOGOS } from '../sourceLogos'
 
 const CHIP_CLASSES = {
   light: 'bg-white shadow-sm ring-1 ring-black/5',
-  dark: 'bg-[#0C1119]',
+  dark: 'bg-surface',
 }
 
 export default function SourceIcon({ name, className = 'h-5' }) {

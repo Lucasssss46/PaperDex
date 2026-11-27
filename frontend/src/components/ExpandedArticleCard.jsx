@@ -38,23 +38,23 @@ export default function ExpandedArticleCard({ article, onClose, children, extra 
       <div className="card article-dialog-card" style={{ viewTransitionName: ARTICLE_VT_NAME }}>
         <div className="flex items-start justify-end gap-4 text-xs">
           {children}
-          <button type="button" className="action-link" aria-label="Chiudi" onClick={onClose} style={{ color: '#8B93A5', fontSize: 16, lineHeight: 1 }}>
+          <button type="button" className="action-link" aria-label="Chiudi" onClick={onClose} style={{ color: 'var(--color-ink-4)', fontSize: 16, lineHeight: 1 }}>
             ✕
           </button>
         </div>
 
-        <h2 className="head mt-3 text-lg font-semibold" style={{ color: '#F3F4F6' }}>
+        <h2 className="head mt-3 text-lg font-semibold" style={{ color: 'var(--color-ink-1)' }}>
           {article.title}
         </h2>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: '#8B93A5' }}>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm" style={{ color: 'var(--color-ink-4)' }}>
           <span className="src-pill" style={{ background: srcColors?.bg, color: srcColors?.color, padding: '4px 10px' }}>
             <SourceIcon name={article.source} className="h-4" />
           </span>
           <span>{[article.authors?.join(', '), article.venue, year].filter(Boolean).join(' • ')}</span>
         </div>
 
-        <p className="mt-6 text-sm leading-relaxed" style={{ color: article.abstract ? '#C3C9D4' : 'var(--color-ink-5)' }}>
+        <p className="mt-6 text-sm leading-relaxed" style={{ color: article.abstract ? 'var(--color-ink-2)' : 'var(--color-ink-5)' }}>
           {article.abstract || 'Abstract non disponibile.'}
         </p>
 
@@ -62,7 +62,7 @@ export default function ExpandedArticleCard({ article, onClose, children, extra 
 
         {article.doi && (
           <div className="mt-5 text-xs">
-            <a href={`https://doi.org/${article.doi}`} target="_blank" rel="noreferrer" className="action-link" style={{ color: '#8B93A5' }}>
+            <a href={`https://doi.org/${article.doi}`} target="_blank" rel="noreferrer" className="action-link" style={{ color: 'var(--color-ink-4)' }}>
               DOI ↗
             </a>
           </div>

@@ -72,7 +72,7 @@ export default function ExportMenu({ researchId, onReady }) {
       )}
 
       {error && (
-        <p className="absolute right-0 top-full mt-1 w-56 text-right text-xs" style={{ color: '#FCA5A5' }}>
+        <p className="absolute right-0 top-full mt-1 w-56 text-right text-xs" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

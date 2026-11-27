@@ -55,15 +55,15 @@ export default function DeduplicationPage() {
     <div className="flex flex-col-reverse gap-6 md:flex-row md:items-start">
       <div className="min-w-0 flex-1 space-y-6">
         {error ? (
-          <p className="text-sm" style={{ color: '#FCA5A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         ) : !groups ? (
-          <p className="text-sm" style={{ color: '#8B93A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Caricamento…
           </p>
         ) : groups.length === 0 ? (
-          <p className="text-sm" style={{ color: '#8B93A5' }}>
+          <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Nessun gruppo di duplicati per ora.
           </p>
         ) : (

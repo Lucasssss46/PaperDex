@@ -15,10 +15,10 @@ export default function QueryListItem({ query, onUse }) {
   return (
     <li className="row">
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-[#F3F4F6]" title={query.name}>
+        <p className="truncate text-sm font-medium text-ink-1" title={query.name}>
           {query.name}
         </p>
-        <p className="truncate text-xs text-[#8B93A5]" title={summarizeQuery(query)}>
+        <p className="truncate text-xs text-ink-4" title={summarizeQuery(query)}>
           {summarizeQuery(query)}
         </p>
       </div>

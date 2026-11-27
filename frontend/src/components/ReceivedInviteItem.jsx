@@ -7,19 +7,19 @@ function statusLabel(state) {
 }
 
 function statusStyle(state) {
-  if (state === 'accepted') return { background: 'rgba(16,185,129,.15)', color: '#6EE7B7' }
-  if (state === 'declined') return { background: 'rgba(248,113,113,.15)', color: '#FCA5A5' }
-  return { background: 'rgba(217,119,6,.15)', color: '#FCD34D' }
+  if (state === 'accepted') return { background: 'color-mix(in srgb, var(--color-ok-base) 15%, transparent)', color: 'var(--color-ok)' }
+  if (state === 'declined') return { background: 'color-mix(in srgb, var(--color-err-base) 15%, transparent)', color: 'var(--color-err)' }
+  return { background: 'color-mix(in srgb, var(--color-warn-base) 15%, transparent)', color: 'var(--color-warn)' }
 }
 
 export default function ReceivedInviteItem({ invite }) {
   return (
     <li className="row">
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium" style={{ color: '#F3F4F6' }}>
+        <p className="truncate text-sm font-medium" style={{ color: 'var(--color-ink-1)' }}>
           {invite.research_name}
         </p>
-        <p className="truncate text-xs" style={{ color: '#8B93A5' }}>
+        <p className="truncate text-xs" style={{ color: 'var(--color-ink-4)' }}>
           da {invite.sender_name}
         </p>
       </div>

@@ -25,12 +25,12 @@ export default function SessionStepper({ researchId, currentSegment }) {
         const isPast = index < currentIndex
 
         const dotStyle = isCurrent
-          ? { width: 36, height: 36, marginTop: -3, background: '#D4FF24', color: '#030407', boxShadow: '0 0 0 5px rgba(212,255,36,.14)' }
+          ? { width: 36, height: 36, marginTop: -3, background: 'var(--color-lime)', color: 'var(--color-bg)', boxShadow: '0 0 0 5px color-mix(in srgb, var(--color-lime) 14%, transparent)' }
           : isPast
-            ? { background: '#2B7CFF', color: '#030818' }
-            : { background: '#0A0E16', border: '2px solid #1B2130', color: 'var(--color-ink-5)' }
+            ? { background: 'var(--color-blue)', color: 'var(--color-bg)' }
+            : { background: 'var(--color-field)', border: '2px solid var(--color-border)', color: 'var(--color-ink-5)' }
 
-        const labelColor = isCurrent ? '#F3F4F6' : isPast ? '#9CC2FF' : 'var(--color-ink-5)'
+        const labelColor = isCurrent ? 'var(--color-ink-1)' : isPast ? 'var(--color-ink-3)' : 'var(--color-ink-5)'
 
         const dot = (
           <div
@@ -56,7 +56,7 @@ export default function SessionStepper({ researchId, currentSegment }) {
             {index < STEPS.length - 1 && (
               <div
                 className="w-5 sm:w-[72px]"
-                style={{ height: 3, marginTop: 17, borderRadius: 3, background: isPast ? '#2B7CFF' : '#1B2130' }}
+                style={{ height: 3, marginTop: 17, borderRadius: 3, background: isPast ? 'var(--color-blue)' : 'var(--color-border)' }}
               />
             )}
           </li>

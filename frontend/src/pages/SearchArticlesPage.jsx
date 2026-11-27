@@ -252,10 +252,10 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
     <>
       {!research && (
         <>
-          <h2 className="head mb-4 text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+          <h2 className="head mb-4 text-xl font-semibold" style={{ color: 'var(--color-ink-1)' }}>
             Ricerca rapida
           </h2>
-          <div className="mb-6 rounded-lg px-4 py-2.5 text-sm" style={{ border: '1px solid #1B2130', background: '#0C1119', color: '#8B93A5' }}>
+          <div className="mb-6 rounded-lg px-4 py-2.5 text-sm" style={{ border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-ink-4)' }}>
             Sei fuori da qualsiasi Ricerca, qui puoi solo cercare gli articoli, non salvarli.
           </div>
         </>
@@ -296,7 +296,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
             <div className="ribbon-flat">Query salvate</div>
             <div style={{ padding: '10px 12px', maxHeight: 280, overflowY: 'auto' }}>
               {savedQueriesFailed ? (
-                <p className="text-xs" style={{ color: '#FCA5A5' }}>
+                <p className="text-xs" style={{ color: 'var(--color-err)' }}>
                   Query salvate non caricate: il server potrebbe essere in avvio. Ricarica la pagina tra poco.
                 </p>
               ) : savedQueries.length === 0 ? (
@@ -313,9 +313,9 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
         )}
       </div>
 
-      <div className="mt-6 flex flex-col items-center gap-3 border-t pt-6" style={{ borderColor: '#1B2130' }}>
+      <div className="mt-6 flex flex-col items-center gap-3 border-t pt-6" style={{ borderColor: 'var(--color-border)' }}>
         {validationError && (
-          <p className="rounded-md px-3 py-2 text-sm" style={{ background: 'rgba(248,113,113,.1)', color: '#FCA5A5' }}>
+          <p className="rounded-md px-3 py-2 text-sm" style={{ background: 'color-mix(in srgb, var(--color-err-base) 10%, transparent)', color: 'var(--color-err)' }}>
             {validationError}
           </p>
         )}
@@ -332,7 +332,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
       {warnings.length > 0 && (
         <div className="mt-6 space-y-2">
           {warnings.map((w) => (
-            <p key={w.source} className="rounded-lg px-4 py-2.5 text-sm" style={{ background: 'rgba(217,119,6,.1)', color: '#FCD34D' }}>
+            <p key={w.source} className="rounded-lg px-4 py-2.5 text-sm" style={{ background: 'color-mix(in srgb, var(--color-warn-base) 10%, transparent)', color: 'var(--color-warn)' }}>
               <strong>{w.source}:</strong> {w.message}
             </p>
           ))}
@@ -363,9 +363,9 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
       {research && (sessionArticles.length > 0 || selectedCount > 0) && (
         <div
           className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-3"
-          style={{ border: '1px solid rgba(212,255,36,.25)', background: 'rgba(212,255,36,.08)' }}
+          style={{ border: '1px solid color-mix(in srgb, var(--color-lime) 25%, transparent)', background: 'color-mix(in srgb, var(--color-lime) 8%, transparent)' }}
         >
-          <div className="text-sm" style={{ color: '#D4FF24' }}>
+          <div className="text-sm" style={{ color: 'var(--color-lime)' }}>
             {selectedCount > 0 && (
               <div className="font-medium">
                 {selectedCount} articol{selectedCount === 1 ? 'o selezionato' : 'i selezionati'}: verr
@@ -373,12 +373,12 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
               </div>
             )}
             {sessionArticles.length > 0 && (
-              <div style={{ color: selectedCount > 0 ? '#C9D98A' : undefined }}>
+              <div style={{ color: selectedCount > 0 ? 'var(--color-lime-soft)' : undefined }}>
                 {sessionArticles.length} articol{sessionArticles.length === 1 ? 'o' : 'i'} già aggiunt
                 {sessionArticles.length === 1 ? 'o' : 'i'} in questa sessione.
               </div>
             )}
-            {continueError && <div style={{ color: '#FCA5A5' }}>{continueError}</div>}
+            {continueError && <div style={{ color: 'var(--color-err)' }}>{continueError}</div>}
           </div>
           <button type="button" className="pill-btn" disabled={continuing} onClick={handleContinue}>
             {continuing

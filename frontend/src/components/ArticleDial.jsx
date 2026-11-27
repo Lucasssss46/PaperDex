@@ -73,8 +73,8 @@ export default function ArticleDial({ items, renderItem, selectedId, onSelect, o
                   top: i * STEP,
                   transform: `translateX(-${shift}px)`,
                   opacity,
-                  background: item.caught ? 'rgba(212,255,36,.06)' : 'rgba(43,124,255,.06)',
-                  boxShadow: selected ? '0 0 0 2px #2B7CFF inset' : 'none',
+                  background: item.caught ? 'color-mix(in srgb, var(--color-lime) 6%, transparent)' : 'color-mix(in srgb, var(--color-blue) 6%, transparent)',
+                  boxShadow: selected ? '0 0 0 2px var(--color-blue) inset' : 'none',
                 }}
               >
                 {onToggle ? (

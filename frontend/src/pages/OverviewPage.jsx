@@ -175,10 +175,10 @@ export default function OverviewPage() {
       const { article: updated, filled_fields } = await enrichArticle(researchId, selectedArticle.id)
       setArticles((current) => current.map((a) => (a.id === updated.id ? updated : a)))
       setActionMsg(filled_fields.length > 0 ? `+ ${filled_fields.join(', ')}` : 'Nessun nuovo dato trovato')
-      setActionColor(filled_fields.length > 0 ? '#6EE7B7' : 'var(--color-ink-5)')
+      setActionColor(filled_fields.length > 0 ? 'var(--color-ok)' : 'var(--color-ink-5)')
     } catch (err) {
       setActionMsg(err.message)
-      setActionColor('#FCA5A5')
+      setActionColor('var(--color-err)')
     } finally {
       setActionBusy(false)
     }
@@ -195,17 +195,17 @@ export default function OverviewPage() {
         setActionColor('var(--color-ink-5)')
       } else if (result.kind === 'revision') {
         setActionMsg(result.message)
-        setActionColor('#D4FF24')
+        setActionColor('var(--color-lime)')
       } else {
         setActionMsg(`${result.message} — in Deduplicazione`)
-        setActionColor('#FCD34D')
+        setActionColor('var(--color-warn)')
         listDuplicateGroups(researchId)
           .then((r) => setDuplicateGroups(r.groups))
           .catch(() => {})
       }
     } catch (err) {
       setActionMsg(err.message)
-      setActionColor('#FCA5A5')
+      setActionColor('var(--color-err)')
     } finally {
       setActionBusy(false)
     }
@@ -230,7 +230,7 @@ export default function OverviewPage() {
       setSelectedId(null)
     } catch (err) {
       setActionMsg(err.message)
-      setActionColor('#FCA5A5')
+      setActionColor('var(--color-err)')
     }
   }
 
@@ -241,19 +241,19 @@ export default function OverviewPage() {
       const result = await enrichAllArticles(researchId, [...checkedIds])
       const updatedById = new Map(result.enriched.map((e) => [e.article.id, e.article]))
       setArticles((current) => current.map((a) => updatedById.get(a.id) ?? a))
-      const parts = [{ text: `${result.enriched.length} di ${result.total} completati`, color: '#6EE7B7' }]
-      if (result.errors.length > 0) parts.push({ text: `${result.errors.length} senza dati`, color: '#FCA5A5' })
+      const parts = [{ text: `${result.enriched.length} di ${result.total} completati`, color: 'var(--color-ok)' }]
+      if (result.errors.length > 0) parts.push({ text: `${result.errors.length} senza dati`, color: 'var(--color-err)' })
       const detailRows = [
         ...result.enriched.map((e) => ({
           title: e.article.title,
           msg: e.filled_fields.length ? `+ ${e.filled_fields.join(', ')}` : '',
-          color: '#6EE7B7',
+          color: 'var(--color-ok)',
         })),
-        ...result.errors.map((e) => ({ title: e.title, msg: e.detail, color: '#FCA5A5' })),
+        ...result.errors.map((e) => ({ title: e.title, msg: e.detail, color: 'var(--color-err)' })),
       ]
       setToast({ kind: 'enrich', parts, detailRows })
     } catch (err) {
-      setToast({ kind: 'enrich', parts: [{ text: err.message, color: '#FCA5A5' }], detailRows: [] })
+      setToast({ kind: 'enrich', parts: [{ text: err.message, color: 'var(--color-err)' }], detailRows: [] })
     } finally {
       setEnrichingAll(false)
     }
@@ -272,18 +272,18 @@ export default function OverviewPage() {
           .catch(() => {})
       }
       const parts = []
-      if (result.revised.length > 0) parts.push({ text: `${result.revised.length} revisioni applicate`, color: '#D4FF24' })
-      if (result.new_sources.length > 0) parts.push({ text: `${result.new_sources.length} in Deduplicazione`, color: '#FCD34D' })
-      if (result.errors.length > 0) parts.push({ text: `${result.errors.length} non raggiungibili`, color: '#FCA5A5' })
+      if (result.revised.length > 0) parts.push({ text: `${result.revised.length} revisioni applicate`, color: 'var(--color-lime)' })
+      if (result.new_sources.length > 0) parts.push({ text: `${result.new_sources.length} in Deduplicazione`, color: 'var(--color-warn)' })
+      if (result.errors.length > 0) parts.push({ text: `${result.errors.length} non raggiungibili`, color: 'var(--color-err)' })
       if (parts.length === 0) parts.push({ text: 'Nessuna novità', color: 'var(--color-ink-5)' })
       const detailRows = [
-        ...result.revised.map((r) => ({ title: r.article.title, msg: r.message, color: '#D4FF24' })),
-        ...result.new_sources.map((n) => ({ title: n.title, msg: n.message, color: '#FCD34D' })),
-        ...result.errors.map((e) => ({ title: e.title, msg: e.detail, color: '#FCA5A5' })),
+        ...result.revised.map((r) => ({ title: r.article.title, msg: r.message, color: 'var(--color-lime)' })),
+        ...result.new_sources.map((n) => ({ title: n.title, msg: n.message, color: 'var(--color-warn)' })),
+        ...result.errors.map((e) => ({ title: e.title, msg: e.detail, color: 'var(--color-err)' })),
       ]
       setToast({ kind: 'update', parts, detailRows })
     } catch (err) {
-      setToast({ kind: 'update', parts: [{ text: err.message, color: '#FCA5A5' }], detailRows: [] })
+      setToast({ kind: 'update', parts: [{ text: err.message, color: 'var(--color-err)' }], detailRows: [] })
     } finally {
       setUpdatingAll(false)
     }
@@ -349,7 +349,7 @@ export default function OverviewPage() {
 
       {exportReady && (
         <div style={{ marginTop: 4, display: 'flex', justifyContent: 'flex-end' }}>
-          <a href={exportReady.url} download={exportReady.filename} className="action-link" style={{ color: '#6EE7B7' }}>
+          <a href={exportReady.url} download={exportReady.filename} className="action-link" style={{ color: 'var(--color-ok)' }}>
             Scarica {exportReady.filename}
           </a>
         </div>
@@ -367,7 +367,7 @@ export default function OverviewPage() {
                 role="checkbox"
                 aria-checked={allChecked ? true : checkedIds.size > 0 ? 'mixed' : false}
                 onClick={() => setCheckedIds(allChecked ? new Set() : new Set(articles.map((a) => a.id)))}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,.85)' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 0, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'color-mix(in srgb, var(--color-white) 85%, transparent)' }}
               >
                 <span
                   className={allChecked ? 'dot-caught' : 'dot-seen'}
@@ -375,13 +375,13 @@ export default function OverviewPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    ...(allChecked ? {} : { borderColor: checkedIds.size > 0 ? '#D4FF24' : 'rgba(255,255,255,.7)' }),
+                    ...(allChecked ? {} : { borderColor: checkedIds.size > 0 ? 'var(--color-lime)' : 'color-mix(in srgb, var(--color-white) 70%, transparent)' }),
                   }}
                 >
-                  {checkedIds.size > 0 && !allChecked && <span style={{ width: 5, height: 2, background: '#D4FF24', borderRadius: 1 }} />}
+                  {checkedIds.size > 0 && !allChecked && <span style={{ width: 5, height: 2, background: 'var(--color-lime)', borderRadius: 1 }} />}
                 </span>
                 {allChecked ? 'Deseleziona tutti' : 'Seleziona tutti'}
-                {checkedIds.size > 0 && <span style={{ color: '#D4FF24' }}>· {checkedIds.size}</span>}
+                {checkedIds.size > 0 && <span style={{ color: 'var(--color-lime)' }}>· {checkedIds.size}</span>}
               </button>
             )}
           </span>
@@ -423,7 +423,7 @@ export default function OverviewPage() {
           ) : error ? (
             <LoadError what="gli articoli salvati" message={error} onRetry={retryArticles} />
           ) : articles.length === 0 ? (
-            <p className="text-sm" style={{ color: '#8B93A5' }}>
+            <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
               Nessun articolo aggiunto per ora.
             </p>
           ) : (
@@ -451,7 +451,7 @@ export default function OverviewPage() {
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
-                          color: '#F3F4F6',
+                          color: 'var(--color-ink-1)',
                         }}
                       >
                         {item.article.title}
@@ -502,37 +502,37 @@ export default function OverviewPage() {
         {/* minWidth 0: senza, la larghezza minima della card sarebbe quella dei titoli
             dell'anteprima per intero (anche se troncati coi puntini), e andrebbe a capo
             sotto invece di stare accanto ad "Attività" — stesso problema di minmax(0,1fr) lì. */}
-        <div className="card" style={{ flex: '1 1 280px', minWidth: 0, overflow: 'visible', padding: 0, borderColor: '#3A3410' }}>
+        <div className="card" style={{ flex: '1 1 280px', minWidth: 0, overflow: 'visible', padding: 0, borderColor: 'var(--color-lime-edge)' }}>
           <div className="ribbon-flat muted">Da rivedere</div>
           <div style={{ padding: '14px 16px' }}>
             {dedupLoading ? (
-              <p className="text-sm" style={{ color: '#8B93A5' }}>
+              <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
                 Caricamento…
               </p>
             ) : dedupError ? (
-              <p className="text-sm" style={{ color: '#FCA5A5' }}>
+              <p className="text-sm" style={{ color: 'var(--color-err)' }}>
                 {dedupError}
               </p>
             ) : duplicateGroups.length === 0 ? (
-              <p className="text-sm" style={{ color: '#8B93A5' }}>
+              <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
                 Nessun gruppo da rivedere per ora.
               </p>
             ) : (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <div style={{ fontSize: 13, color: '#D4FF24', fontWeight: 600 }}>
+                  <div style={{ fontSize: 13, color: 'var(--color-lime)', fontWeight: 600 }}>
                     {duplicateGroups.length} grupp{duplicateGroups.length === 1 ? 'o' : 'i'} di duplicati
                   </div>
                   <button
                     type="button"
                     onClick={() => navigate(`/ricerche/${researchId}/deduplicazione`)}
                     title="Vai a Deduplicazione"
-                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#9CC2FF', display: 'flex' }}
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-ink-3)', display: 'flex' }}
                   >
                     <ArrowUpRightIcon />
                   </button>
                 </div>
-                <div style={{ fontSize: 11.5, color: '#8B93A5', marginTop: 2 }}>
+                <div style={{ fontSize: 11.5, color: 'var(--color-ink-4)', marginTop: 2 }}>
                   su tutta la Ricerca, non solo gli articoli appena aggiunti
                 </div>
 
@@ -552,16 +552,16 @@ export default function OverviewPage() {
                           width: '100%',
                           padding: '6px 10px',
                           borderRadius: 10,
-                          background: 'rgba(212,255,36,.04)',
-                          border: '1px solid #1B2130',
+                          background: 'color-mix(in srgb, var(--color-lime) 4%, transparent)',
+                          border: '1px solid var(--color-border)',
                           cursor: 'pointer',
                           textAlign: 'left',
                         }}
                       >
-                        <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: '#C3C9D4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <span style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: 'var(--color-ink-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {group.chosen.title}
                         </span>
-                        <span className="src-pill" style={{ flex: '0 0 auto', background: 'rgba(43,124,255,.15)', color: '#9CC2FF' }}>
+                        <span className="src-pill" style={{ flex: '0 0 auto', background: 'color-mix(in srgb, var(--color-blue) 15%, transparent)', color: 'var(--color-ink-3)' }}>
                           ×{group.alternatives.length + 1}
                         </span>
                       </button>
@@ -586,7 +586,7 @@ export default function OverviewPage() {
               invece di essere troncato, stesso bug già risolto nel pannello
               di ricerca (Y). */}
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
-            <div style={{ padding: '12px 16px', borderRight: '1px solid #1B2130', minWidth: 0 }}>
+            <div style={{ padding: '12px 16px', borderRight: '1px solid var(--color-border)', minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <span style={{ fontSize: 12.5, color: 'var(--color-ink-5)', textTransform: 'uppercase', letterSpacing: '.04em' }}>
                   Query salvate
@@ -595,17 +595,17 @@ export default function OverviewPage() {
                   type="button"
                   onClick={() => navigate(`/ricerche/${researchId}/query-salvate`)}
                   title="Vedi elenco completo"
-                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#9CC2FF', display: 'flex' }}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-ink-3)', display: 'flex' }}
                 >
                   <ArrowUpRightIcon />
                 </button>
               </div>
               {queriesLoading ? (
-                <p className="text-xs" style={{ color: '#8B93A5' }}>
+                <p className="text-xs" style={{ color: 'var(--color-ink-4)' }}>
                   Caricamento…
                 </p>
               ) : queriesError ? (
-                <p className="text-xs" style={{ color: '#FCA5A5' }}>
+                <p className="text-xs" style={{ color: 'var(--color-err)' }}>
                   {queriesError}
                 </p>
               ) : queries.length === 0 ? (
@@ -629,17 +629,17 @@ export default function OverviewPage() {
                   type="button"
                   onClick={() => navigate(`/ricerche/${researchId}/cronologia`)}
                   title="Vedi cronologia completa"
-                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#9CC2FF', display: 'flex' }}
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-ink-3)', display: 'flex' }}
                 >
                   <ArrowUpRightIcon />
                 </button>
               </div>
               {historyLoading ? (
-                <p className="text-xs" style={{ color: '#8B93A5' }}>
+                <p className="text-xs" style={{ color: 'var(--color-ink-4)' }}>
                   Caricamento…
                 </p>
               ) : historyError ? (
-                <p className="text-xs" style={{ color: '#FCA5A5' }}>
+                <p className="text-xs" style={{ color: 'var(--color-err)' }}>
                   {historyError}
                 </p>
               ) : history.length === 0 ? (

@@ -36,20 +36,20 @@ export default function ConfirmDialog({ request, onDone }) {
       }}
     >
       <div className="card article-dialog-card">
-        <h2 id="confirm-dialog-title" className="head text-lg font-semibold" style={{ color: '#F3F4F6' }}>
+        <h2 id="confirm-dialog-title" className="head text-lg font-semibold" style={{ color: 'var(--color-ink-1)' }}>
           {title}
         </h2>
-        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed" style={{ color: '#C3C9D4' }}>
+        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed" style={{ color: 'var(--color-ink-2)' }}>
           {message}
         </p>
         {requireText && (
-          <label className="mt-4 block text-sm" style={{ color: '#C3C9D4' }}>
-            Per confermare, scrivi <strong style={{ color: '#F3F4F6' }}>{requireText}</strong>
+          <label className="mt-4 block text-sm" style={{ color: 'var(--color-ink-2)' }}>
+            Per confermare, scrivi <strong style={{ color: 'var(--color-ink-1)' }}>{requireText}</strong>
             <input
               value={typed}
               onChange={(e) => setTyped(e.target.value)}
               className="mt-1.5 w-full rounded-lg px-3 py-2 text-sm"
-              style={{ background: '#05080F', border: '1.5px solid #1B2130', color: '#F3F4F6' }}
+              style={{ background: 'var(--color-overlay)', border: '1.5px solid var(--color-border)', color: 'var(--color-ink-1)' }}
             />
           </label>
         )}

@@ -51,7 +51,7 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
                 disabled={expandingIndex === index || group.filter(Boolean).length === 0}
                 title="Suggerisci acronimi e sinonimi"
                 className="mt-2 shrink-0 text-sm disabled:cursor-not-allowed disabled:opacity-40"
-                style={{ color: '#9CC2FF' }}
+                style={{ color: 'var(--color-ink-3)' }}
               >
                 {expandingIndex === index ? '…' : '✨'}
               </button>
@@ -71,7 +71,7 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
         ))}
 
         {expandError && (
-          <p className="text-xs" style={{ color: '#FCA5A5' }}>
+          <p className="text-xs" style={{ color: 'var(--color-err)' }}>
             {expandError}
           </p>
         )}

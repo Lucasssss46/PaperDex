@@ -111,14 +111,14 @@ export default function InvitePage() {
         <div className="flex flex-col items-center gap-2.5">
           <Logo size={44} />
           <Wordmark size={21} />
-          <div className="text-sm" style={{ color: '#8B93A5' }}>
+          <div className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Invito a collaborare
           </div>
         </div>
 
         <div className="mt-6">
           {loading ? (
-            <p className="text-center text-sm" style={{ color: '#8B93A5' }}>
+            <p className="text-center text-sm" style={{ color: 'var(--color-ink-4)' }}>
               Caricamento…
             </p>
           ) : error ? (
@@ -131,11 +131,11 @@ export default function InvitePage() {
               </Link>
             </div>
           ) : outcome === 'declined' ? (
-            <p className="text-center text-sm" style={{ color: '#8B93A5' }}>
+            <p className="text-center text-sm" style={{ color: 'var(--color-ink-4)' }}>
               Hai rifiutato l'invito.
             </p>
           ) : invite.state !== 'pending' ? (
-            <p className="text-center text-sm" style={{ color: '#8B93A5' }}>
+            <p className="text-center text-sm" style={{ color: 'var(--color-ink-4)' }}>
               Questo invito è già stato {invite.state === 'accepted' ? 'accettato' : 'rifiutato'}.
             </p>
           ) : (
@@ -143,7 +143,7 @@ export default function InvitePage() {
               <div className="invite-box">
                 <strong>{invite.sender_name}</strong> ti ha invitato a partecipare a <strong>{invite.research_name}</strong>.
                 {invite.research_description && (
-                  <p className="mt-1" style={{ color: '#9CC2FF' }}>
+                  <p className="mt-1" style={{ color: 'var(--color-ink-3)' }}>
                     {invite.research_description}
                   </p>
                 )}

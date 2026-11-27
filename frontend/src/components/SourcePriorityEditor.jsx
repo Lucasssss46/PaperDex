@@ -51,11 +51,11 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
 
   if (!sources) {
     return error ? (
-      <p className="text-sm" style={{ color: '#FCA5A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-err)' }}>
         {error}
       </p>
     ) : (
-      <p className="text-sm" style={{ color: '#8B93A5' }}>
+      <p className="text-sm" style={{ color: 'var(--color-ink-4)' }}>
         Caricamento…
       </p>
     )
@@ -63,10 +63,10 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
 
   return (
     <section className="card" style={{ padding: 20 }}>
-      <h3 className="text-sm font-semibold" style={{ color: '#F3F4F6' }}>
+      <h3 className="text-sm font-semibold" style={{ color: 'var(--color-ink-1)' }}>
         Classifica delle sorgenti
       </h3>
-      <p className="mt-1 text-xs" style={{ color: '#8B93A5' }}>
+      <p className="mt-1 text-xs" style={{ color: 'var(--color-ink-4)' }}>
         {isOwner
           ? 'Trascina per riordinare: la sorgente più in alto è quella scelta automaticamente aggiungendo un gruppo di duplicati.'
           : "La sorgente più in alto è quella scelta automaticamente aggiungendo un gruppo di duplicati. Solo il proprietario della Ricerca può modificare l'ordine."}
@@ -81,10 +81,10 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
             onDrop={() => handleDrop(index)}
             onDragEnd={() => setDragIndex(null)}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 ${isOwner ? 'cursor-grab active:cursor-grabbing' : ''}`}
-            style={{ border: '1px solid #1B2130', background: '#0C1119', opacity: dragIndex === index ? 0.4 : 1 }}
+            style={{ border: '1px solid var(--color-border)', background: 'var(--color-surface)', opacity: dragIndex === index ? 0.4 : 1 }}
           >
             {isOwner && (
-              <span aria-hidden="true" className="select-none" style={{ color: '#3A4150' }}>
+              <span aria-hidden="true" className="select-none" style={{ color: 'var(--color-ink-6)' }}>
                 ⠿
               </span>
             )}
@@ -101,7 +101,7 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
             </span>
             {/* Gli altri loghi contengono già il nome; quello di DBLP da solo è poco leggibile. */}
             {source === 'DBLP' && (
-              <span className="text-sm" style={{ color: '#C3C9D4' }}>
+              <span className="text-sm" style={{ color: 'var(--color-ink-2)' }}>
                 {source}
               </span>
             )}
@@ -114,7 +114,7 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
         </p>
       )}
       {error && (
-        <p className="mt-2 text-xs" style={{ color: '#FCA5A5' }}>
+        <p className="mt-2 text-xs" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

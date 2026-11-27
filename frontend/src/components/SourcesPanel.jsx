@@ -13,14 +13,14 @@ export default function SourcesPanel({ sources, onToggle, error, missingKeys = [
           <label
             key={name}
             className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-medium transition-colors"
-            style={{ color: '#C3C9D4' }}
+            style={{ color: 'var(--color-ink-2)' }}
           >
             <input
               type="checkbox"
               checked={sources.includes(name)}
               onChange={() => onToggle(name)}
               className="h-4 w-4 rounded"
-              style={{ accentColor: '#2B7CFF' }}
+              style={{ accentColor: 'var(--color-blue)' }}
             />
             <SourceLabel name={name} />
           </label>
@@ -28,7 +28,7 @@ export default function SourcesPanel({ sources, onToggle, error, missingKeys = [
       </div>
 
       {selectedWithoutKey.map((name) => (
-        <p key={name} className="text-xs" style={{ margin: '0 16px 12px', color: '#FCD34D' }}>
+        <p key={name} className="text-xs" style={{ margin: '0 16px 12px', color: 'var(--color-warn)' }}>
           <strong>{name}</strong> richiede una chiave API e non ne hai una, né tua né condivisa dal team: senza,
           verrà saltata.{' '}
           {loggedIn ? (
@@ -42,7 +42,7 @@ export default function SourcesPanel({ sources, onToggle, error, missingKeys = [
       ))}
 
       {error && (
-        <p className="text-xs font-medium" style={{ margin: '0 16px 12px', color: '#FCA5A5' }}>
+        <p className="text-xs font-medium" style={{ margin: '0 16px 12px', color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

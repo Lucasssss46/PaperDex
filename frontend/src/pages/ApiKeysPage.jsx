@@ -33,7 +33,7 @@ function ShareSection({ source, researches, onSharingUpdated }) {
   }
 
   return (
-    <div className="mt-3 border-t pt-3" style={{ borderColor: '#1B2130' }}>
+    <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--color-border)' }}>
       <button type="button" onClick={() => setOpen((v) => !v)} className="action-link">
         {open ? '− Nascondi condivisione' : '+ Condividi con una Ricerca'}
         {source.shared_with.length > 0 && ` (${source.shared_with.length} attiva/e)`}
@@ -41,26 +41,26 @@ function ShareSection({ source, researches, onSharingUpdated }) {
 
       {open && (
         <>
-          <p className="mt-1.5 text-xs" style={{ color: '#8B93A5' }}>
+          <p className="mt-1.5 text-xs" style={{ color: 'var(--color-ink-4)' }}>
             Le Ricerche selezionate usano questa chiave per chi, tra i loro membri, non ne ha già una propria per
             questa sorgente. Il valore della chiave non viene mai mostrato agli altri membri.
           </p>
-          <div className="mt-2 max-h-40 space-y-1 overflow-y-auto rounded-lg p-2" style={{ border: '1px solid #1B2130', background: '#0A0E16' }}>
+          <div className="mt-2 max-h-40 space-y-1 overflow-y-auto rounded-lg p-2" style={{ border: '1px solid var(--color-border)', background: 'var(--color-field)' }}>
             {researches.map((r) => (
-              <label key={r.id} className="flex items-center gap-2 rounded px-1.5 py-1 text-sm" style={{ color: '#C3C9D4' }}>
+              <label key={r.id} className="flex items-center gap-2 rounded px-1.5 py-1 text-sm" style={{ color: 'var(--color-ink-2)' }}>
                 <input
                   type="checkbox"
                   checked={source.shared_with.includes(r.id)}
                   disabled={savingId === r.id}
                   onChange={() => toggle(r.id)}
-                  style={{ accentColor: '#2B7CFF' }}
+                  style={{ accentColor: 'var(--color-blue)' }}
                 />
                 <span className="truncate">{r.name}</span>
               </label>
             ))}
           </div>
           {error && (
-            <p className="mt-1 text-xs" style={{ color: '#FCA5A5' }}>
+            <p className="mt-1 text-xs" style={{ color: 'var(--color-err)' }}>
               {error}
             </p>
           )}
@@ -102,14 +102,14 @@ function SourceKeyCard({ source, researches, onUpdated, onSharingUpdated }) {
     <form onSubmit={handleSubmit} className="card" style={{ padding: 0 }}>
       <div className="ribbon-flat">
         {source.name}{' '}
-        <span style={{ fontWeight: 400, fontSize: 11, color: '#DCEAFF' }}>
+        <span style={{ fontWeight: 400, fontSize: 11, color: 'var(--color-blue-soft)' }}>
           {source.required ? 'obbligatoria' : 'non obbligatoria'}
         </span>
       </div>
       <div style={{ padding: '16px 18px' }}>
         {source.is_set && (
           <div className="mb-2 flex items-center justify-between">
-            <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'rgba(16,185,129,.15)', color: '#6EE7B7' }}>
+            <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--color-ok-base) 15%, transparent)', color: 'var(--color-ok)' }}>
               Impostata
             </span>
             <button type="button" onClick={() => save('')} disabled={saving} className="action-link danger">
@@ -137,12 +137,12 @@ function SourceKeyCard({ source, researches, onUpdated, onSharingUpdated }) {
           </div>
         </Field>
         {error && (
-          <p className="mt-2 text-sm" style={{ color: '#FCA5A5' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         )}
         {saved && (
-          <p className="mt-2 text-sm" style={{ color: '#6EE7B7' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-ok)' }}>
             Salvata.
           </p>
         )}
@@ -190,7 +190,7 @@ function LlmKeyCard({ config, onUpdated }) {
       <div style={{ padding: '16px 18px' }}>
         {config.is_set && (
           <div className="mb-2 flex items-center justify-between">
-            <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'rgba(16,185,129,.15)', color: '#6EE7B7' }}>
+            <span className="rounded-full px-2 py-0.5 text-xs font-medium" style={{ background: 'color-mix(in srgb, var(--color-ok-base) 15%, transparent)', color: 'var(--color-ok)' }}>
               Impostata ({currentProviderName})
             </span>
             <button type="button" onClick={() => save(config.provider, '')} disabled={saving} className="action-link danger">
@@ -198,7 +198,7 @@ function LlmKeyCard({ config, onUpdated }) {
             </button>
           </div>
         )}
-        <p className="mb-3 text-xs" style={{ color: '#8B93A5' }}>
+        <p className="mb-3 text-xs" style={{ color: 'var(--color-ink-4)' }}>
           Usata per suggerire varianti e acronimi durante la ricerca. Senza una chiave, viene usato un dizionario
           statico dei termini più comuni.
         </p>
@@ -224,12 +224,12 @@ function LlmKeyCard({ config, onUpdated }) {
           </button>
         </div>
         {error && (
-          <p className="mt-2 text-sm" style={{ color: '#FCA5A5' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         )}
         {saved && (
-          <p className="mt-2 text-sm" style={{ color: '#6EE7B7' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-ok)' }}>
             Salvata.
           </p>
         )}
@@ -270,10 +270,10 @@ export default function ApiKeysPage() {
     <div className="mx-auto max-w-5xl px-6 py-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="head text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+          <h2 className="head text-xl font-semibold" style={{ color: 'var(--color-ink-1)' }}>
             API keys
           </h2>
-          <p className="mt-2 text-sm" style={{ color: '#8B93A5' }}>
+          <p className="mt-2 text-sm" style={{ color: 'var(--color-ink-4)' }}>
             Solo le sorgenti che supportano una chiave API personale per aumentare i propri limiti di frequenza
             compaiono qui sotto; le altre non ne richiedono una.
           </p>
@@ -282,13 +282,13 @@ export default function ApiKeysPage() {
       </div>
 
       {error && (
-        <p className="mt-4 text-sm" style={{ color: '#FCA5A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}
 
       {!sources || !llmConfig ? (
-        <p className="mt-4 text-sm" style={{ color: '#8B93A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Caricamento…
         </p>
       ) : (

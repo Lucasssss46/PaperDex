@@ -5,7 +5,7 @@ import BackLink from './BackLink'
 import SessionStepper from './SessionStepper'
 import { LoadError } from './LoadState'
 
-const AVATAR_COLORS = ['#2470F0', '#9D174D', '#0E7490']
+const AVATAR_COLORS = ['var(--color-avatar-1)', 'var(--color-avatar-2)', 'var(--color-avatar-3)']
 
 function initials(name) {
   return (name ?? '')
@@ -164,7 +164,7 @@ export default function ResearchLayout() {
     <div className="mx-auto max-w-6xl py-8 sm:px-4">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3.5">
-          <Link to={`/ricerche/${id}/overview`} className={`head ${pageName ? 'text-xl' : 'text-4xl ml-4'} font-semibold hover:underline`} style={{ color: '#F3F4F6' }}>
+          <Link to={`/ricerche/${id}/overview`} className={`head ${pageName ? 'text-xl' : 'text-4xl ml-4'} font-semibold hover:underline`} style={{ color: 'var(--color-ink-1)' }}>
             {name ?? 'Caricamento…'}
           </Link>
           {pageName && <span className="head text-xl font-semibold" style={{ color: 'var(--color-ink-5)' }}>- {pageName}</span>}
@@ -180,15 +180,15 @@ export default function ResearchLayout() {
                 alignItems: 'center',
                 gap: 10,
                 marginLeft: 10,
-                border: '1.5px solid #1B2130',
+                border: '1.5px solid var(--color-border)',
                 borderRadius: 999,
                 padding: '5px 14px',
                 fontSize: 12,
-                color: '#8B93A5',
+                color: 'var(--color-ink-4)',
               }}
             >
               <span>
-                SALVATI <strong style={{ color: '#D4FF24', fontSize: 13 }}>{articlesCount ?? '—'}</strong>
+                SALVATI <strong style={{ color: 'var(--color-lime)', fontSize: 13 }}>{articlesCount ?? '—'}</strong>
               </span>
             </div>
           )}
@@ -205,7 +205,7 @@ export default function ResearchLayout() {
                 </div>
               ))}
               {team.length > 3 && (
-                <div className="avatar" style={{ background: '#1B2130', color: '#8B93A5' }}>
+                <div className="avatar" style={{ background: 'var(--color-border)', color: 'var(--color-ink-4)' }}>
                   +{team.length - 3}
                 </div>
               )}

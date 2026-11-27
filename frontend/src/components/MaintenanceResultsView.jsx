@@ -37,18 +37,18 @@ export default function MaintenanceResultsView({ kind }) {
       )}
 
       {!result ? (
-        <p className="mt-4 text-sm" style={{ color: '#8B93A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-ink-4)' }}>
           {copy.empty}
         </p>
       ) : result.detailRows.length === 0 ? (
-        <p className="mt-4 text-sm" style={{ color: '#8B93A5' }}>
+        <p className="mt-4 text-sm" style={{ color: 'var(--color-ink-4)' }}>
           Nessun dettaglio per articolo per questo esito.
         </p>
       ) : (
         <ul className="mt-4">
           {result.detailRows.map((row, i) => (
             <li key={i} className="row">
-              <span className="min-w-0 flex-1 truncate text-sm" style={{ color: '#F3F4F6' }} title={row.title}>
+              <span className="min-w-0 flex-1 truncate text-sm" style={{ color: 'var(--color-ink-1)' }} title={row.title}>
                 {row.title}
               </span>
               {row.msg && (

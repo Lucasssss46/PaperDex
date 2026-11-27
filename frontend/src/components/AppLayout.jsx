@@ -4,8 +4,8 @@ import Logo, { Wordmark } from './Logo'
 import ProfileMenu from './ProfileMenu'
 
 const navLinkBase = 'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors'
-const navLinkActive = 'bg-[rgba(43,124,255,.15)] text-[#9CC2FF]'
-const navLinkInactive = 'text-[#8B93A5] hover:bg-[#1B2130]'
+const navLinkActive = 'bg-[color-mix(in_srgb,_var(--color-blue)_15%,_transparent)] text-ink-3'
+const navLinkInactive = 'text-ink-4 hover:bg-border'
 
 function navLinkClass({ isActive }) {
   return `${navLinkBase} ${isActive ? navLinkActive : navLinkInactive}`
@@ -40,8 +40,8 @@ function SearchIcon() {
 
 export default function AppLayout({ onLogout }) {
   return (
-    <div className="flex min-h-svh flex-col bg-[#030407]">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#1B2130] bg-[#0C1119] px-4 py-3 sm:px-6">
+    <div className="flex min-h-svh flex-col bg-bg">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface px-4 py-3 sm:px-6">
         <div className="flex flex-wrap items-center gap-3 sm:gap-6">
           {/* La Home vera e propria esiste solo prima del login: da autenticati
               il logo porta alla pagina principale dell'app. */}
@@ -70,7 +70,7 @@ export default function AppLayout({ onLogout }) {
         <ProfileMenu onLogout={onLogout} />
       </header>
 
-      <main className="min-w-0 flex-1 overflow-y-auto px-4 text-[#F3F4F6] sm:px-10 lg:px-20">
+      <main className="min-w-0 flex-1 overflow-y-auto px-4 text-ink-1 sm:px-10 lg:px-20">
         <Outlet />
       </main>
 
