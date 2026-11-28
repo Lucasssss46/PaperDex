@@ -37,8 +37,8 @@ export default function ConfermaEmailPage() {
               Conferma in corso…
             </p>
           )}
-          {status === 'done' && <p className="notice-ok">Email confermata.</p>}
-          {status === 'error' && <p className="notice-err">{error}</p>}
+          {status === 'done' && <p role="status" className="notice-ok">Email confermata.</p>}
+          {status === 'error' && <p role="alert" className="notice-err">{error}</p>}
           <Link to="/" className="action-link">
             Torna a PapérDex
           </Link>

@@ -232,7 +232,7 @@ export default function ResearchLayout() {
       {name !== null && <SessionStepper researchId={id} currentSegment={currentSegment} />}
 
       {teamFailed && !pageName && (
-        <div className="notice-warn mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div role="status" className="notice-warn mb-6 flex flex-wrap items-center justify-between gap-3">
           <span>Non riesco a caricare il team: alcune azioni del proprietario potrebbero non comparire.</span>
           <button
             type="button"

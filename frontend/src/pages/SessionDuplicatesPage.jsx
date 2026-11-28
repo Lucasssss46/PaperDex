@@ -41,7 +41,7 @@ export default function SessionDuplicatesPage() {
   return (
     <div className="space-y-6">
       {(addedNow > 0 || alreadyPresent > 0) && (
-        <p className="notice-ok">
+        <p role="status" className="notice-ok">
           {addedNow} articol{addedNow === 1 ? 'o aggiunto' : 'i aggiunti'} alla Ricerca.
           {alreadyPresent > 0 &&
             ` ${alreadyPresent} ${alreadyPresent === 1 ? 'era già presente e non è stato aggiunto' : 'erano già presenti e non sono stati aggiunti'} di nuovo.`}
@@ -56,7 +56,7 @@ export default function SessionDuplicatesPage() {
           per aggiungerne.
         </p>
       ) : error ? (
-        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+        <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       ) : !sessionGroups ? (

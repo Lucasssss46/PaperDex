@@ -28,7 +28,7 @@ export default function MyInvitesPage() {
       </div>
 
       {error && (
-        <p className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
+        <p role="alert" className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

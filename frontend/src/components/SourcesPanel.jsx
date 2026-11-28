@@ -42,7 +42,7 @@ export default function SourcesPanel({ sources, onToggle, error, missingKeys = [
       ))}
 
       {error && (
-        <p className="text-xs font-medium" style={{ margin: '0 16px 12px', color: 'var(--color-err)' }}>
+        <p role="alert" className="text-xs font-medium" style={{ margin: '0 16px 12px', color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

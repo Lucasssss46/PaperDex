@@ -1,3 +1,4 @@
+import logging
 import asyncio
 import re
 from datetime import date
@@ -267,7 +268,7 @@ async def export_ricerca_articles(
 ):
     if format not in EXPORT_FORMATS:
         raise HTTPException(
-            status_code=422, detail=f"Formato sconosciuto: {format!r}. Disponibili: {list(EXPORT_FORMATS)}"
+            status_code=422, detail="Formato di esportazione non riconosciuto."
         )
 
     research = await Research.get(ricerca_id)
@@ -637,7 +638,9 @@ async def invite_to_ricerca(ricerca_id: str, data: InviteCreate, current_user: U
     try:
         await asyncio.to_thread(send_email, email, subject, html)
     except EmailSendError as e:
-        raise HTTPException(status_code=502, detail=f"Invio dell'invito fallito: {e}")
+        # Il motivo tecnico (SMTP) resta nei log, l'utente riceve una frase chiara.
+        logging.error(f"Invio dell'invito a {email} fallito: {e}")
+        raise HTTPException(status_code=502, detail="Non è stato possibile inviare l'email di invito. Riprova tra qualche minuto.")
 
     return {"message": "Invito inviato"}
 

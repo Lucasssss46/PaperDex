@@ -51,7 +51,7 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
 
   if (!sources) {
     return error ? (
-      <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+      <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
         {error}
       </p>
     ) : (
@@ -114,7 +114,7 @@ export default function SourcePriorityEditor({ researchId, isOwner }) {
         </p>
       )}
       {error && (
-        <p className="mt-2 text-xs" style={{ color: 'var(--color-err)' }}>
+        <p role="alert" className="mt-2 text-xs" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

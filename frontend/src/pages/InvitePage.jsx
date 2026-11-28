@@ -6,6 +6,7 @@ import { acceptInvite, declineInvite, getInvite } from '../api/inviti'
 import Field, { inputClass } from '../components/Field'
 import Logo, { Wordmark } from '../components/Logo'
 import PasswordInput from '../components/PasswordInput'
+import FormError from '../components/FormError'
 
 export default function InvitePage() {
   const [searchParams] = useSearchParams()
@@ -122,10 +123,10 @@ export default function InvitePage() {
               Caricamento…
             </p>
           ) : error ? (
-            <p className="notice-err">{error}</p>
+            <p role="alert" className="notice-err">{error}</p>
           ) : outcome === 'accepted' ? (
             <div className="flex flex-col items-center gap-3.5 text-center">
-              <p className="notice-ok">Invito accettato! Accedi al tuo account per vedere la ricerca.</p>
+              <p role="status" className="notice-ok">Invito accettato! Accedi al tuo account per vedere la ricerca.</p>
               <Link to={`/ricerche/${acceptedResearchId}/overview`} className="action-link">
                 Vai alla ricerca
               </Link>
@@ -150,7 +151,7 @@ export default function InvitePage() {
               </div>
 
               {wrongAccount && (
-                <div className="notice-warn mt-4">
+                <div role="status" className="notice-warn mt-4">
                   <p>
                     In questo browser sei collegato con un altro account, ma l'invito è per{' '}
                     <strong>{invite.receiver_email}</strong>.
@@ -166,9 +167,7 @@ export default function InvitePage() {
                 </div>
               )}
 
-              {actionError && (
-                <p className="notice-err mt-4">{actionError}</p>
-              )}
+              <FormError message={actionError} className="notice-err mt-4" />
 
               {/* Con un altro account collegato si sceglie prima cosa fare:
                   accettare da qui finirebbe nella sessione sbagliata. */}
@@ -183,7 +182,7 @@ export default function InvitePage() {
                 </div>
               ) : (
                 <>
-                  <p className="notice-warn mt-4">
+                  <p role="status" className="notice-warn mt-4">
                     Non hai ancora un account su PapérDex. Per accettare, crealo con l'indirizzo a cui hai ricevuto
                     l'invito — non è possibile usarne uno diverso.
                   </p>

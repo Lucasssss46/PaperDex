@@ -390,41 +390,45 @@ export default function OverviewPage() {
         </div>
 
         {/* Mentre Zotero lavora, nello stesso punto in cui poi compare il riepilogo. */}
-        {enrichingAll || updatingAll ? (
+        {(enrichingAll || updatingAll) && (
           <div style={{ margin: '12px 22px 14px' }}>
             <DialogLoader
               kind={updatingAll ? 'update' : 'enrich'}
               label={updatingAll ? 'Controllo delle nuove versioni in corso…' : 'Arricchimento in corso…'}
             />
           </div>
-        ) : toast && (
-          <div className="toast-bar" style={{ marginTop: 12 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {toast.parts.map((p, i) => (
-                <span key={i} style={{ color: p.color }}>
-                  {i > 0 ? ' · ' : ''}
-                  {p.text}
-                </span>
-              ))}
-            </div>
-            {toast.detailRows.length > 0 && (
-              <button
-                type="button"
-                className="action-link"
-                onClick={() =>
-                  navigate(`/ricerche/${researchId}/manutenzione/${toast.kind === 'enrich' ? 'arricchisci-tutti' : 'aggiorna-tutti'}`, {
-                    state: { result: { parts: toast.parts, detailRows: toast.detailRows } },
-                  })
-                }
-              >
-                Vedi dettagli →
-              </button>
-            )}
-            <span style={{ color: 'var(--color-ink-5)', cursor: 'pointer', flex: '0 0 auto' }} onClick={() => setToast(null)}>
-              ✕
-            </span>
-          </div>
         )}
+        {/* Regione sempre presente, così il riepilogo viene annunciato quando compare. */}
+        <div role="status">
+          {!(enrichingAll || updatingAll) && toast && (
+            <div className="toast-bar" style={{ marginTop: 12 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {toast.parts.map((p, i) => (
+                  <span key={i} style={{ color: p.color }}>
+                    {i > 0 ? ' · ' : ''}
+                    {p.text}
+                  </span>
+                ))}
+              </div>
+              {toast.detailRows.length > 0 && (
+                <button
+                  type="button"
+                  className="action-link"
+                  onClick={() =>
+                    navigate(`/ricerche/${researchId}/manutenzione/${toast.kind === 'enrich' ? 'arricchisci-tutti' : 'aggiorna-tutti'}`, {
+                      state: { result: { parts: toast.parts, detailRows: toast.detailRows } },
+                    })
+                  }
+                >
+                  Vedi dettagli →
+                </button>
+              )}
+              <span style={{ color: 'var(--color-ink-5)', cursor: 'pointer', flex: '0 0 auto' }} onClick={() => setToast(null)}>
+                ✕
+              </span>
+            </div>
+          )}
+        </div>
 
         <div style={{ padding: '18px 30px 22px 22px' }}>
           {loading ? (
@@ -495,16 +499,17 @@ export default function OverviewPage() {
                       </button>
                     )}
                   </div>
-                  {actionBusy ? (
+                  {actionBusy && (
                     <div style={{ width: '100%' }}>
                       <DialogLoader
                         kind={actionBusy}
                         label={actionBusy === 'update' ? 'Controllo della versione in corso…' : 'Arricchimento in corso…'}
                       />
                     </div>
-                  ) : (
-                    actionMsg && <div className="detail-msg" style={{ color: actionColor, textAlign: 'right' }}>{actionMsg}</div>
                   )}
+                  <div role="status" style={{ width: '100%' }}>
+                    {!actionBusy && actionMsg && <div className="detail-msg" style={{ color: actionColor, textAlign: 'right' }}>{actionMsg}</div>}
+                  </div>
                 </div>
               </ExpandedArticleCard>
 
@@ -528,7 +533,7 @@ export default function OverviewPage() {
                 Caricamento…
               </p>
             ) : dedupError ? (
-              <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+              <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
                 {dedupError}
               </p>
             ) : duplicateGroups.length === 0 ? (
@@ -623,7 +628,7 @@ export default function OverviewPage() {
                   Caricamento…
                 </p>
               ) : queriesError ? (
-                <p className="text-xs" style={{ color: 'var(--color-err)' }}>
+                <p role="alert" className="text-xs" style={{ color: 'var(--color-err)' }}>
                   {queriesError}
                 </p>
               ) : queries.length === 0 ? (
@@ -657,7 +662,7 @@ export default function OverviewPage() {
                   Caricamento…
                 </p>
               ) : historyError ? (
-                <p className="text-xs" style={{ color: 'var(--color-err)' }}>
+                <p role="alert" className="text-xs" style={{ color: 'var(--color-err)' }}>
                   {historyError}
                 </p>
               ) : history.length === 0 ? (

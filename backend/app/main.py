@@ -1,11 +1,14 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from backend.app.database import init_db
+from backend.app.services.utils.validation_messages import validation_message
 from backend.app.routes.utenti import router as utenti_router
 from backend.app.routes.inviti import router as inviti_router
 from backend.app.routes.keywords import router as keywords_router
@@ -25,6 +28,12 @@ async def lifespan(app: FastAPI):
     print("App in chiusura, pulizia in corso...")
 
 app = FastAPI(lifespan=lifespan)
+
+# Errori di validazione (422) in italiano e come testo unico, invece della
+# lista in inglese di Pydantic: il frontend mostra `detail` così com'è.
+@app.exception_handler(RequestValidationError)
+async def validation_error_in_italian(request: Request, exc: RequestValidationError):
+    return JSONResponse(status_code=422, content={"detail": validation_message(exc.errors())})
 
 # Origini del frontend ammesse: senza CORS il browser blocca le chiamate del
 # frontend all'API (origini diverse: 5173 vs 8000 in sviluppo). In un deploy

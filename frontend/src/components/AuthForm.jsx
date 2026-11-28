@@ -5,6 +5,7 @@ import Field, { inputClass } from './Field'
 import Logo, { Wordmark } from './Logo'
 import PasswordInput from './PasswordInput'
 import Spinner from './Spinner'
+import FormError from './FormError'
 
 export default function AuthForm({ onAuthenticated, initialNotice }) {
   const navigate = useNavigate()
@@ -116,8 +117,8 @@ export default function AuthForm({ onAuthenticated, initialNotice }) {
             </p>
           )}
 
-          {error && <p className="notice-err">{error}</p>}
-          {notice && <p className="notice-ok">{notice}</p>}
+          <FormError message={error} className="notice-err" />
+          <div role="status">{notice && <p className="notice-ok">{notice}</p>}</div>
 
           <button type="submit" disabled={loading} className="pill-btn flex w-full items-center justify-center gap-2" style={{ padding: '11px 0' }}>
             {loading && <Spinner />}

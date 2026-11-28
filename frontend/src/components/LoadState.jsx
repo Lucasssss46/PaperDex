@@ -22,7 +22,7 @@ export function LoadingNote({ className = 'text-sm' }) {
 // sembri "non c'è niente".
 export function LoadError({ what, message, onRetry, className = '' }) {
   return (
-    <div className={`notice-err ${className}`}>
+    <div role="alert" className={`notice-err ${className}`}>
       <p>Non riesco a caricare {what}. Il server potrebbe essere in avvio: riprova tra qualche secondo.</p>
       {message && (
         <p className="mt-1 text-xs" style={{ opacity: 0.8 }}>

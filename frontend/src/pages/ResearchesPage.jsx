@@ -4,6 +4,7 @@ import { createRicerca, deleteRicerca, listRicerche } from '../api/ricerche'
 import { useConfirm } from '../components/useConfirm'
 import { LoadError, LoadingNote } from '../components/LoadState'
 import { inputClass } from '../components/Field'
+import FormError from '../components/FormError'
 
 function ResearchItem({ research, onDelete }) {
   return (
@@ -152,13 +153,9 @@ export default function ResearchesPage() {
           {creating ? 'Creazione…' : '+ Nuova ricerca'}
         </button>
       </form>
-      {formError && (
-        <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
-          {formError}
-        </p>
-      )}
+      <FormError message={formError} className="mt-2 text-sm" style={{ color: 'var(--color-err)' }} />
       {error && !loadFailed && (
-        <p className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
+        <p role="alert" className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

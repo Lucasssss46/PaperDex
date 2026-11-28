@@ -4,6 +4,7 @@ import { confirmPasswordReset } from '../api/auth'
 import Field from '../components/Field'
 import Logo, { Wordmark } from '../components/Logo'
 import PasswordInput from '../components/PasswordInput'
+import FormError from '../components/FormError'
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
@@ -52,7 +53,7 @@ export default function ResetPasswordPage() {
 
         {done ? (
           <div className="mt-6 flex flex-col items-center gap-3.5 text-center">
-            <p className="notice-ok">Password aggiornata. Ora puoi accedere.</p>
+            <p role="status" className="notice-ok">Password aggiornata. Ora puoi accedere.</p>
             <Link to="/" className="action-link">
               Torna al login
             </Link>
@@ -66,7 +67,7 @@ export default function ResetPasswordPage() {
               <PasswordInput required minLength={8} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
             </Field>
 
-            {error && <p className="notice-err">{error}</p>}
+            <FormError message={error} className="notice-err" />
 
             <button type="submit" disabled={loading} className="pill-btn w-full" style={{ padding: '11px 0' }}>
               {loading ? 'Aggiornamento…' : 'Reimposta password'}

@@ -4,6 +4,7 @@ import { addEmail, changePassword, requestEmailConfirmation, updateProfile, uplo
 import Field, { inputClass } from '../components/Field'
 import Logo from '../components/Logo'
 import PasswordInput from '../components/PasswordInput'
+import FormError from '../components/FormError'
 
 function InfoSection({ user, onUpdated }) {
   const [username, setUsername] = useState(user.username)
@@ -52,11 +53,7 @@ function InfoSection({ user, onUpdated }) {
           {saving ? 'Salvataggio…' : 'Salva'}
         </button>
       </div>
-      {error && (
-        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
-          {error}
-        </p>
-      )}
+      <FormError message={error} className="text-sm" style={{ color: 'var(--color-err)' }} />
       {saved && (
         <p className="text-sm" style={{ color: 'var(--color-ok)' }}>
           Salvato.
@@ -117,11 +114,7 @@ function AvatarUpload({ user, onUpdated }) {
           Caricamento…
         </p>
       )}
-      {error && (
-        <p className="max-w-[10rem] text-center text-xs" style={{ color: 'var(--color-err)' }}>
-          {error}
-        </p>
-      )}
+      <FormError message={error} className="max-w-[10rem] text-center text-xs" style={{ color: 'var(--color-err)' }} />
     </div>
   )
 }
@@ -197,11 +190,7 @@ function EmailSection({ user }) {
                 Email inviata: controlla la posta in arrivo.
               </p>
             )}
-            {confirmError && (
-              <p className="mt-1 text-sm" style={{ color: 'var(--color-err)' }}>
-                {confirmError}
-              </p>
-            )}
+            <FormError message={confirmError} className="mt-1 text-sm" style={{ color: 'var(--color-err)' }} />
           </div>
         )}
 
@@ -235,11 +224,7 @@ function EmailSection({ user }) {
             Email di conferma inviata a {sentTo}.
           </p>
         )}
-        {error && (
-          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
-            {error}
-          </p>
-        )}
+        <FormError message={error} className="text-sm" style={{ color: 'var(--color-err)' }} />
       </div>
     </section>
   )
@@ -294,11 +279,7 @@ function PasswordSection() {
         <Field label="Conferma nuova password">
           <PasswordInput value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} minLength={8} required />
         </Field>
-        {error && (
-          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
-            {error}
-          </p>
-        )}
+        <FormError message={error} className="text-sm" style={{ color: 'var(--color-err)' }} />
         {saved && (
           <p className="text-sm" style={{ color: 'var(--color-ok)' }}>
             Password aggiornata.
@@ -341,11 +322,7 @@ function PasswordResetSection({ email }) {
         <button type="button" onClick={handleClick} disabled={sending} className="pill-btn mt-4">
           {sending ? 'Invio…' : 'Invia email per reimpostare la password'}
         </button>
-        {error && (
-          <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
-            {error}
-          </p>
-        )}
+        <FormError message={error} className="mt-2 text-sm" style={{ color: 'var(--color-err)' }} />
         {sent && (
           <p className="mt-2 text-sm" style={{ color: 'var(--color-ok)' }}>
             Email inviata: controlla la posta in arrivo.
@@ -377,7 +354,7 @@ export default function ProfilePage() {
       </h2>
 
       {error && (
-        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+        <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

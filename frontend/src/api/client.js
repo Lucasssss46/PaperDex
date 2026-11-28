@@ -1,6 +1,9 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000/api'
 export const TOKEN_KEY = 'paperdex_token'
 
+export const NETWORK_ERROR_MESSAGE =
+  'Impossibile contattare il server. Controlla la connessione; se il sito è rimasto inattivo, il server potrebbe essere in avvio: riprova tra qualche secondo.'
+
 // Registrato da App al mount: riporta l'utente al login quando una richiesta
 // autenticata torna 401 (token scaduto/invalido), non quando è /login stesso
 // a rifiutare credenziali sbagliate (in quel caso non c'è token da allegare).
@@ -35,11 +38,19 @@ export async function apiRequest(path, { method = 'GET', body, form, formData } 
     headers['Content-Type'] = 'application/json'
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    headers,
-    body: payload,
-  })
+  let response
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers,
+      body: payload,
+    })
+  } catch (err) {
+    // Nessuna risposta (rete, server spento o in avvio, CORS): il browser dà un
+    // messaggio in inglese e diverso per ognuno ("Failed to fetch", "Load
+    // failed"…). L'originale resta in `cause`.
+    throw new Error(NETWORK_ERROR_MESSAGE, { cause: err })
+  }
 
   const data = await response.json().catch(() => null)
 

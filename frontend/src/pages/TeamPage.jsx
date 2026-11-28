@@ -4,6 +4,7 @@ import { inviteToRicerca, leaveRicerca, listRicercaInvites, listRicercaTeam, rem
 import { inputClass } from '../components/Field'
 import TeamMemberItem from '../components/TeamMemberItem'
 import { useConfirm } from '../components/useConfirm'
+import FormError from '../components/FormError'
 
 function InviteForm({ researchId, onInvited }) {
   const [email, setEmail] = useState('')
@@ -43,11 +44,7 @@ function InviteForm({ researchId, onInvited }) {
       <button type="submit" disabled={sending || !email.trim()} className="pill-btn">
         {sending ? 'Invio…' : 'Invita'}
       </button>
-      {error && (
-        <p className="text-sm" style={{ color: 'var(--color-err)' }}>
-          {error}
-        </p>
-      )}
+      <FormError message={error} className="text-sm" style={{ color: 'var(--color-err)' }} />
       {sent && (
         <p className="text-sm" style={{ color: 'var(--color-ok)' }}>
           Invito inviato.
@@ -93,11 +90,7 @@ function LeaveSection({ researchId, onLeft }) {
       <button type="button" onClick={handleLeave} disabled={leaving} className="ghost-btn mt-3" style={{ color: 'var(--color-err)', borderColor: 'color-mix(in srgb, var(--color-err-base) 40%, transparent)' }}>
         {leaving ? 'Uscita in corso…' : 'Lascia la Ricerca'}
       </button>
-      {error && (
-        <p className="mt-2 text-xs" style={{ color: 'var(--color-err)' }}>
-          {error}
-        </p>
-      )}
+      <FormError message={error} className="mt-2 text-xs" style={{ color: 'var(--color-err)' }} />
     </div>
   )
 }
@@ -135,7 +128,7 @@ function SentInvites({ researchId, refreshKey }) {
             Caricamento…
           </p>
         ) : error ? (
-          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+          <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         ) : invites.length === 0 ? (
@@ -189,7 +182,7 @@ export default function TeamPage() {
 
   if (error) {
     return (
-      <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+      <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
         {error}
       </p>
     )

@@ -101,7 +101,7 @@ export default function DuplicateGroupReview({ researchId, group, onUpdated }) {
         ))}
       </ul>
       {error && (
-        <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
+        <p role="alert" className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

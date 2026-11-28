@@ -31,7 +31,7 @@ export default function SavedQueriesPage() {
 
   if (error) {
     return (
-      <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+      <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
         {error}
       </p>
     )

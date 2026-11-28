@@ -174,7 +174,7 @@ export default function SearchResults({ results, count, loading, error, searched
 
   if (error) {
     return (
-      <p className="rounded-lg px-4 py-3 text-sm" style={{ background: 'color-mix(in srgb, var(--color-err-base) 10%, transparent)', color: 'var(--color-err)' }}>
+      <p role="alert" className="rounded-lg px-4 py-3 text-sm" style={{ background: 'color-mix(in srgb, var(--color-err-base) 10%, transparent)', color: 'var(--color-err)' }}>
         {error}
       </p>
     )

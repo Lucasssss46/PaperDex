@@ -71,7 +71,7 @@ export default function KeywordsPanel({ groups, onUpdateGroup, onAddGroup, onAdd
         ))}
 
         {expandError && (
-          <p className="text-xs" style={{ color: 'var(--color-err)' }}>
+          <p role="alert" className="text-xs" style={{ color: 'var(--color-err)' }}>
             {expandError}
           </p>
         )}

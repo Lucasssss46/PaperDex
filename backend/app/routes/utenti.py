@@ -323,7 +323,8 @@ async def request_email_confirmation(current_user: User = Depends(get_current_us
     try:
         await asyncio.to_thread(send_email, current_user.email, subject, html)
     except EmailSendError as e:
-        raise HTTPException(status_code=502, detail=f"Invio email fallito: {e}")
+        logging.error(f"Invio dell'email di conferma fallito: {e}")
+        raise HTTPException(status_code=502, detail="Non è stato possibile inviare l'email. Riprova tra qualche minuto.")
 
     return {"message": "Email di conferma inviata"}
 
@@ -392,7 +393,8 @@ async def add_email(data: EmailAdd, current_user: User = Depends(get_current_use
     try:
         await asyncio.to_thread(send_email, data.email, subject, html)
     except EmailSendError as e:
-        raise HTTPException(status_code=502, detail=f"Invio email fallito: {e}")
+        logging.error(f"Invio dell'email di conferma fallito: {e}")
+        raise HTTPException(status_code=502, detail="Non è stato possibile inviare l'email. Riprova tra qualche minuto.")
 
     return {"message": "Email di conferma inviata al nuovo indirizzo: sarà aggiunta all'account dopo la conferma"}
 

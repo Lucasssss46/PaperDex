@@ -55,7 +55,7 @@ export default function DeduplicationPage() {
     <div className="flex flex-col-reverse gap-6 md:flex-row md:items-start">
       <div className="min-w-0 flex-1 space-y-6">
         {error ? (
-          <p className="text-sm" style={{ color: 'var(--color-err)' }}>
+          <p role="alert" className="text-sm" style={{ color: 'var(--color-err)' }}>
             {error}
           </p>
         ) : !groups ? (
@@ -82,7 +82,7 @@ export default function DeduplicationPage() {
           comunque prima) e uno sticky non avrebbe senso. */}
       <aside className="w-full shrink-0 md:sticky md:top-8 md:w-72">
         {roleFailed && (
-          <div className="notice-warn mb-3 text-xs">
+          <div role="status" className="notice-warn mb-3 text-xs">
             <p>Non riesco a verificare il tuo ruolo: la classifica delle sorgenti resta in sola lettura.</p>
             <button
               type="button"

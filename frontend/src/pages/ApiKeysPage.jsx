@@ -3,6 +3,7 @@ import { getApiKeys, getLlmConfig, setApiKey, setApiKeySharing, setLlmConfig } f
 import BackLink from '../components/BackLink'
 import Field, { inputClass } from '../components/Field'
 import PasswordInput from '../components/PasswordInput'
+import FormError from '../components/FormError'
 
 // Condivisione disattivata di default: attivabile ricerca per ricerca, così
 // gli altri membri di quel team beneficiano dei suoi limiti di frequenza più
@@ -59,11 +60,7 @@ function ShareSection({ source, researches, onSharingUpdated }) {
               </label>
             ))}
           </div>
-          {error && (
-            <p className="mt-1 text-xs" style={{ color: 'var(--color-err)' }}>
-              {error}
-            </p>
-          )}
+          <FormError message={error} className="mt-1 text-xs" style={{ color: 'var(--color-err)' }} />
         </>
       )}
     </div>
@@ -136,11 +133,7 @@ function SourceKeyCard({ source, researches, onUpdated, onSharingUpdated }) {
             </button>
           </div>
         </Field>
-        {error && (
-          <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
-            {error}
-          </p>
-        )}
+        <FormError message={error} className="mt-2 text-sm" style={{ color: 'var(--color-err)' }} />
         {saved && (
           <p className="mt-2 text-sm" style={{ color: 'var(--color-ok)' }}>
             Salvata.
@@ -223,11 +216,7 @@ function LlmKeyCard({ config, onUpdated }) {
             {saving ? 'Salvataggio…' : 'Salva'}
           </button>
         </div>
-        {error && (
-          <p className="mt-2 text-sm" style={{ color: 'var(--color-err)' }}>
-            {error}
-          </p>
-        )}
+        <FormError message={error} className="mt-2 text-sm" style={{ color: 'var(--color-err)' }} />
         {saved && (
           <p className="mt-2 text-sm" style={{ color: 'var(--color-ok)' }}>
             Salvata.
@@ -282,7 +271,7 @@ export default function ApiKeysPage() {
       </div>
 
       {error && (
-        <p className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
+        <p role="alert" className="mt-4 text-sm" style={{ color: 'var(--color-err)' }}>
           {error}
         </p>
       )}

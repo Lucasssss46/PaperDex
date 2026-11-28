@@ -8,6 +8,7 @@ import SearchForm from '../components/SearchForm'
 import SearchResults from '../components/SearchResults'
 import SourcesPanel from '../components/SourcesPanel'
 import { ALL_SOURCES } from '../constants'
+import FormError from '../components/FormError'
 
 // Una query "usata" da Query salvate arriva qui come stato di navigazione
 // (vedi SavedQueriesPage.jsx): letta negli inizializzatori di useState, così
@@ -296,7 +297,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
             <div className="ribbon-flat">Query salvate</div>
             <div style={{ padding: '10px 12px', maxHeight: 280, overflowY: 'auto' }}>
               {savedQueriesFailed ? (
-                <p className="text-xs" style={{ color: 'var(--color-err)' }}>
+                <p role="alert" className="text-xs" style={{ color: 'var(--color-err)' }}>
                   Query salvate non caricate: il server potrebbe essere in avvio. Ricarica la pagina tra poco.
                 </p>
               ) : savedQueries.length === 0 ? (
@@ -314,11 +315,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-3 border-t pt-6" style={{ borderColor: 'var(--color-border)' }}>
-        {validationError && (
-          <p className="rounded-md px-3 py-2 text-sm" style={{ background: 'color-mix(in srgb, var(--color-err-base) 10%, transparent)', color: 'var(--color-err)' }}>
-            {validationError}
-          </p>
-        )}
+        <FormError message={validationError} className="rounded-md px-3 py-2 text-sm" style={{ background: 'color-mix(in srgb, var(--color-err-base) 10%, transparent)', color: 'var(--color-err)' }} />
         <button
           type="submit"
           form="search-form"
@@ -329,15 +326,18 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
         </button>
       </div>
 
-      {warnings.length > 0 && (
-        <div className="mt-6 space-y-2">
-          {warnings.map((w) => (
-            <p key={w.source} className="rounded-lg px-4 py-2.5 text-sm" style={{ background: 'color-mix(in srgb, var(--color-warn-base) 10%, transparent)', color: 'var(--color-warn)' }}>
-              <strong>{w.source}:</strong> {w.message}
-            </p>
-          ))}
-        </div>
-      )}
+      {/* Regione sempre presente: gli avvisi delle sorgenti si annunciano quando arrivano, senza interrompere. */}
+      <div role="status">
+        {warnings.length > 0 && (
+          <div className="mt-6 space-y-2">
+            {warnings.map((w) => (
+              <p key={w.source} className="rounded-lg px-4 py-2.5 text-sm" style={{ background: 'color-mix(in srgb, var(--color-warn-base) 10%, transparent)', color: 'var(--color-warn)' }}>
+                <strong>{w.source}:</strong> {w.message}
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="mt-8">
         <SearchResults
@@ -378,7 +378,7 @@ export default function SearchArticlesPage({ research, sessionArticles = [], onS
                 {sessionArticles.length === 1 ? 'o' : 'i'} in questa sessione.
               </div>
             )}
-            {continueError && <div style={{ color: 'var(--color-err)' }}>{continueError}</div>}
+            {continueError && <div role="alert" style={{ color: 'var(--color-err)' }}>{continueError}</div>}
           </div>
           <button type="button" className="pill-btn" disabled={continuing} onClick={handleContinue}>
             {continuing
