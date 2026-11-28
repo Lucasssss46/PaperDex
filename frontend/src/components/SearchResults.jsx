@@ -274,7 +274,7 @@ export default function SearchResults({ results, count, loading, error, searched
               </div>
               {item.members.length > 1 && (
                 <span className="src-pill" style={{ background: 'color-mix(in srgb, var(--color-blue) 15%, transparent)', color: 'var(--color-ink-3)' }}>
-                  ×{item.members.length} fonti
+                  ×{item.members.length} sorgenti
                 </span>
               )}
               <span className="src-pill" style={{ background: colors?.bg, color: colors?.color }}>
