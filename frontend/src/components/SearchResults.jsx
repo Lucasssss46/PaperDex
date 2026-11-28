@@ -2,6 +2,7 @@ import { useEffect, useImperativeHandle, useState } from 'react'
 import { addArticleGroupToRicerca, addArticleToRicerca } from '../api/ricerche'
 import { SOURCE_COLORS } from '../constants'
 import ArticleDial from './ArticleDial'
+import DialogLoader from './DialogLoader'
 import AuthorsYear from './AuthorsYear'
 import ExpandedArticleCard from './ExpandedArticleCard'
 import { useArticleMorph } from './useArticleMorph'
@@ -150,9 +151,9 @@ export default function SearchResults({ results, count, loading, error, searched
     // Stessa ruota e stesse righe dei risultati veri, con barre al posto del testo.
     return (
       <div aria-busy="true" aria-label="Ricerca in corso">
-        <p className="mb-4 text-sm" style={{ color: 'var(--color-ink-4)' }}>
-          Ricerca in corso… con profondità alta può richiedere fino a un minuto.
-        </p>
+        <div className="mb-4">
+          <DialogLoader kind={research ? 'search' : 'search-quick'} label="Ricerca in corso…" />
+        </div>
         <ArticleDial
           items={SKELETON_ITEMS}
           dotLabel=""
