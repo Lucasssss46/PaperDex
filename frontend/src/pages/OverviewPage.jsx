@@ -14,6 +14,7 @@ import {
   removeRicercaArticle,
 } from '../api/ricerche'
 import ArticleDial from '../components/ArticleDial'
+import DialogLoader from '../components/DialogLoader'
 import AuthorsYear from '../components/AuthorsYear'
 import ExpandedArticleCard from '../components/ExpandedArticleCard'
 import { useArticleMorph } from '../components/useArticleMorph'
@@ -169,7 +170,7 @@ export default function OverviewPage() {
 
   async function handleEnrichSelected() {
     if (!selectedArticle) return
-    setActionBusy(true)
+    setActionBusy('enrich')
     setActionMsg('')
     try {
       const { article: updated, filled_fields } = await enrichArticle(researchId, selectedArticle.id)
@@ -186,7 +187,7 @@ export default function OverviewPage() {
 
   async function handleCheckVersionSelected() {
     if (!selectedArticle) return
-    setActionBusy(true)
+    setActionBusy('update')
     setActionMsg('')
     try {
       const result = await checkArticleVersion(researchId, selectedArticle.id)
@@ -388,7 +389,15 @@ export default function OverviewPage() {
           <Logo size={54} className="card-seal" />
         </div>
 
-        {toast && (
+        {/* Mentre Zotero lavora, nello stesso punto in cui poi compare il riepilogo. */}
+        {enrichingAll || updatingAll ? (
+          <div style={{ margin: '12px 22px 14px' }}>
+            <DialogLoader
+              kind={updatingAll ? 'update' : 'enrich'}
+              label={updatingAll ? 'Controllo delle nuove versioni in corso…' : 'Arricchimento in corso…'}
+            />
+          </div>
+        ) : toast && (
           <div className="toast-bar" style={{ marginTop: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               {toast.parts.map((p, i) => (
@@ -478,7 +487,7 @@ export default function OverviewPage() {
                       Arricchisci
                     </button>
                     <button type="button" className="action-link" disabled={actionBusy} onClick={handleCheckVersionSelected}>
-                      {actionBusy ? 'Verifica…' : 'Controlla versione'}
+                      {actionBusy === 'update' ? 'Verifica…' : 'Controlla versione'}
                     </button>
                     {isOwner && (
                       <button type="button" className="action-link danger" onClick={handleRemoveSelected}>
@@ -486,7 +495,16 @@ export default function OverviewPage() {
                       </button>
                     )}
                   </div>
-                  {actionMsg && <div className="detail-msg" style={{ color: actionColor, textAlign: 'right' }}>{actionMsg}</div>}
+                  {actionBusy ? (
+                    <div style={{ width: '100%' }}>
+                      <DialogLoader
+                        kind={actionBusy}
+                        label={actionBusy === 'update' ? 'Controllo della versione in corso…' : 'Arricchimento in corso…'}
+                      />
+                    </div>
+                  ) : (
+                    actionMsg && <div className="detail-msg" style={{ color: actionColor, textAlign: 'right' }}>{actionMsg}</div>
+                  )}
                 </div>
               </ExpandedArticleCard>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { enrichArticle } from '../api/ricerche'
+import DialogLoader from '../components/DialogLoader'
 import SourceIcon from '../components/SourceIcon'
 
 const FIELD_LABELS = {
@@ -91,6 +92,9 @@ export default function SessionEnrichPage() {
               </span>
             </div>
           </div>
+
+          {/* Gli esiti arrivano riga per riga qui sotto; intanto il box di dialogo. */}
+          {running && <DialogLoader kind="enrich" label="Arricchimento in corso…" />}
 
           <ul>
             {sessionArticles.map((article) => {

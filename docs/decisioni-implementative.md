@@ -2088,3 +2088,20 @@ Senza `API_KEYS_ENCRYPTION_KEY` le chiavi salvate non si possono più leggere: v
 **Verifica.** Screenshot prima/dopo, a 1280 e 390 px, di 12 pagine (Home, accesso, Ricerche, Overview con la scheda aperta, Cerca con risultati e avvisi, Duplicati della sessione, Arricchimento, Deduplicazione, Team, Profilo, Chiavi API, Invito), confrontati pixel per pixel con API simulata; due giri "prima" identici tra loro, quindi nessun rumore. Risultato: 16 immagini identiche; le altre differiscono solo per le due unificazioni volute (spunte dello stepper, scarto massimo 17 su 255; bordo del pallino pieno, scarto massimo 3) e per la sfumatura della filigrana in Home (scarto massimo 1, arrotondamento). eslint e build puliti.
 
 **Stato.** Implementato.
+
+## 136. Box di dialogo "alla Pokémon" mentre Zotero lavora (2026-11-28)
+
+**Contesto.** Arricchimento e controllo delle versioni passano da Zotero e dalle sorgenti, e possono durare decine di secondi (fino a un minuto se il translation-server gratuito si sta svegliando). Durante l'attesa c'era solo il testo del pulsante ("Arricchimento…", "Verifica…"), lontano dal punto in cui poi compare l'esito. Luca ha chiesto un feedback di caricamento ispirato al multi-step loader di Aceternity, ma senza l'elenco dei passi e a tema Pokémon.
+
+**Decisione.** Nuovo `components/DialogLoader.jsx`, senza dipendenze, con lo stile `.dialog-loader` in `brand.css` (token della palette, voce 135): un box di dialogo con bordo spesso arrotondato e filo interno blu, una frase alla volta scritta lettera per lettera (35 ms per carattere), un ▼ lime che lampeggia a frase completa e la frase successiva dopo 2,2 s, in ordine casuale senza ripetizioni consecutive. Due serie di frasi scherzose scritte per PapérDex (arricchimento; versioni e preprint), nessuna citazione dei giochi. Dopo 20 s compare una volta la frase onesta "Il server di Zotero si sta svegliando: può servire fino a un minuto…", coerente con `LoadingNote` (voce 131). La frase intera, invisibile, riserva lo spazio: il box non cresce mentre si scrive.
+
+Compare nello stesso punto dell'esito, e sparisce appena arriva l'esito o un errore:
+- Overview, "Arricchisci selezionati" e "Aggiorna selezionati": al posto della barra del riepilogo;
+- scheda espansa, "Arricchisci" e "Controlla versione": al posto del messaggio d'esito;
+- Arricchimento della sessione: sopra l'elenco, mentre gli esiti arrivano riga per riga.
+
+**Accessibilità.** Il lettore di schermo sente solo un testo fisso ("Arricchimento in corso…", "Controllo della versione in corso…") in un `role="status"` con `aria-live="polite"`; le frasi animate sono `aria-hidden`. Con `prefers-reduced-motion` le frasi compaiono intere e il ▼ non lampeggia.
+
+**Verifica.** Playwright con API simulata e risposte ritardate di 25 s (8 s a 390 px e con riduzione del movimento), nei tre punti: loader al posto giusto, testo per il lettore di schermo, frase sull'attesa dopo 20 s, passaggio all'esito; sequenze di fotogrammi fuori dal repository. eslint e build puliti.
+
+**Stato.** Implementato.

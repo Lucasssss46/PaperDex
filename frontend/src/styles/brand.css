@@ -441,6 +441,53 @@
   margin-top: -2px;
 }
 
+/* box di dialogo "alla Pokémon" mentre Zotero lavora (components/DialogLoader.jsx):
+   bordo spesso arrotondato con un filo interno, testo scritto lettera per
+   lettera e un triangolino che lampeggia a frase completa. */
+.dialog-loader {
+  position: relative;
+  background: var(--color-field);
+  border: 3px solid var(--color-ink-2);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 3px var(--color-field), inset 0 0 0 5px var(--color-blue);
+  padding: 14px 40px 14px 18px;
+  text-align: left;
+}
+.dialog-loader-text {
+  display: grid;
+  min-height: 2.9em; /* due righe: le frasi lunghe vanno a capo senza far saltare la pagina */
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--color-ink-1);
+}
+.dialog-loader-text > span {
+  grid-area: 1 / 1;
+}
+.dialog-loader-caret {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  font-size: 11px;
+  color: var(--color-lime);
+  animation: dialog-caret 0.9s steps(2, jump-none) infinite;
+}
+@keyframes dialog-caret {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog-loader-caret {
+    animation: none;
+  }
+}
+
 /* --- "Manutenzione": menu chiuso di default + toast d'esito. Le azioni
    bulk (lente, non necessarie ad ogni visita) stanno dietro un tasto
    apposta per non sommergere l'utente appena entra in Overview. --- */
