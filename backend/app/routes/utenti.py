@@ -134,6 +134,9 @@ async def send_email_safely(to: str, subject: str, html: str) -> None:
 
 @router.post("/users")
 async def subscribe(data: UserCreate):
+    # Stessa regola del cambio e della reimpostazione della password (il modulo la controlla già).
+    if len(data.password) < 8:
+        raise HTTPException(status_code=400, detail="La password deve avere almeno 8 caratteri")
     invite = None
     if data.invite_token:
         payload = decode_action_token_payload(data.invite_token, "invite")

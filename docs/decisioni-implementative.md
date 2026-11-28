@@ -2128,4 +2128,6 @@ Compare nello stesso punto dell'esito, e sparisce appena arriva l'esito o un err
 
 **Limite residuo.** L'esito per riga dell'arricchimento della sessione non è annunciato riga per riga (sarebbe troppo rumoroso); il lettore di schermo sente l'inizio con il box di dialogo, e gli esiti restano leggibili nell'elenco.
 
+**Aggiornamento (2026-11-28) — password minima alla registrazione.** Anche la registrazione (pure quella da invito, che usa la stessa rotta) rifiuta password sotto gli 8 caratteri con "La password deve avere almeno 8 caratteri", con lo stesso controllo del cambio e della reimpostazione della password. Prima la regola c'era solo nel modulo (`minLength={8}`), non nel backend. Gli account esistenti non sono toccati: l'accesso non controlla la lunghezza. Nuovo test in `validation_messages_test.py`; suite offline: 113 test passati.
+
 **Stato.** Implementato.

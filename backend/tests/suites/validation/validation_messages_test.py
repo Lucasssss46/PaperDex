@@ -33,3 +33,15 @@ def test_lunghezze_numeri_e_campo_sconosciuto():
 def test_corpo_mancante_e_tipo_non_previsto():
     assert validation_message([{"type": "missing", "loc": ("body",), "msg": "Field required"}]) == "Richiesta non valida."
     assert validation_message([{"type": "strano", "loc": ("body", "email"), "msg": "?"}]) == "Dati non validi nel campo Email."
+
+
+async def test_registrazione_password_corta():
+    import pytest
+    from fastapi import HTTPException
+
+    from backend.app.routes.utenti import subscribe
+
+    with pytest.raises(HTTPException) as exc_info:
+        await subscribe(UserCreate(first_name="Luca", last_name="Rossi", email="a@b.it", password="corta"))
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "La password deve avere almeno 8 caratteri"
